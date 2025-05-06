@@ -1,3 +1,19 @@
 <resources>
-    <string name="app_name">NutriSense</string>
+    <string name="app_name">Tema1-Android</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="do_login">Do Login</string>
+    <string name="go_to_register">Go to Register</string>
+    <string name="register_step_1">Register Step 1</string>
+    <string name="next">Next</string>
+    <string name="register_step_2">Register Step 2</string>
+    <string name="first_name">First Name</string>
+    <string name="second_name">Second Name</string>
+    <string name="last_name">Last Name\n</string>
+    <string name="age">Age</string>
+    <string name="do_register">Do Register</string>
+    <string name="my_profile">My Profile</string>
+    <string name="this_is_my_email">This is my Email:</string>
+    <string name="logout">Logout</string>
 </resources>
