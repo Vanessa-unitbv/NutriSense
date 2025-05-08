@@ -59,12 +59,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/logout"
-        android:backgroundTint="#EC407A"
+        android:background="@drawable/pink_button"
+        app:backgroundTint="@null"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LinearLayoutProfile">
+        app:layout_constraintTop_toBottomOf="@+id/LinearLayoutProfile"
+        style="@null">
     </Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

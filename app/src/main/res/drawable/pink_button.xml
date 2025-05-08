@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Umbră -->
+    <item android:left="2dp" android:top="6dp" android:right="2dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#60000000" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+    <!-- Buton cu gradient -->
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="6dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#F06292"
+                android:centerColor="#EC407A"
+                android:endColor="#C2185B"
+                android:angle="135" />
+            <corners android:radius="24dp" />
+            <padding
+                android:left="24dp"
+                android:top="12dp"
+                android:right="24dp"
+                android:bottom="12dp" />
+        </shape>
+    </item>
+</layer-list>

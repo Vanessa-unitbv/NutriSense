@@ -72,15 +72,17 @@
             android:layout_height="wrap_content"
             android:text="@string/do_login"
             android:id="@+id/btn_do_login"
-            android:backgroundTint="#EC407A"
-            android:textColor="#FFFFFF">
-        </Button>
+            android:background="@drawable/pink_button"
+            app:backgroundTint="@null"
+            android:textColor="#FFFFFF"
+            style="@null" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_go_to_register"
             android:text="@string/go_to_register"
-            android:backgroundTint="#EC407A"
+            android:background="@drawable/pink_button"
+            app:backgroundTint="@null"
             android:textColor="#FFFFFF"/>
     </LinearLayout>
 
