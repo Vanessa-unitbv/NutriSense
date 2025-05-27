@@ -5,7 +5,6 @@
     android:id="@+id/navigation_auth"
     app:startDestination="@id/loginFragment">
 
-
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.nutrisense.LoginFragment"
@@ -13,7 +12,16 @@
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_register1Fragment"
-            app:destination="@id/register1Fragment" />
+            app:destination="@id/register1Fragment">
+            <argument
+                android:name="email"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="password"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
         <action
             android:id="@+id/action_loginFragment_to_navigation_profile"
             app:destination="@id/navigation_profile">
@@ -21,62 +29,59 @@
                 android:name="email"
                 app:argType="string" />
         </action>
-        <action
-            android:id="@+id/action_loginFragment_to_register1Fragment2"
-            app:destination="@id/register1Fragment" />
     </fragment>
+
     <fragment
         android:id="@+id/register1Fragment"
         android:name="com.example.nutrisense.Register1Fragment"
         android:label="Register1Fragment"
         tools:layout="@layout/fragment_register_step_1">
-        <action
-            android:id="@+id/action_register1Fragment_to_register2Fragment"
-            app:destination="@id/register2Fragment" />
         <argument
             android:name="email"
             app:argType="string"
-            app:nullable="true"
-            />
+            app:nullable="true" />
         <argument
             android:name="password"
             app:argType="string"
-            app:nullable="true"
-            />
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_register1Fragment_to_register2Fragment"
+            app:destination="@id/register2Fragment">
+            <argument
+                android:name="email"
+                app:argType="string" />
+            <argument
+                android:name="password"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_register1Fragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-        <action
-            android:id="@+id/action_register1Fragment_to_register2Fragment2"
-            app:destination="@id/register2Fragment" />
-        <action
-            android:id="@+id/action_register1Fragment_to_loginFragment2"
-            app:destination="@id/loginFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/register2Fragment"
         android:name="com.example.nutrisense.Register2Fragment"
         android:label="Register2Fragment"
         tools:layout="@layout/fragment_register_step_2">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="password"
+            app:argType="string" />
         <action
             android:id="@+id/action_register2Fragment_to_navigation_profile"
             app:destination="@id/navigation_profile">
             <argument
                 android:name="email"
-                app:argType="string"
-                app:nullable="true" />
+                app:argType="string" />
         </action>
-        <argument
-            android:name="email"
-            app:argType="string" />
         <action
             android:id="@+id/action_register2Fragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-        <action
-            android:id="@+id/action_register2Fragment_to_loginFragment2"
-            app:destination="@id/loginFragment" />
     </fragment>
-    <include app:graph="@navigation/navigation_profile" />
 
+    <include app:graph="@navigation/navigation_profile" />
 
 </navigation>

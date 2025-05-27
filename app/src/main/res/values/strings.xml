@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tema1-Android</string>
+    <string name="app_name">NutriSense</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
