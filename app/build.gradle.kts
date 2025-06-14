@@ -55,6 +55,7 @@ dependencies {
     // Room Database - NOI
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.filament.android)
     kapt(libs.androidx.room.compiler)
 
     // ViewModel și LiveData - NOI

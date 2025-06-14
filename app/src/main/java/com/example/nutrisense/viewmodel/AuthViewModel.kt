@@ -6,15 +6,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.nutrisense.data.database.AppDatabase
 import com.example.nutrisense.data.entity.User
 import com.example.nutrisense.data.repository.UserRepository
+import com.example.nutrisense.data.preferences.SharedPreferencesManager
 import kotlinx.coroutines.launch
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: UserRepository
+    private val preferencesManager: SharedPreferencesManager
 
     init {
         val userDao = AppDatabase.getDatabase(application).userDao()
         repository = UserRepository(userDao)
+        preferencesManager = SharedPreferencesManager.getInstance(application)
     }
 
     fun loginUser(
@@ -32,6 +35,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val user = repository.loginUser(email, password)
                 if (user != null) {
+                    preferencesManager.setUserLoggedIn(user.email, user.firstName)
+
+                    if (preferencesManager.isFirstTimeUser()) {
+                        setDefaultNutritionGoals()
+                        preferencesManager.setFirstTimeUser(false)
+                    }
+
                     onSuccess(user)
                 } else {
                     onError("Invalid email or password")
@@ -73,6 +83,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                 val userId = repository.registerUser(user)
                 val newUser = user.copy(id = userId)
+
+                preferencesManager.setUserLoggedIn(newUser.email, newUser.firstName)
+
+                setDefaultNutritionGoals()
+                preferencesManager.setFirstTimeUser(false)
+
                 onSuccess(newUser)
             } catch (e: Exception) {
                 onError("Registration error: ${e.message}")
@@ -103,10 +119,32 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.updateUser(user)
+                preferencesManager.setUserLoggedIn(user.email, user.firstName)
                 onSuccess()
             } catch (e: Exception) {
                 onError("Error updating user: ${e.message}")
             }
         }
+    }
+
+    fun logoutUser() {
+        preferencesManager.setUserLoggedOut()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return preferencesManager.isUserLoggedIn()
+    }
+
+    fun getCurrentUserEmail(): String? {
+        return preferencesManager.getUserEmail()
+    }
+
+    private fun setDefaultNutritionGoals() {
+        preferencesManager.setDailyCalorieGoal(2000)
+        preferencesManager.setDailyWaterGoal(2000)
+        preferencesManager.setNotificationEnabled(true)
+        preferencesManager.setWaterReminderInterval(60)
+        preferencesManager.setMealReminderEnabled(true)
+        preferencesManager.setPreferredUnits("metric")
     }
 }

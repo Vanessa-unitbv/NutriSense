@@ -10,10 +10,62 @@
     <string name="register_step_2">Register Step 2</string>
     <string name="first_name">First Name</string>
     <string name="second_name">Second Name</string>
-    <string name="last_name">Last Name\n</string>
+    <string name="last_name">Last Name</string>
     <string name="age">Age</string>
     <string name="do_register">Do Register</string>
     <string name="my_profile">My Profile</string>
-    <string name="this_is_my_email">This is my Email:</string>
+    <string name="my_email">Your Email:</string>
     <string name="logout">Logout</string>
+
+    <!-- Settings strings -->
+    <string name="settings_title">Settings &amp; Goals</string>
+    <string name="nutrition_goals">Nutrition Goals</string>
+    <string name="daily_calorie_goal">Daily Calorie Goal (kcal)</string>
+    <string name="daily_water_goal">Daily Water Goal (ml)</string>
+    <string name="physical_data">Physical Data</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="gender">Gender</string>
+    <string name="activity_level">Activity Level</string>
+    <string name="units">Units</string>
+    <string name="bmi_display">BMI: Enter weight and height</string>
+    <string name="calculate_bmi">Calculate BMI</string>
+    <string name="recommendations">Recommendations</string>
+    <string name="calculate_goals">Calculate Recommended Goals</string>
+    <string name="notifications">Notifications</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="water_reminders">Water Reminders</string>
+    <string name="water_interval">Water Reminder Interval (minutes)</string>
+    <string name="meal_reminders">Meal Reminders</string>
+    <string name="save_settings">Save Settings</string>
+    <string name="update_settings">Update Settings &amp; Goals</string>
+    <string name="complete_profile">Complete Your Profile</string>
+
+    <!-- Units -->
+    <string name="metric_units">Metric (kg, cm)</string>
+    <string name="imperial_units">Imperial (lbs, in)</string>
+
+    <!-- Gender options -->
+    <string name="female">Female</string>
+    <string name="male">Male</string>
+
+    <!-- Activity levels -->
+    <string name="sedentary">Sedentary</string>
+    <string name="light_activity">Light Activity</string>
+    <string name="moderate_activity">Moderate Activity</string>
+    <string name="active">Active</string>
+    <string name="very_active">Very Active</string>
+
+    <!-- BMI categories -->
+    <string name="underweight">Underweight</string>
+    <string name="normal_weight">Normal</string>
+    <string name="overweight">Overweight</string>
+    <string name="obese">Obese</string>
+
+    <!-- Messages -->
+    <string name="settings_saved">Settings saved successfully!</string>
+    <string name="goals_calculated">Goals calculated successfully!</string>
+    <string name="enter_valid_data">Please enter valid weight, height, and age</string>
+    <string name="profile_updated">Profile updated! Your BMI is now displayed above.</string>
+    <string name="add_weight_height">Add your weight &amp; height for BMI calculation.</string>
 </resources>

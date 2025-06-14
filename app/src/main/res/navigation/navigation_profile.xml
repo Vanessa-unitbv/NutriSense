@@ -13,8 +13,15 @@
         <argument
             android:name="email"
             app:argType="string" />
+        <action
+            android:id="@+id/action_profileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
 
-
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.nutrisense.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
 
 </navigation>
