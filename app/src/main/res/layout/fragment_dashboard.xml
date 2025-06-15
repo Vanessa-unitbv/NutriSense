@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/fundalflori2">
+
+    <TextView
+            android:id="@+id/tv_title_dashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NutriSense Dashboard"
+            android:textSize="26sp"
+            android:textColor="#D81B60"
+            android:textStyle="bold"
+            app:layout_constraintVertical_bias="0.05"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/default_space"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title_dashboard">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="40dp">
+
+            <Button
+                    android:id="@+id/btn_calculate_nutrition"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="Calculate Food Nutrition"
+                    android:background="@drawable/pink_button"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="12dp"
+                    style="@null" />
+
+            <Button
+                    android:id="@+id/btn_view_history"
+                    android:layout_width="280dp"
+                    android:layout_height="50dp"
+                    android:text="View Food History"
+                    android:background="@drawable/pink_button"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="12dp"
+                    style="@null" />
+
+            <Button
+                    android:id="@+id/btn_settings"
+                    android:layout_width="280dp"
+                    android:layout_height="50dp"
+                    android:text="Settings &amp; Goals"
+                    android:background="@drawable/pink_button"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="12dp"
+                    style="@null" />
+
+            <Button
+                    android:id="@+id/btn_profile"
+                    android:layout_width="280dp"
+                    android:layout_height="50dp"
+                    android:text="My Profile"
+                    android:background="@drawable/pink_button"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="12dp"
+                    style="@null" />
+
+            <Button
+                    android:id="@+id/btn_logout"
+                    android:layout_width="280dp"
+                    android:layout_height="45dp"
+                    android:text="Logout"
+                    android:background="@drawable/pink_button"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_marginTop="8dp"
+                    style="@null" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

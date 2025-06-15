@@ -7,12 +7,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
-    private lateinit var preferencesManager: SharedPreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,23 +23,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        preferencesManager = SharedPreferencesManager.getInstance(this)
-
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        checkUserLoginStatus()
-    }
-
-    private fun checkUserLoginStatus() {
-        if (preferencesManager.isUserLoggedIn()) {
-            val userEmail = preferencesManager.getUserEmail()
-            if (!userEmail.isNullOrEmpty()) {
-                val action = LoginFragmentDirections.actionLoginFragmentToNavigationProfile(userEmail)
-                navController.navigate(action)
-            }
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

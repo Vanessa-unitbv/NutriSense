@@ -147,21 +147,10 @@
                     android:gravity="center">
 
                 <Button
-                        android:id="@+id/btn_nutrition"
+                        android:id="@+id/btn_dashboard"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🧮 Calculate Nutrition"
-                        android:background="@drawable/pink_button"
-                        app:backgroundTint="@null"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginBottom="16dp"
-                        style="@null" />
-
-                <Button
-                        android:id="@+id/btn_settings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Settings &amp; Goals"
+                        android:text="Back to Dashboard"
                         android:background="@drawable/pink_button"
                         app:backgroundTint="@null"
                         android:textColor="#FFFFFF"

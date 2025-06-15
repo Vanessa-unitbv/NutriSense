@@ -3,7 +3,29 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/navigation_profile"
-        app:startDestination="@id/profileFragment">
+        app:startDestination="@id/dashboardFragment">
+
+    <fragment
+            android:id="@+id/dashboardFragment"
+            android:name="com.example.nutrisense.DashboardFragment"
+            android:label="DashboardFragment"
+            tools:layout="@layout/fragment_dashboard">
+        <argument
+                android:name="email"
+                app:argType="string" />
+        <action
+                android:id="@+id/action_dashboardFragment_to_searchHistoryFragment"
+                app:destination="@id/searchHistoryFragment" />
+        <action
+                android:id="@+id/action_dashboardFragment_to_calculateNutritionFragment"
+                app:destination="@id/calculateNutritionFragment" />
+        <action
+                android:id="@+id/action_dashboardFragment_to_settingsFragment"
+                app:destination="@id/settingsFragment" />
+        <action
+                android:id="@+id/action_dashboardFragment_to_profileFragment"
+                app:destination="@id/profileFragment" />
+    </fragment>
 
     <fragment
             android:id="@+id/profileFragment"
@@ -19,18 +41,39 @@
         <action
                 android:id="@+id/action_profileFragment_to_calculateNutritionFragment"
                 app:destination="@id/calculateNutritionFragment" />
+        <action
+                android:id="@+id/action_profileFragment_to_dashboardFragment"
+                app:destination="@id/dashboardFragment" />
     </fragment>
 
     <fragment
             android:id="@+id/settingsFragment"
             android:name="com.example.nutrisense.SettingsFragment"
             android:label="SettingsFragment"
-            tools:layout="@layout/fragment_settings" />
+            tools:layout="@layout/fragment_settings">
+        <action
+                android:id="@+id/action_settingsFragment_to_dashboardFragment"
+                app:destination="@id/dashboardFragment" />
+    </fragment>
 
     <fragment
             android:id="@+id/calculateNutritionFragment"
             android:name="com.example.nutrisense.CalculateNutritionFragment"
             android:label="CalculateNutritionFragment"
-            tools:layout="@layout/fragment_calculate_nutrition" />
+            tools:layout="@layout/fragment_calculate_nutrition">
+        <action
+                android:id="@+id/action_calculateNutritionFragment_to_dashboardFragment"
+                app:destination="@id/dashboardFragment" />
+    </fragment>
+
+    <fragment
+            android:id="@+id/searchHistoryFragment"
+            android:name="com.example.nutrisense.SearchHistoryFragment"
+            android:label="SearchHistoryFragment"
+            tools:layout="@layout/fragment_search_history">
+        <action
+                android:id="@+id/action_searchHistoryFragment_to_dashboardFragment"
+                app:destination="@id/dashboardFragment" />
+    </fragment>
 
 </navigation>

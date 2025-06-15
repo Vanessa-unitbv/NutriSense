@@ -26,8 +26,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var emailEditText: EditText
     private lateinit var logoutButton: Button
-    private lateinit var settingsButton: Button
-    private lateinit var nutritionButton: Button
+    private lateinit var dashboardButton: Button
     private lateinit var tvCalorieGoal: TextView
     private lateinit var tvWaterGoal: TextView
     private lateinit var tvWeight: TextView
@@ -68,8 +67,7 @@ class ProfileFragment : Fragment() {
     private fun initializeViews(view: View) {
         emailEditText = view.findViewById(R.id.et_email)
         logoutButton = view.findViewById(R.id.btn_logout)
-        settingsButton = view.findViewById(R.id.btn_settings)
-        nutritionButton = view.findViewById(R.id.btn_nutrition) // Butonul nou
+        dashboardButton = view.findViewById(R.id.btn_dashboard)
         tvCalorieGoal = view.findViewById(R.id.tv_calorie_goal)
         tvWaterGoal = view.findViewById(R.id.tv_water_goal)
         tvWeight = view.findViewById(R.id.tv_weight)
@@ -128,41 +126,29 @@ class ProfileFragment : Fragment() {
         } else {
             "Last weight update: Never"
         }
-
-        settingsButton.text = ProfileUtils.getSettingsButtonText(preferencesManager)
     }
 
     private fun setupClickListeners() {
         logoutButton.setOnClickListener { performLogout() }
-        settingsButton.setOnClickListener { navigateToSettings() }
-        nutritionButton.setOnClickListener { navigateToNutrition() } // Click listener nou
+        dashboardButton.setOnClickListener { navigateToDashboard() }
 
         emailEditText.setOnClickListener {
             val weight = preferencesManager.getUserWeight()
             val message = if (weight > 0) {
-                "👋 Profile looks good! Tap 'Settings & Goals' to make changes."
+                "👋 Profile looks good! Use Dashboard to access all features."
             } else {
-                "🎯 Complete your profile in Settings to get personalized recommendations!"
+                "🎯 Visit Dashboard and go to Settings to complete your profile!"
             }
             showToast(message, false)
         }
     }
 
-    private fun navigateToSettings() {
+    private fun navigateToDashboard() {
         try {
-            val action = ProfileFragmentDirections.actionProfileFragmentToSettingsFragment()
+            val action = ProfileFragmentDirections.actionProfileFragmentToDashboardFragment(args.email)
             findNavController().navigate(action)
         } catch (e: Exception) {
-            showToast("Error opening Settings: ${e.message}", true)
-        }
-    }
-
-    private fun navigateToNutrition() {
-        try {
-            val action = ProfileFragmentDirections.actionProfileFragmentToCalculateNutritionFragment()
-            findNavController().navigate(action)
-        } catch (e: Exception) {
-            showToast("Error opening Nutrition Calculator: ${e.message}", true)
+            showToast("Error opening Dashboard: ${e.message}", true)
         }
     }
 
@@ -174,7 +160,11 @@ class ProfileFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            requireActivity().finish()
+            try {
+                navigateToDashboard()
+            } catch (e: Exception) {
+                requireActivity().finish()
+            }
         }
     }
 

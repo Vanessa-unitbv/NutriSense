@@ -28,7 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "nutrisense_database_v2"
+                    "nutrisense_database"
                 )
                     .fallbackToDestructiveMigration()
                     .build()

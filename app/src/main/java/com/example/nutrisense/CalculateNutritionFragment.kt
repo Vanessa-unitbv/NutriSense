@@ -9,16 +9,12 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.data.entity.Food
-import com.example.nutrisense.ui.adapter.FoodAdapter
 import com.example.nutrisense.viewmodel.NutritionViewModel
 
 class CalculateNutritionFragment : Fragment() {
 
     private lateinit var nutritionViewModel: NutritionViewModel
-    private lateinit var foodAdapter: FoodAdapter
 
     private lateinit var etFoodName: EditText
     private lateinit var etQuantity: EditText
@@ -41,10 +37,6 @@ class CalculateNutritionFragment : Fragment() {
 
     private lateinit var btnMarkConsumed: Button
 
-    private lateinit var rvSavedFoods: RecyclerView
-    private lateinit var tvNoSavedFoods: TextView
-    private lateinit var tvNutritionSummary: TextView
-
     private var currentFoodResult: Food? = null
 
     override fun onCreateView(
@@ -60,7 +52,6 @@ class CalculateNutritionFragment : Fragment() {
 
         initializeViews(view)
         setupViewModel()
-        setupRecyclerView()
         setupClickListeners()
         observeViewModel()
         setupBackPressHandler()
@@ -87,28 +78,10 @@ class CalculateNutritionFragment : Fragment() {
         tvSugar = view.findViewById(R.id.tv_sugar)
 
         btnMarkConsumed = view.findViewById(R.id.btn_mark_consumed)
-
-        rvSavedFoods = view.findViewById(R.id.rv_saved_foods)
-        tvNoSavedFoods = view.findViewById(R.id.tv_no_saved_foods)
-        tvNutritionSummary = view.findViewById(R.id.tv_nutrition_summary)
     }
 
     private fun setupViewModel() {
         nutritionViewModel = ViewModelProvider(this)[NutritionViewModel::class.java]
-    }
-
-    private fun setupRecyclerView() {
-        foodAdapter = FoodAdapter(
-            onItemClick = { food -> showFoodDetails(food) },
-            onFavoriteClick = { food -> nutritionViewModel.updateFavoriteStatus(food) },
-            onDeleteClick = { food -> showDeleteConfirmation(food) },
-            onConsumeClick = { food -> nutritionViewModel.markFoodAsConsumed(food) }
-        )
-
-        rvSavedFoods.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = foodAdapter
-        }
     }
 
     private fun setupClickListeners() {
@@ -123,7 +96,11 @@ class CalculateNutritionFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            findNavController().popBackStack()
+            try {
+                findNavController().popBackStack()
+            } catch (e: Exception) {
+                requireActivity().finish()
+            }
         }
     }
 
@@ -151,32 +128,7 @@ class CalculateNutritionFragment : Fragment() {
                 llNutritionResults.visibility = View.VISIBLE
                 btnMarkConsumed.visibility = View.VISIBLE
 
-                showToast("Food automatically saved to your database!")
-            }
-        }
-
-        nutritionViewModel.userFoods.observe(viewLifecycleOwner) { liveDataFoods ->
-            liveDataFoods?.observe(viewLifecycleOwner) { foods ->
-                foodAdapter.submitList(foods)
-                tvNoSavedFoods.visibility = if (foods.isEmpty()) View.VISIBLE else View.GONE
-                rvSavedFoods.visibility = if (foods.isEmpty()) View.GONE else View.VISIBLE
-            }
-        }
-
-        nutritionViewModel.nutritionSummary.observe(viewLifecycleOwner) { summary ->
-            val summaryText = buildString {
-                appendLine("📊 Today's Nutrition Summary:")
-                appendLine("🔥 Calories: ${summary.totalCalories.toInt()} kcal")
-                appendLine("🥩 Protein: ${String.format("%.1f", summary.totalProtein)}g")
-                appendLine("🍞 Carbs: ${String.format("%.1f", summary.totalCarbs)}g")
-                appendLine("🥑 Fat: ${String.format("%.1f", summary.totalFat)}g")
-            }
-            tvNutritionSummary.text = summaryText
-        }
-
-        nutritionViewModel.recentSearches.observe(viewLifecycleOwner) { searches ->
-            if (searches.isNotEmpty() && etFoodName.text.isEmpty()) {
-                etFoodName.hint = "e.g., ${searches.first()}"
+                showToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
             }
         }
     }
@@ -235,52 +187,6 @@ class CalculateNutritionFragment : Fragment() {
         llNutritionResults.visibility = View.GONE
         btnMarkConsumed.visibility = View.GONE
         currentFoodResult = null
-    }
-
-    private fun showFoodDetails(food: Food) {
-        val details = buildString {
-            appendLine("📊 ${food.name.uppercase()}")
-            appendLine("🔍 Original search: ${food.originalQuery}")
-            appendLine("⚖️ Requested quantity: ${food.requestedQuantityG.toInt()}g")
-            appendLine("🔥 Calories: ${String.format("%.1f", food.calories)} kcal")
-            appendLine()
-            appendLine("MACRONUTRIENTS:")
-            appendLine("🥩 Protein: ${String.format("%.1f", food.proteinG)}g")
-            appendLine("🍞 Carbs: ${String.format("%.1f", food.carbohydratesTotalG)}g")
-            appendLine("🥑 Fat: ${String.format("%.1f", food.fatTotalG)}g")
-            appendLine("   - Saturated: ${String.format("%.1f", food.fatSaturatedG)}g")
-            appendLine()
-            appendLine("OTHER NUTRIENTS:")
-            appendLine("🧂 Sodium: ${String.format("%.1f", food.sodiumMg)}mg")
-            appendLine("🍌 Potassium: ${String.format("%.1f", food.potassiumMg)}mg")
-            appendLine("🧡 Cholesterol: ${String.format("%.1f", food.cholesterolMg)}mg")
-            appendLine("🌾 Fiber: ${String.format("%.1f", food.fiberG)}g")
-            appendLine("🍯 Sugar: ${String.format("%.1f", food.sugarG)}g")
-            appendLine()
-            if (food.consumedAt != null) {
-                appendLine("✅ Consumed: ${java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(food.consumedAt))}")
-            } else {
-                appendLine("⏳ Not consumed yet")
-            }
-        }
-
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Nutrition Details")
-            .setMessage(details)
-            .setPositiveButton("OK", null)
-            .show()
-    }
-
-    private fun showDeleteConfirmation(food: Food) {
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Delete Food")
-            .setMessage("Are you sure you want to delete ${food.name} from your database?")
-            .setPositiveButton("Delete") { _, _ ->
-                nutritionViewModel.deleteFood(food)
-                showToast("${food.name} deleted from your database")
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     private fun showToast(message: String) {

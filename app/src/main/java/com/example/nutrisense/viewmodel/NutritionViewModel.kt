@@ -56,9 +56,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
     private val _nutritionSummary = MutableLiveData<NutritionSummary>()
     val nutritionSummary: LiveData<NutritionSummary> = _nutritionSummary
 
-    private val _recentSearches = MutableLiveData<List<String>>()
-    val recentSearches: LiveData<List<String>> = _recentSearches
-
     private val _successMessage = MutableLiveData<String?>()
     val successMessage: LiveData<String?> = _successMessage
 
@@ -75,7 +72,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
                         _currentUserId.value = userId
                         setupUserSpecificData(userId)
                         loadNutritionSummary(userId)
-                        loadRecentSearches(userId)
                     } else {
                         _errorMessage.value = "User not found"
                     }
@@ -133,7 +129,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
 
                         currentUserId.value?.let { userId ->
                             loadNutritionSummary(userId)
-                            loadRecentSearches(userId)
                         }
                     }
                 } else {
@@ -145,12 +140,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
             } finally {
                 _isLoading.value = false
             }
-        }
-    }
-
-    fun searchLocalFoodsForUser(query: String): LiveData<List<Food>>? {
-        return currentUserId.value?.let { userId ->
-            repository.searchFoodsForUser(userId, query).asLiveData()
         }
     }
 
@@ -214,7 +203,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
                 currentUserId.value?.let { userId ->
                     repository.deleteAllFoodsForUser(userId)
                     loadNutritionSummary(userId)
-                    loadRecentSearches(userId)
                     _successMessage.value = "All foods cleared successfully!"
                 }
             } catch (e: Exception) {
@@ -234,118 +222,6 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun loadRecentSearches(userId: Long) {
-        viewModelScope.launch {
-            try {
-                val searches = repository.getRecentSearchesForUser(userId)
-                _recentSearches.value = searches
-            } catch (e: Exception) {
-                _errorMessage.value = "Error loading recent searches: ${e.message}"
-            }
-        }
-    }
-
-    fun getMostConsumedFoods(): LiveData<List<Food>> {
-        val result = MutableLiveData<List<Food>>()
-        viewModelScope.launch {
-            try {
-                currentUserId.value?.let { userId ->
-                    val mostConsumed = repository.getMostConsumedFoodsForUser(userId)
-                    result.value = mostConsumed
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Error loading most consumed foods: ${e.message}"
-                result.value = emptyList()
-            }
-        }
-        return result
-    }
-
-    fun getTodayCaloriesProgress(): LiveData<Float> {
-        val result = MutableLiveData<Float>()
-        nutritionSummary.observeForever { summary ->
-            val goal = preferencesManager.getDailyCalorieGoal()
-            val progress = if (goal > 0) (summary.totalCalories / goal).toFloat() else 0f
-            result.value = progress.coerceIn(0f, 1f)
-        }
-        return result
-    }
-
-    fun getProteinPercentage(): LiveData<Float> {
-        val result = MutableLiveData<Float>()
-        nutritionSummary.observeForever { summary ->
-            val proteinCalories = summary.totalProtein * 4 // 1g protein = 4 kcal
-            val percentage = if (summary.totalCalories > 0) {
-                (proteinCalories / summary.totalCalories * 100).toFloat()
-            } else 0f
-            result.value = percentage.coerceIn(0f, 100f)
-        }
-        return result
-    }
-
-    fun getCarbsPercentage(): LiveData<Float> {
-        val result = MutableLiveData<Float>()
-        nutritionSummary.observeForever { summary ->
-            val carbsCalories = summary.totalCarbs * 4 // 1g carbs = 4 kcal
-            val percentage = if (summary.totalCalories > 0) {
-                (carbsCalories / summary.totalCalories * 100).toFloat()
-            } else 0f
-            result.value = percentage.coerceIn(0f, 100f)
-        }
-        return result
-    }
-
-    fun getFatPercentage(): LiveData<Float> {
-        val result = MutableLiveData<Float>()
-        nutritionSummary.observeForever { summary ->
-            val fatCalories = summary.totalFat * 9 // 1g fat = 9 kcal
-            val percentage = if (summary.totalCalories > 0) {
-                (fatCalories / summary.totalCalories * 100).toFloat()
-            } else 0f
-            result.value = percentage.coerceIn(0f, 100f)
-        }
-        return result
-    }
-
-    fun hasReachedCalorieGoal(): LiveData<Boolean> {
-        val result = MutableLiveData<Boolean>()
-        nutritionSummary.observeForever { summary ->
-            val goal = preferencesManager.getDailyCalorieGoal()
-            result.value = summary.totalCalories >= goal
-        }
-        return result
-    }
-
-    fun getNutritionRecommendations(): LiveData<List<String>> {
-        val result = MutableLiveData<List<String>>()
-        nutritionSummary.observeForever { summary ->
-            val recommendations = mutableListOf<String>()
-
-            val calorieGoal = preferencesManager.getDailyCalorieGoal()
-            val proteinGoal = calorieGoal * 0.15 / 4 // 15% din calorii ca proteine
-            val fiberGoal = 25.0 // grame pe zi
-
-            if (summary.totalCalories < calorieGoal * 0.8) {
-                recommendations.add("🍽️ Consider eating more to reach your calorie goal")
-            }
-
-            if (summary.totalProtein < proteinGoal) {
-                recommendations.add("🥩 Add more protein-rich foods (chicken, fish, legumes)")
-            }
-
-            if (summary.totalFat > summary.totalCalories * 0.35 / 9) {
-                recommendations.add("🥑 Consider reducing high-fat foods")
-            }
-
-            if (summary.totalCarbs < calorieGoal * 0.45 / 4) {
-                recommendations.add("🍞 Add healthy carbohydrates (fruits, whole grains)")
-            }
-
-            result.value = recommendations
-        }
-        return result
-    }
-
     fun clearMessages() {
         _errorMessage.value = null
         _successMessage.value = null
@@ -357,30 +233,5 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun refreshUserData() {
         loadCurrentUser()
-    }
-
-    fun getUserStatistics(): LiveData<Map<String, Any>> {
-        val result = MutableLiveData<Map<String, Any>>()
-        viewModelScope.launch {
-            try {
-                currentUserId.value?.let { userId ->
-                    val totalFoods = repository.getFoodCountForUser(userId)
-                    val recentSearches = repository.getRecentSearchesForUser(userId)
-                    val mostConsumed = repository.getMostConsumedFoodsForUser(userId)
-
-                    val stats = mapOf(
-                        "totalFoods" to totalFoods,
-                        "recentSearchesCount" to recentSearches.size,
-                        "mostConsumedCount" to mostConsumed.size,
-                        "todayCalories" to (_nutritionSummary.value?.totalCalories ?: 0.0),
-                        "calorieGoal" to preferencesManager.getDailyCalorieGoal()
-                    )
-                    result.value = stats
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Error loading statistics: ${e.message}"
-            }
-        }
-        return result
     }
 }

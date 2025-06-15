@@ -46,14 +46,41 @@ class LoginFragment : Fragment() {
 
     private fun setupClickListeners() {
         registerButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            goToRegister(email, password)
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+
+            if (validateRegistrationInput(email, password)) {
+                goToRegister(email, password)
+            }
         }
 
         loginButton.setOnClickListener {
             performLogin()
         }
+    }
+
+    private fun validateRegistrationInput(email: String, password: String): Boolean {
+        if (email.isEmpty()) {
+            emailEditText.error = "Email is required for registration"
+            return false
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailEditText.error = "Invalid email format"
+            return false
+        }
+
+        if (password.isEmpty()) {
+            passwordEditText.error = "Password is required for registration"
+            return false
+        }
+
+        if (password.length < 6) {
+            passwordEditText.error = "Password must be at least 6 characters for registration"
+            return false
+        }
+
+        return true
     }
 
     private fun performLogin() {
@@ -99,7 +126,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun goToRegister(email: String, password: String) {
-        val action = LoginFragmentDirections.actionLoginFragmentToRegister1Fragment(email, password)
+        val action = LoginFragmentDirections.actionLoginFragmentToRegister2Fragment(email, password)
         findNavController().navigate(action)
     }
 

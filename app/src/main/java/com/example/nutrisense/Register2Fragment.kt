@@ -43,6 +43,13 @@ class Register2Fragment : Fragment() {
 
         setupClickListeners()
         setupBackPressHandler()
+
+        showEmailPasswordInfo()
+    }
+
+    private fun showEmailPasswordInfo() {
+        val email = args.email ?: "No email"
+        Toast.makeText(context, "Registering with: $email", Toast.LENGTH_SHORT).show()
     }
 
     private fun setupClickListeners() {
@@ -59,7 +66,7 @@ class Register2Fragment : Fragment() {
         val ageText = ageEditText.text.toString().trim()
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(context, "Missing data from previous step", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Missing email or password. Please go back to login screen.", Toast.LENGTH_LONG).show()
             return
         }
 

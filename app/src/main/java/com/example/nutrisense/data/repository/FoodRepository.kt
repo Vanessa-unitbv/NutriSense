@@ -21,9 +21,6 @@ class FoodRepository(
     fun getFavoriteFoodsForUser(userId: Long): Flow<List<Food>> =
         foodDao.getFavoriteFoodsForUser(userId)
 
-    fun searchFoodsForUser(userId: Long, query: String): Flow<List<Food>> =
-        foodDao.searchFoodsForUser(userId, query)
-
     fun getTodayFoodsForUser(userId: Long): Flow<List<Food>> =
         foodDao.getTodayFoodsForUser(userId)
 
@@ -54,7 +51,6 @@ class FoodRepository(
     suspend fun deleteAllFoodsForUser(userId: Long) =
         foodDao.deleteAllFoodsForUser(userId)
 
-
     suspend fun getTodayTotalCaloriesForUser(userId: Long): Double =
         foodDao.getTodayTotalCaloriesForUser(userId) ?: 0.0
 
@@ -67,30 +63,16 @@ class FoodRepository(
     suspend fun getTodayTotalFatForUser(userId: Long): Double =
         foodDao.getTodayTotalFatForUser(userId) ?: 0.0
 
-    suspend fun getRecentSearchesForUser(userId: Long): List<String> =
-        foodDao.getRecentSearchesForUser(userId)
-
-    suspend fun getMostConsumedFoodsForUser(userId: Long): List<Food> =
-        foodDao.getMostConsumedFoodsForUser(userId)
-
     suspend fun getUserIdByEmail(email: String): Long? {
         return userDao.getUserByEmail(email)?.id
     }
 
     suspend fun searchNutritionInfo(query: String): Result<List<NutritionResponse>> {
         return try {
-            println("DEBUG: Searching CalorieNinjas for: '$query'")
-            println("DEBUG: Using API Key: ${NutritionApiService.API_KEY}")
-
             val response = apiService.getNutritionInfo(query, NutritionApiService.API_KEY)
-
-            println("DEBUG: Response code: ${response.code()}")
-            println("DEBUG: Response message: ${response.message()}")
 
             if (response.isSuccessful) {
                 val body = response.body()
-                println("DEBUG: Response body: $body")
-
                 val nutritionList = body?.items ?: emptyList()
                 Result.success(nutritionList)
             } else {
@@ -104,7 +86,6 @@ class FoodRepository(
                 Result.failure(Exception(errorMessage))
             }
         } catch (e: Exception) {
-            println("DEBUG: Exception: ${e.message}")
             Result.failure(e)
         }
     }
@@ -120,7 +101,6 @@ class FoodRepository(
 
             val apiQuery = "${requestedQuantity.toInt()}g $query"
 
-            println("DEBUG: API Query sent: '$apiQuery'")
             val nutritionResult = searchNutritionInfo(apiQuery)
 
             if (nutritionResult.isSuccess) {
@@ -144,12 +124,19 @@ class FoodRepository(
     }
 
     suspend fun getTodayNutritionSummaryForUser(userId: Long): NutritionSummary {
+        val todayConsumedFoods = foodDao.getTodayConsumedFoodsForUser(userId)
+        var foodCount = 0
+
+        todayConsumedFoods.collect { foods ->
+            foodCount = foods.size
+        }
+
         return NutritionSummary(
             totalCalories = getTodayTotalCaloriesForUser(userId),
             totalProtein = getTodayTotalProteinForUser(userId),
             totalCarbs = getTodayTotalCarbsForUser(userId),
             totalFat = getTodayTotalFatForUser(userId),
-            foodCount = foodDao.getTodayConsumedFoodsForUser(userId).hashCode() // Temporar
+            foodCount = foodCount
         )
     }
 }

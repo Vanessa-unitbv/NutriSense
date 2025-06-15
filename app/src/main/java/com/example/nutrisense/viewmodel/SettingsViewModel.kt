@@ -94,48 +94,4 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun getThemeMode(): String = preferencesManager.getThemeMode()
-
-    fun getBMI(): Float {
-        val weight = _userWeight.value ?: 0f
-        val height = _userHeight.value ?: 0f
-
-        return if (weight > 0 && height > 0) {
-            val heightInMeters = if (_preferredUnits.value == "imperial") {
-                height * 0.0254f
-            } else {
-                height / 100f
-            }
-            weight / (heightInMeters * heightInMeters)
-        } else {
-            0f
-        }
-    }
-
-    fun getRecommendedCalorieGoal(age: Int, gender: String): Int {
-        val weight = _userWeight.value ?: 70f
-        val height = _userHeight.value ?: 170f
-        val activityLevel = getActivityLevel()
-
-        val bmr = if (gender.lowercase() == "male") {
-            88.362f + (13.397f * weight) + (4.799f * height) - (5.677f * age)
-        } else {
-            447.593f + (9.247f * weight) + (3.098f * height) - (4.330f * age)
-        }
-
-        val activityMultiplier = when (activityLevel) {
-            "sedentary" -> 1.2f
-            "light" -> 1.375f
-            "moderate" -> 1.55f
-            "active" -> 1.725f
-            "very_active" -> 1.9f
-            else -> 1.55f
-        }
-
-        return (bmr * activityMultiplier).toInt()
-    }
-
-    fun getRecommendedWaterGoal(): Int {
-        val weight = _userWeight.value ?: 70f
-        return (weight * 35).toInt()
-    }
 }

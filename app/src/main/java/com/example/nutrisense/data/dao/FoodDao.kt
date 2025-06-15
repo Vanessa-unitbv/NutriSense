@@ -13,9 +13,6 @@ interface FoodDao {
     @Query("SELECT * FROM user_foods WHERE userId = :userId AND isFavorite = 1 ORDER BY addedAt DESC")
     fun getFavoriteFoodsForUser(userId: Long): Flow<List<Food>>
 
-    @Query("SELECT * FROM user_foods WHERE userId = :userId AND (name LIKE '%' || :query || '%' OR originalQuery LIKE '%' || :query || '%') ORDER BY addedAt DESC")
-    fun searchFoodsForUser(userId: Long, query: String): Flow<List<Food>>
-
     @Query("SELECT * FROM user_foods WHERE userId = :userId AND DATE(addedAt/1000, 'unixepoch') = DATE('now') ORDER BY addedAt DESC")
     fun getTodayFoodsForUser(userId: Long): Flow<List<Food>>
 
@@ -63,10 +60,4 @@ interface FoodDao {
 
     @Query("SELECT SUM(fatTotalG) FROM user_foods WHERE userId = :userId AND consumedAt IS NOT NULL AND DATE(consumedAt/1000, 'unixepoch') = DATE('now')")
     suspend fun getTodayTotalFatForUser(userId: Long): Double?
-
-    @Query("SELECT DISTINCT originalQuery FROM user_foods WHERE userId = :userId ORDER BY addedAt DESC LIMIT 10")
-    suspend fun getRecentSearchesForUser(userId: Long): List<String>
-
-    @Query("SELECT *, COUNT(*) as consumeCount FROM user_foods WHERE userId = :userId AND consumedAt IS NOT NULL GROUP BY originalQuery ORDER BY consumeCount DESC LIMIT 10")
-    suspend fun getMostConsumedFoodsForUser(userId: Long): List<Food>
 }
