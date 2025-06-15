@@ -5,16 +5,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.nutrisense.data.dao.UserDao
+import com.example.nutrisense.data.dao.FoodDao
 import com.example.nutrisense.data.entity.User
+import com.example.nutrisense.data.entity.Food
 
 @Database(
-    entities = [User::class],
-    version = 1,
+    entities = [User::class, Food::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
+    abstract fun foodDao(): FoodDao
 
     companion object {
         @Volatile
@@ -25,8 +28,10 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "nutrisense_database"
-                ).build()
+                    "nutrisense_database_v2"
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

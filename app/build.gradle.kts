@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidx.navigation.safeargs.kotlin)
-    alias(libs.plugins.kotlin.kapt) // NOU - pentru Room
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -52,21 +52,34 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Room Database - NOI
+    // Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.filament.android)
     kapt(libs.androidx.room.compiler)
 
-    // ViewModel și LiveData - NOI
+    // Retrofit pentru HTTP requests
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Gson pentru JSON parsing
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // ViewModel și LiveData
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
-    // Coroutines - NOI
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Fragment KTX - NOI
+    // Fragment KTX
     implementation(libs.androidx.fragment.ktx)
+
+    // RecyclerView pentru adapter personalizat - NOU ADĂUGAT
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // CardView pentru design-ul item-urilor - NOU ADĂUGAT
+    implementation("androidx.cardview:cardview:1.0.0")
 
     // Testing
     testImplementation(libs.junit)

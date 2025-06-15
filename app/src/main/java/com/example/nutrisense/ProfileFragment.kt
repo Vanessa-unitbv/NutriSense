@@ -27,6 +27,7 @@ class ProfileFragment : Fragment() {
     private lateinit var emailEditText: EditText
     private lateinit var logoutButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var nutritionButton: Button
     private lateinit var tvCalorieGoal: TextView
     private lateinit var tvWaterGoal: TextView
     private lateinit var tvWeight: TextView
@@ -68,6 +69,7 @@ class ProfileFragment : Fragment() {
         emailEditText = view.findViewById(R.id.et_email)
         logoutButton = view.findViewById(R.id.btn_logout)
         settingsButton = view.findViewById(R.id.btn_settings)
+        nutritionButton = view.findViewById(R.id.btn_nutrition) // Butonul nou
         tvCalorieGoal = view.findViewById(R.id.tv_calorie_goal)
         tvWaterGoal = view.findViewById(R.id.tv_water_goal)
         tvWeight = view.findViewById(R.id.tv_weight)
@@ -133,6 +135,7 @@ class ProfileFragment : Fragment() {
     private fun setupClickListeners() {
         logoutButton.setOnClickListener { performLogout() }
         settingsButton.setOnClickListener { navigateToSettings() }
+        nutritionButton.setOnClickListener { navigateToNutrition() } // Click listener nou
 
         emailEditText.setOnClickListener {
             val weight = preferencesManager.getUserWeight()
@@ -151,6 +154,15 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(action)
         } catch (e: Exception) {
             showToast("Error opening Settings: ${e.message}", true)
+        }
+    }
+
+    private fun navigateToNutrition() {
+        try {
+            val action = ProfileFragmentDirections.actionProfileFragmentToCalculateNutritionFragment()
+            findNavController().navigate(action)
+        } catch (e: Exception) {
+            showToast("Error opening Nutrition Calculator: ${e.message}", true)
         }
     }
 

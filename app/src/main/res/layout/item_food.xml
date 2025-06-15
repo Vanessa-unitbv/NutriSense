@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        android:background="#FFFFFF">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/pink_button">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/tv_food_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Food Name"
+                        android:textSize="16sp"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
+
+                <TextView
+                        android:id="@+id/tv_original_query"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Search: original query"
+                        android:textSize="12sp"
+                        android:textColor="#F8BBD0"
+                        android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+            <ImageButton
+                    android:id="@+id/btn_favorite"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_favorite_outline"
+                    android:contentDescription="Toggle Favorite"
+                    android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                    android:id="@+id/btn_consume"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_add_circle"
+                    android:contentDescription="Mark as Consumed"
+                    android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                    android:id="@+id/btn_delete"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_delete"
+                    android:contentDescription="Delete Food" />
+
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/tv_consumed_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⏳ Not consumed"
+                android:textSize="12sp"
+                android:textColor="#F8BBD0"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+            <TextView
+                    android:id="@+id/tv_calories"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0 kcal"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
+            <TextView
+                    android:id="@+id/tv_serving"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100g"
+                    android:textSize="12sp"
+                    android:textColor="#F8BBD0" />
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+            <TextView
+                    android:id="@+id/tv_protein"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Protein: 0g"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF" />
+
+            <TextView
+                    android:id="@+id/tv_carbs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Carbs: 0g"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF" />
+
+            <TextView
+                    android:id="@+id/tv_fat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Fat: 0g"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/tv_added_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Added: Today"
+                android:textSize="10sp"
+                android:textColor="#F8BBD0"
+                android:gravity="end" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
