@@ -68,4 +68,9 @@
     <string name="enter_valid_data">Please enter valid weight, height, and age</string>
     <string name="profile_updated">Profile updated! Your BMI is now displayed above.</string>
     <string name="add_weight_height">Add your weight &amp; height for BMI calculation.</string>
+    <string name="weight_not_set">Weight: Not set</string>
+    <string name="quick_stats">Quick Stats</string>
+    <string name="bmi_calculate_in_settings">BMI: Calculate in settings</string>
+    <string name="last_weight_update_never">Last weight update: Never</string>
+    <string name="settings_amp_goals"><![CDATA[⚙️ Settings & Goals]]></string>
 </resources>

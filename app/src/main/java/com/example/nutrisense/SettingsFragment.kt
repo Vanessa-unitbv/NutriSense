@@ -1,6 +1,5 @@
 package com.example.nutrisense
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,8 @@ import com.google.android.material.textfield.TextInputEditText
 
 class SettingsFragment : Fragment() {
 
-    private lateinit var preferencesManager: SharedPreferencesManager
+    private lateinit var userPreferencesManager: SharedPreferencesManager
+    private lateinit var globalPreferencesManager: SharedPreferencesManager
 
     private lateinit var etWeight: TextInputEditText
     private lateinit var etHeight: TextInputEditText
@@ -42,12 +42,22 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
-
+        initializePreferences()
         initializeViews(view)
         setupSpinners()
         loadCurrentSettings()
         setupClickListeners()
+    }
+
+    private fun initializePreferences() {
+        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(requireContext())
+        val currentUserEmail = globalPreferencesManager.getUserEmail()
+
+        userPreferencesManager = if (currentUserEmail != null) {
+            SharedPreferencesManager.getInstance(requireContext(), currentUserEmail)
+        } else {
+            SharedPreferencesManager.getGlobalInstance(requireContext())
+        }
     }
 
     private fun initializeViews(view: View) {
@@ -91,19 +101,19 @@ class SettingsFragment : Fragment() {
     }
 
     private fun loadCurrentSettings() {
-        etCalories.setText(preferencesManager.getDailyCalorieGoal().toString())
-        etWater.setText(preferencesManager.getDailyWaterGoal().toString())
+        etCalories.setText(userPreferencesManager.getDailyCalorieGoal().toString())
+        etWater.setText(userPreferencesManager.getDailyWaterGoal().toString())
 
-        val weight = preferencesManager.getUserWeight()
+        val weight = userPreferencesManager.getUserWeight()
         if (weight > 0) etWeight.setText(weight.toString())
 
-        val height = preferencesManager.getUserHeight()
+        val height = userPreferencesManager.getUserHeight()
         if (height > 0) etHeight.setText(height.toString())
 
-        val age = preferencesManager.getUserAge()
+        val age = userPreferencesManager.getUserAge()
         if (age > 0) etAge.setText(age.toString())
 
-        val currentActivity = preferencesManager.getActivityLevel()
+        val currentActivity = userPreferencesManager.getActivityLevel()
         val activityPosition = when (currentActivity) {
             "sedentary" -> 0
             "light" -> 1
@@ -114,13 +124,13 @@ class SettingsFragment : Fragment() {
         }
         spinnerActivity.setSelection(activityPosition)
 
-        val currentUnits = preferencesManager.getPreferredUnits()
+        val currentUnits = userPreferencesManager.getPreferredUnits()
         spinnerUnits.setSelection(if (currentUnits == "metric") 0 else 1)
 
-        switchNotifications.isChecked = preferencesManager.isNotificationEnabled()
-        switchWaterReminder.isChecked = preferencesManager.getWaterReminderInterval() > 0
+        switchNotifications.isChecked = userPreferencesManager.isNotificationEnabled()
+        switchWaterReminder.isChecked = userPreferencesManager.getWaterReminderInterval() > 0
 
-        val waterInterval = preferencesManager.getWaterReminderInterval()
+        val waterInterval = userPreferencesManager.getWaterReminderInterval()
         etWaterInterval.setText(if (waterInterval > 0) waterInterval.toString() else "60")
 
         updateBMI()
@@ -223,23 +233,23 @@ class SettingsFragment : Fragment() {
             val calories = etCalories.text.toString().toIntOrNull() ?: 2000
             val water = etWater.text.toString().toIntOrNull() ?: 2000
 
-            preferencesManager.setDailyCalorieGoal(calories)
-            preferencesManager.setDailyWaterGoal(water)
+            userPreferencesManager.setDailyCalorieGoal(calories)
+            userPreferencesManager.setDailyWaterGoal(water)
 
             val weight = etWeight.text.toString().toFloatOrNull()
             val height = etHeight.text.toString().toFloatOrNull()
             val age = etAge.text.toString().toIntOrNull()
 
             if (weight != null && weight > 0) {
-                preferencesManager.setUserWeight(weight)
+                userPreferencesManager.setUserWeight(weight)
             }
 
             if (height != null && height > 0) {
-                preferencesManager.setUserHeight(height)
+                userPreferencesManager.setUserHeight(height)
             }
 
             if (age != null && age > 0) {
-                preferencesManager.setUserAge(age)
+                userPreferencesManager.setUserAge(age)
             }
 
             val activityLevel = when (spinnerActivity.selectedItemPosition) {
@@ -250,19 +260,19 @@ class SettingsFragment : Fragment() {
                 4 -> "very_active"
                 else -> "moderate"
             }
-            preferencesManager.setActivityLevel(activityLevel)
+            userPreferencesManager.setActivityLevel(activityLevel)
 
             val units = if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
-            preferencesManager.setPreferredUnits(units)
+            userPreferencesManager.setPreferredUnits(units)
 
-            preferencesManager.setNotificationEnabled(switchNotifications.isChecked)
+            userPreferencesManager.setNotificationEnabled(switchNotifications.isChecked)
 
             val waterInterval = if (switchWaterReminder.isChecked) {
                 etWaterInterval.text.toString().toIntOrNull() ?: 60
             } else {
                 0
             }
-            preferencesManager.setWaterReminderInterval(waterInterval)
+            userPreferencesManager.setWaterReminderInterval(waterInterval)
 
             Toast.makeText(context, getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
 

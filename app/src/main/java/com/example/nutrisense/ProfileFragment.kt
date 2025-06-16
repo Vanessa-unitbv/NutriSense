@@ -22,11 +22,12 @@ class ProfileFragment : Fragment() {
 
     private val args: ProfileFragmentArgs by navArgs()
     private lateinit var authViewModel: AuthViewModel
-    private lateinit var preferencesManager: SharedPreferencesManager
+    private lateinit var userPreferencesManager: SharedPreferencesManager
+    private lateinit var globalPreferencesManager: SharedPreferencesManager
 
     private lateinit var emailEditText: EditText
     private lateinit var logoutButton: Button
-    private lateinit var dashboardButton: Button
+    private lateinit var settingsButton: Button
     private lateinit var tvCalorieGoal: TextView
     private lateinit var tvWaterGoal: TextView
     private lateinit var tvWeight: TextView
@@ -61,13 +62,21 @@ class ProfileFragment : Fragment() {
 
     private fun initializeComponents() {
         authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
+
+        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(requireContext())
+
+        userPreferencesManager = SharedPreferencesManager.getInstance(
+            requireContext(),
+            args.email
+        )
+
+        SharedPreferencesManager.setCurrentUser(args.email)
     }
 
     private fun initializeViews(view: View) {
         emailEditText = view.findViewById(R.id.et_email)
         logoutButton = view.findViewById(R.id.btn_logout)
-        dashboardButton = view.findViewById(R.id.btn_dashboard)
+        settingsButton = view.findViewById(R.id.btn_settings)
         tvCalorieGoal = view.findViewById(R.id.tv_calorie_goal)
         tvWaterGoal = view.findViewById(R.id.tv_water_goal)
         tvWeight = view.findViewById(R.id.tv_weight)
@@ -111,60 +120,66 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateProfileDisplay() {
-        tvCalorieGoal.text = "Daily Calorie Goal: ${preferencesManager.getDailyCalorieGoal()} kcal"
-        tvWaterGoal.text = "Daily Water Goal: ${preferencesManager.getDailyWaterGoal()} ml"
+        tvCalorieGoal.text = "Daily Calorie Goal: ${userPreferencesManager.getDailyCalorieGoal()} kcal"
+        tvWaterGoal.text = "Daily Water Goal: ${userPreferencesManager.getDailyWaterGoal()} ml"
 
-        tvWeight.text = ProfileUtils.formatWeightDisplay(preferencesManager)
+        tvWeight.text = ProfileUtils.formatWeightDisplay(userPreferencesManager)
 
-        val (bmiText, bmiColor) = ProfileUtils.getBMIDisplay(preferencesManager)
+        val (bmiText, bmiColor) = ProfileUtils.getBMIDisplay(userPreferencesManager)
         tvBMI.text = bmiText
         tvBMI.setTextColor(resources.getColor(bmiColor, null))
 
-        val lastUpdate = preferencesManager.getLastWeightUpdate()
+        val lastUpdate = userPreferencesManager.getLastWeightUpdate()
         tvLastUpdate.text = if (lastUpdate > 0) {
             "Last weight update: ${ProfileUtils.formatTimeAgo(lastUpdate)}"
         } else {
             "Last weight update: Never"
         }
+
+        settingsButton.text = ProfileUtils.getSettingsButtonText(userPreferencesManager)
     }
 
     private fun setupClickListeners() {
         logoutButton.setOnClickListener { performLogout() }
-        dashboardButton.setOnClickListener { navigateToDashboard() }
+        settingsButton.setOnClickListener { navigateToSettings() }
 
         emailEditText.setOnClickListener {
-            val weight = preferencesManager.getUserWeight()
+            val weight = userPreferencesManager.getUserWeight()
             val message = if (weight > 0) {
-                "👋 Profile looks good! Use Dashboard to access all features."
+                "👋 Profile looks good! Use Settings to make changes or go back to Dashboard."
             } else {
-                "🎯 Visit Dashboard and go to Settings to complete your profile!"
+                "🎯 Complete your profile in Settings to get personalized recommendations!"
             }
             showToast(message, false)
         }
     }
 
-    private fun navigateToDashboard() {
+    private fun navigateToSettings() {
         try {
-            val action = ProfileFragmentDirections.actionProfileFragmentToDashboardFragment(args.email)
+            val action = ProfileFragmentDirections.actionProfileFragmentToSettingsFragment()
             findNavController().navigate(action)
         } catch (e: Exception) {
-            showToast("Error opening Dashboard: ${e.message}", true)
+            showToast("Error opening Settings: ${e.message}", true)
+        }
+    }
+
+    private fun navigateToDashboard() {
+        try {
+            findNavController().popBackStack()
+        } catch (e: Exception) {
+            showToast("Error navigating to Dashboard: ${e.message}", true)
         }
     }
 
     private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
+        globalPreferencesManager.setUserLoggedOut()
         showToast("Successfully logged out", false)
         goToLogin()
     }
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            try {
-                navigateToDashboard()
-            } catch (e: Exception) {
-                requireActivity().finish()
-            }
+            navigateToDashboard()
         }
     }
 

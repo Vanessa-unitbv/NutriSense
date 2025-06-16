@@ -16,18 +16,18 @@ import kotlinx.coroutines.launch
 class NutritionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: FoodRepository
-    private val preferencesManager: SharedPreferencesManager
+    private val globalPreferencesManager: SharedPreferencesManager
 
     init {
         val database = AppDatabase.getDatabase(application)
         val foodDao = database.foodDao()
         val userDao = database.userDao()
         repository = FoodRepository(foodDao, userDao)
-        preferencesManager = SharedPreferencesManager.getInstance(application)
+        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
     }
 
     private val currentUserEmail: String?
-        get() = preferencesManager.getUserEmail()
+        get() = globalPreferencesManager.getUserEmail()
 
     private val _currentUserId = MutableLiveData<Long?>()
     val currentUserId: LiveData<Long?> = _currentUserId
@@ -72,6 +72,8 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
                         _currentUserId.value = userId
                         setupUserSpecificData(userId)
                         loadNutritionSummary(userId)
+
+                        SharedPreferencesManager.setCurrentUser(email)
                     } else {
                         _errorMessage.value = "User not found"
                     }

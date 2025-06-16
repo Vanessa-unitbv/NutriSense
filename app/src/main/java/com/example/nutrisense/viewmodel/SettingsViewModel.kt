@@ -8,7 +8,17 @@ import com.example.nutrisense.data.preferences.SharedPreferencesManager
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val preferencesManager = SharedPreferencesManager.getInstance(application)
+    private val globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
+    private val userPreferencesManager: SharedPreferencesManager
+
+    init {
+        val currentUserEmail = globalPreferencesManager.getUserEmail()
+        userPreferencesManager = if (currentUserEmail != null) {
+            SharedPreferencesManager.getInstance(application, currentUserEmail)
+        } else {
+            SharedPreferencesManager.getGlobalInstance(application)
+        }
+    }
 
     private val _dailyCalorieGoal = MutableLiveData<Int>()
     val dailyCalorieGoal: LiveData<Int> = _dailyCalorieGoal
@@ -33,65 +43,69 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun loadCurrentSettings() {
-        _dailyCalorieGoal.value = preferencesManager.getDailyCalorieGoal()
-        _dailyWaterGoal.value = preferencesManager.getDailyWaterGoal()
-        _userWeight.value = preferencesManager.getUserWeight()
-        _userHeight.value = preferencesManager.getUserHeight()
-        _notificationEnabled.value = preferencesManager.isNotificationEnabled()
-        _preferredUnits.value = preferencesManager.getPreferredUnits()
+        _dailyCalorieGoal.value = userPreferencesManager.getDailyCalorieGoal()
+        _dailyWaterGoal.value = userPreferencesManager.getDailyWaterGoal()
+        _userWeight.value = userPreferencesManager.getUserWeight()
+        _userHeight.value = userPreferencesManager.getUserHeight()
+        _notificationEnabled.value = userPreferencesManager.isNotificationEnabled()
+        _preferredUnits.value = userPreferencesManager.getPreferredUnits()
     }
 
     fun setDailyCalorieGoal(calories: Int) {
-        preferencesManager.setDailyCalorieGoal(calories)
+        userPreferencesManager.setDailyCalorieGoal(calories)
         _dailyCalorieGoal.value = calories
     }
 
     fun setDailyWaterGoal(waterMl: Int) {
-        preferencesManager.setDailyWaterGoal(waterMl)
+        userPreferencesManager.setDailyWaterGoal(waterMl)
         _dailyWaterGoal.value = waterMl
     }
 
     fun setUserWeight(weight: Float) {
-        preferencesManager.setUserWeight(weight)
+        userPreferencesManager.setUserWeight(weight)
         _userWeight.value = weight
     }
 
     fun setUserHeight(height: Float) {
-        preferencesManager.setUserHeight(height)
+        userPreferencesManager.setUserHeight(height)
         _userHeight.value = height
     }
 
     fun setActivityLevel(level: String) {
-        preferencesManager.setActivityLevel(level)
+        userPreferencesManager.setActivityLevel(level)
     }
 
-    fun getActivityLevel(): String = preferencesManager.getActivityLevel()
+    fun getActivityLevel(): String = userPreferencesManager.getActivityLevel()
 
     fun setNotificationEnabled(enabled: Boolean) {
-        preferencesManager.setNotificationEnabled(enabled)
+        userPreferencesManager.setNotificationEnabled(enabled)
         _notificationEnabled.value = enabled
     }
 
     fun setWaterReminderInterval(minutes: Int) {
-        preferencesManager.setWaterReminderInterval(minutes)
+        userPreferencesManager.setWaterReminderInterval(minutes)
     }
 
-    fun getWaterReminderInterval(): Int = preferencesManager.getWaterReminderInterval()
+    fun getWaterReminderInterval(): Int = userPreferencesManager.getWaterReminderInterval()
 
     fun setMealReminderEnabled(enabled: Boolean) {
-        preferencesManager.setMealReminderEnabled(enabled)
+        userPreferencesManager.setMealReminderEnabled(enabled)
     }
 
-    fun isMealReminderEnabled(): Boolean = preferencesManager.isMealReminderEnabled()
+    fun isMealReminderEnabled(): Boolean = userPreferencesManager.isMealReminderEnabled()
 
     fun setPreferredUnits(units: String) {
-        preferencesManager.setPreferredUnits(units)
+        userPreferencesManager.setPreferredUnits(units)
         _preferredUnits.value = units
     }
 
     fun setThemeMode(mode: String) {
-        preferencesManager.setThemeMode(mode)
+        userPreferencesManager.setThemeMode(mode)
     }
 
-    fun getThemeMode(): String = preferencesManager.getThemeMode()
+    fun getThemeMode(): String = userPreferencesManager.getThemeMode()
+
+    fun getUserAge(): Int = userPreferencesManager.getUserAge()
+
+    fun setUserAge(age: Int) = userPreferencesManager.setUserAge(age)
 }

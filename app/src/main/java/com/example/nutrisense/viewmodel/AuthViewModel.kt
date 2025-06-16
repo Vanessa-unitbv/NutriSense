@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: UserRepository
-    private val preferencesManager: SharedPreferencesManager
+    private val globalPreferencesManager: SharedPreferencesManager
 
     init {
         val userDao = AppDatabase.getDatabase(application).userDao()
         repository = UserRepository(userDao)
-        preferencesManager = SharedPreferencesManager.getInstance(application)
+        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
     }
 
     fun loginUser(
@@ -35,11 +35,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val user = repository.loginUser(email, password)
                 if (user != null) {
-                    preferencesManager.setUserLoggedIn(user.email, user.firstName)
+                    globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)
 
-                    if (preferencesManager.isFirstTimeUser()) {
-                        setDefaultNutritionGoals()
-                        preferencesManager.setFirstTimeUser(false)
+                    val userPreferencesManager = SharedPreferencesManager.getInstance(
+                        getApplication(),
+                        user.email
+                    )
+
+                    if (userPreferencesManager.isFirstTimeUser()) {
+                        setDefaultNutritionGoals(userPreferencesManager)
+                        userPreferencesManager.setFirstTimeUser(false)
                     }
 
                     onSuccess(user)
@@ -84,10 +89,15 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 val userId = repository.registerUser(user)
                 val newUser = user.copy(id = userId)
 
-                preferencesManager.setUserLoggedIn(newUser.email, newUser.firstName)
+                globalPreferencesManager.setUserLoggedIn(newUser.email, newUser.firstName)
 
-                setDefaultNutritionGoals()
-                preferencesManager.setFirstTimeUser(false)
+                val userPreferencesManager = SharedPreferencesManager.getInstance(
+                    getApplication(),
+                    newUser.email
+                )
+
+                setDefaultNutritionGoals(userPreferencesManager)
+                userPreferencesManager.setFirstTimeUser(false)
 
                 onSuccess(newUser)
             } catch (e: Exception) {
@@ -119,7 +129,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.updateUser(user)
-                preferencesManager.setUserLoggedIn(user.email, user.firstName)
+                globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)
                 onSuccess()
             } catch (e: Exception) {
                 onError("Error updating user: ${e.message}")
@@ -128,18 +138,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun logoutUser() {
-        preferencesManager.setUserLoggedOut()
+        globalPreferencesManager.setUserLoggedOut()
     }
 
     fun isUserLoggedIn(): Boolean {
-        return preferencesManager.isUserLoggedIn()
+        return globalPreferencesManager.isUserLoggedIn()
     }
 
     fun getCurrentUserEmail(): String? {
-        return preferencesManager.getUserEmail()
+        return globalPreferencesManager.getUserEmail()
     }
 
-    private fun setDefaultNutritionGoals() {
+    private fun setDefaultNutritionGoals(preferencesManager: SharedPreferencesManager) {
         preferencesManager.setDailyCalorieGoal(2000)
         preferencesManager.setDailyWaterGoal(2000)
         preferencesManager.setNotificationEnabled(true)

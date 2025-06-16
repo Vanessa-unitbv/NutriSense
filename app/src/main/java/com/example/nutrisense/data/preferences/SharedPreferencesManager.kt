@@ -4,23 +4,45 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.nutrisense.utils.AppConstants
 
-class SharedPreferencesManager private constructor(context: Context) {
+class SharedPreferencesManager private constructor(context: Context, userEmail: String? = null) {
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-        PREFS_NAME, Context.MODE_PRIVATE
+        getPrefsName(userEmail), Context.MODE_PRIVATE
     )
 
     companion object {
         private const val PREFS_NAME = "nutrisense_preferences"
+        private const val GLOBAL_PREFS_NAME = "nutrisense_global_preferences"
 
         @Volatile
         private var INSTANCE: SharedPreferencesManager? = null
 
-        fun getInstance(context: Context): SharedPreferencesManager {
-            return INSTANCE ?: synchronized(this) {
-                val instance = SharedPreferencesManager(context.applicationContext)
-                INSTANCE = instance
-                instance
+        @Volatile
+        private var currentUserEmail: String? = null
+
+        fun getGlobalInstance(context: Context): SharedPreferencesManager {
+            return SharedPreferencesManager(context.applicationContext, null)
+        }
+
+        fun getInstance(context: Context, userEmail: String? = null): SharedPreferencesManager {
+            val email = userEmail ?: currentUserEmail
+            return if (email != null) {
+                SharedPreferencesManager(context.applicationContext, email)
+            } else {
+                getGlobalInstance(context)
+            }
+        }
+
+        fun setCurrentUser(userEmail: String?) {
+            currentUserEmail = userEmail
+            INSTANCE = null // Reset instance pentru a forța recrearea cu noul user
+        }
+
+        private fun getPrefsName(userEmail: String?): String {
+            return if (userEmail != null) {
+                "${PREFS_NAME}_${userEmail.replace("@", "_").replace(".", "_")}"
+            } else {
+                GLOBAL_PREFS_NAME
             }
         }
     }
@@ -31,6 +53,7 @@ class SharedPreferencesManager private constructor(context: Context) {
             putString(AppConstants.PrefsKeys.USER_EMAIL, email)
             putString(AppConstants.PrefsKeys.USER_NAME, name)
         }
+        setCurrentUser(email)
     }
 
     fun setUserLoggedOut() {
@@ -39,6 +62,7 @@ class SharedPreferencesManager private constructor(context: Context) {
             remove(AppConstants.PrefsKeys.USER_EMAIL)
             remove(AppConstants.PrefsKeys.USER_NAME)
         }
+        setCurrentUser(null)
     }
 
     fun isUserLoggedIn(): Boolean =
