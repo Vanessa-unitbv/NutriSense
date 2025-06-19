@@ -30,6 +30,8 @@ class SettingsFragment : Fragment() {
     private lateinit var etWaterInterval: TextInputEditText
     private lateinit var btnSave: Button
     private lateinit var btnCalculateGoals: Button
+    private lateinit var btnLogout: Button
+    private lateinit var btnBackToDashboard: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +77,8 @@ class SettingsFragment : Fragment() {
         etWaterInterval = view.findViewById(R.id.et_water_interval)
         btnSave = view.findViewById(R.id.btn_save)
         btnCalculateGoals = view.findViewById(R.id.btn_calculate_goals)
+        btnLogout = view.findViewById(R.id.btn_logout)
+        btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
     }
 
     private fun setupSpinners() {
@@ -143,6 +147,14 @@ class SettingsFragment : Fragment() {
 
         btnCalculateGoals.setOnClickListener {
             calculateRecommendedGoals()
+        }
+
+        btnLogout.setOnClickListener {
+            performLogout()
+        }
+
+        btnBackToDashboard.setOnClickListener {
+            goToDashboard()
         }
 
         spinnerUnits.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -281,5 +293,31 @@ class SettingsFragment : Fragment() {
         } catch (e: Exception) {
             Toast.makeText(context, "Error saving: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun performLogout() {
+        globalPreferencesManager.setUserLoggedOut()
+        showToast("Successfully logged out")
+        goToLogin()
+    }
+
+    private fun goToLogin() {
+        try {
+            findNavController().navigate(R.id.loginFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
+    }
+
+    private fun goToDashboard() {
+        try {
+            findNavController().popBackStack()
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

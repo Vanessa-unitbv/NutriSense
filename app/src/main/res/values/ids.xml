@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btn_mark_consumed" type="id" />
+    <item name="tv_sugar" type="id" />
+    <item name="tv_fiber" type="id" />
+    <item name="tv_cholesterol" type="id" />
+    <item name="tv_potassium" type="id" />
+    <item name="tv_sodium" type="id" />
+    <item name="tv_fat_saturated" type="id" />
+    <item name="tv_fat_total" type="id" />
+    <item name="ll_nutrition_results" type="id" />
+    <item name="tv_error_message" type="id" />
+    <item name="progress_bar" type="id" />
+    <item name="et_quantity" type="id" />
+    <item name="et_food_name" type="id" />
+    <item name="tv_title_nutrition" type="id" />
+</resources>

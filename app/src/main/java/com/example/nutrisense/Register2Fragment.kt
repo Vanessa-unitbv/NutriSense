@@ -22,6 +22,7 @@ class Register2Fragment : Fragment() {
     private lateinit var lastNameEditText: TextInputEditText
     private lateinit var ageEditText: TextInputEditText
     private lateinit var registerButton: Button
+    private lateinit var btnLogout: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +41,7 @@ class Register2Fragment : Fragment() {
         lastNameEditText = view.findViewById(R.id.LastName)
         ageEditText = view.findViewById(R.id.Age)
         registerButton = view.findViewById(R.id.btn_go_to_profile)
+        btnLogout = view.findViewById(R.id.btn_logout)
 
         setupClickListeners()
         setupBackPressHandler()
@@ -55,6 +57,10 @@ class Register2Fragment : Fragment() {
     private fun setupClickListeners() {
         registerButton.setOnClickListener {
             performRegistration()
+        }
+
+        btnLogout.setOnClickListener {
+            goToLogin()
         }
     }
 
@@ -110,7 +116,15 @@ class Register2Fragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            goToLogin()
+        }
+    }
+
+    private fun goToLogin() {
+        try {
             findNavController().navigate(R.id.action_register2Fragment_to_loginFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
         }
     }
 

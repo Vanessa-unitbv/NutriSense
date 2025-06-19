@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -13,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.data.entity.Food
+import com.example.nutrisense.data.preferences.SharedPreferencesManager
 import com.example.nutrisense.ui.adapter.FoodAdapter
 import com.example.nutrisense.viewmodel.NutritionViewModel
 
@@ -20,10 +22,13 @@ class SearchHistoryFragment : Fragment() {
 
     private lateinit var nutritionViewModel: NutritionViewModel
     private lateinit var foodAdapter: FoodAdapter
+    private lateinit var preferencesManager: SharedPreferencesManager
 
     private lateinit var rvSavedFoods: RecyclerView
     private lateinit var tvNoSavedFoods: TextView
     private lateinit var tvNutritionSummary: TextView
+    private lateinit var btnLogout: Button
+    private lateinit var btnBackToDashboard: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,12 +46,17 @@ class SearchHistoryFragment : Fragment() {
         setupRecyclerView()
         observeViewModel()
         setupBackPressHandler()
+        setupClickListeners()
     }
 
     private fun initializeViews(view: View) {
+        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
+
         rvSavedFoods = view.findViewById(R.id.rv_saved_foods)
         tvNoSavedFoods = view.findViewById(R.id.tv_no_saved_foods)
         tvNutritionSummary = view.findViewById(R.id.tv_nutrition_summary)
+        btnLogout = view.findViewById(R.id.btn_logout)
+        btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
     }
 
     private fun setupViewModel() {
@@ -74,6 +84,16 @@ class SearchHistoryFragment : Fragment() {
             } catch (e: Exception) {
                 requireActivity().finish()
             }
+        }
+    }
+
+    private fun setupClickListeners() {
+        btnLogout.setOnClickListener {
+            performLogout()
+        }
+
+        btnBackToDashboard.setOnClickListener {
+            goToDashboard()
         }
     }
 
@@ -185,6 +205,28 @@ class SearchHistoryFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun performLogout() {
+        preferencesManager.setUserLoggedOut()
+        showToast("Successfully logged out")
+        goToLogin()
+    }
+
+    private fun goToLogin() {
+        try {
+            findNavController().navigate(R.id.loginFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
+    }
+
+    private fun goToDashboard() {
+        try {
+            findNavController().popBackStack()
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
     }
 
     private fun showToast(message: String) {

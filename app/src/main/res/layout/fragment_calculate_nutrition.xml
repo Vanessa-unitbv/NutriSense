@@ -20,10 +20,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:padding="@dimen/default_space"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title_nutrition">
@@ -99,8 +100,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Calculate Nutrition"
-                        android:background="#F8BBD0"
-                        android:textColor="#D81B60"
+                        android:background="@drawable/button_selector"
+                        android:textColor="@color/button_text_color"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="@null"
@@ -246,5 +247,52 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <LinearLayout
+            android:id="@+id/bottom_buttons_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="16dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+                android:id="@+id/btn_back_to_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Dashboard"
+                android:background="@drawable/button_selector"
+                android:textColor="@color/button_text_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:minWidth="140dp"
+                android:maxWidth="180dp"
+                android:layout_marginEnd="8dp"
+                style="@null" />
+
+        <Button
+                android:id="@+id/btn_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Logout"
+                android:background="@drawable/button_selector"
+                android:textColor="@color/button_text_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:minWidth="140dp"
+                android:maxWidth="180dp"
+                android:layout_marginStart="8dp"
+                style="@null" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

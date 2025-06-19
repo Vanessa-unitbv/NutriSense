@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Pressed: Gradient închis -->
+    <item android:drawable="@drawable/button_gradient_pressed"
+            android:state_pressed="true" />
+
+    <!-- Selected: Gradient închis -->
+    <item android:drawable="@drawable/button_gradient_pressed"
+            android:state_selected="true"/>
+
+    <!-- Disabled: Doar shape (fără gradient) -->
+    <item android:drawable="@drawable/button_shape"
+            android:state_enabled="false" />
+
+    <!-- Normal: Gradient normal -->
+    <item android:drawable="@drawable/button_gradient" />
+
+</selector>

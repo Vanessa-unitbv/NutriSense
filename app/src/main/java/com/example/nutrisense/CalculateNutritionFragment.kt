@@ -10,15 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.nutrisense.data.entity.Food
+import com.example.nutrisense.data.preferences.SharedPreferencesManager
 import com.example.nutrisense.viewmodel.NutritionViewModel
 
 class CalculateNutritionFragment : Fragment() {
 
     private lateinit var nutritionViewModel: NutritionViewModel
+    private lateinit var preferencesManager: SharedPreferencesManager
 
     private lateinit var etFoodName: EditText
     private lateinit var etQuantity: EditText
     private lateinit var btnCalculateNutrition: Button
+    private lateinit var btnLogout: Button
+    private lateinit var btnBackToDashboard: Button
 
     private lateinit var progressBar: ProgressBar
     private lateinit var tvErrorMessage: TextView
@@ -58,9 +62,13 @@ class CalculateNutritionFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
+        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
+
         etFoodName = view.findViewById(R.id.et_food_name)
         etQuantity = view.findViewById(R.id.et_quantity)
         btnCalculateNutrition = view.findViewById(R.id.btn_calculate_nutrition)
+        btnLogout = view.findViewById(R.id.btn_logout)
+        btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
 
         progressBar = view.findViewById(R.id.progress_bar)
         tvErrorMessage = view.findViewById(R.id.tv_error_message)
@@ -91,6 +99,14 @@ class CalculateNutritionFragment : Fragment() {
 
         btnMarkConsumed.setOnClickListener {
             markCurrentFoodAsConsumed()
+        }
+
+        btnLogout.setOnClickListener {
+            performLogout()
+        }
+
+        btnBackToDashboard.setOnClickListener {
+            goToDashboard()
         }
     }
 
@@ -187,6 +203,28 @@ class CalculateNutritionFragment : Fragment() {
         llNutritionResults.visibility = View.GONE
         btnMarkConsumed.visibility = View.GONE
         currentFoodResult = null
+    }
+
+    private fun performLogout() {
+        preferencesManager.setUserLoggedOut()
+        showToast("Successfully logged out")
+        goToLogin()
+    }
+
+    private fun goToLogin() {
+        try {
+            findNavController().navigate(R.id.loginFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
+    }
+
+    private fun goToDashboard() {
+        try {
+            findNavController().popBackStack()
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
     }
 
     private fun showToast(message: String) {
