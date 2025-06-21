@@ -6,18 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.nutrisense.data.dao.UserDao
 import com.example.nutrisense.data.dao.FoodDao
+import com.example.nutrisense.data.dao.RecipeDao
 import com.example.nutrisense.data.entity.User
 import com.example.nutrisense.data.entity.Food
+import com.example.nutrisense.data.entity.Recipe
 
 @Database(
-    entities = [User::class, Food::class],
-    version = 2,
+    entities = [User::class, Food::class, Recipe::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun foodDao(): FoodDao
+    abstract fun recipeDao(): RecipeDao
 
     companion object {
         @Volatile

@@ -25,6 +25,8 @@ class DashboardFragment : Fragment() {
 
     private lateinit var btnCalculateNutrition: Button
     private lateinit var btnViewHistory: Button
+    private lateinit var btnRecipeSearch: Button
+    private lateinit var btnRecipeHistory: Button
     private lateinit var btnSettings: Button
     private lateinit var btnProfile: Button
     private lateinit var btnLogout: Button
@@ -57,6 +59,8 @@ class DashboardFragment : Fragment() {
     private fun initializeViews(view: View) {
         btnCalculateNutrition = view.findViewById(R.id.btn_calculate_nutrition)
         btnViewHistory = view.findViewById(R.id.btn_view_history)
+        btnRecipeSearch = view.findViewById(R.id.btn_recipe_search)
+        btnRecipeHistory = view.findViewById(R.id.btn_recipe_history)
         btnSettings = view.findViewById(R.id.btn_settings)
         btnProfile = view.findViewById(R.id.btn_profile)
         btnLogout = view.findViewById(R.id.btn_logout)
@@ -83,6 +87,14 @@ class DashboardFragment : Fragment() {
             navigateToSearchHistory()
         }
 
+        btnRecipeSearch.setOnClickListener {
+            navigateToRecipeSearch()
+        }
+
+        btnRecipeHistory.setOnClickListener {
+            navigateToRecipeHistory()
+        }
+
         btnSettings.setOnClickListener {
             navigateToSettings()
         }
@@ -98,8 +110,7 @@ class DashboardFragment : Fragment() {
 
     private fun navigateToSearchHistory() {
         try {
-            val action = DashboardFragmentDirections.actionDashboardFragmentToSearchHistoryFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.action_dashboardFragment_to_searchHistoryFragment)
         } catch (e: Exception) {
             showToast("Error opening Search History: ${e.message}", true)
         }
@@ -107,8 +118,7 @@ class DashboardFragment : Fragment() {
 
     private fun navigateToCalculateNutrition() {
         try {
-            val action = DashboardFragmentDirections.actionDashboardFragmentToCalculateNutritionFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.action_dashboardFragment_to_calculateNutritionFragment)
         } catch (e: Exception) {
             showToast("Error opening Nutrition Calculator: ${e.message}", true)
         }
@@ -116,8 +126,7 @@ class DashboardFragment : Fragment() {
 
     private fun navigateToSettings() {
         try {
-            val action = DashboardFragmentDirections.actionDashboardFragmentToSettingsFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.action_dashboardFragment_to_settingsFragment)
         } catch (e: Exception) {
             showToast("Error opening Settings: ${e.message}", true)
         }
@@ -129,6 +138,22 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(action)
         } catch (e: Exception) {
             showToast("Error opening Profile: ${e.message}", true)
+        }
+    }
+
+    private fun navigateToRecipeSearch() {
+        try {
+            findNavController().navigate(R.id.action_dashboardFragment_to_recipeSearchFragment)
+        } catch (e: Exception) {
+            showToast("Error opening Recipe Search: ${e.message}", true)
+        }
+    }
+
+    private fun navigateToRecipeHistory() {
+        try {
+            findNavController().navigate(R.id.action_dashboardFragment_to_recipeHistoryFragment)
+        } catch (e: Exception) {
+            showToast("Error opening Recipe Collection: ${e.message}", true)
         }
     }
 

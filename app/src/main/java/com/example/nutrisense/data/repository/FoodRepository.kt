@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 class FoodRepository(
     private val foodDao: FoodDao,
     private val userDao: UserDao,
-    private val apiService: NutritionApiService = ApiClient.nutritionApiService
+    private val apiService: NutritionApiService = ApiClient.nutritionApiService // Actualizat
 ) {
 
     fun getAllFoodsForUser(userId: Long): Flow<List<Food>> =

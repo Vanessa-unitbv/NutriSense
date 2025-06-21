@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Food nutrition IDs -->
     <item name="btn_mark_consumed" type="id" />
     <item name="tv_sugar" type="id" />
     <item name="tv_fiber" type="id" />
@@ -14,4 +15,20 @@
     <item name="et_quantity" type="id" />
     <item name="et_food_name" type="id" />
     <item name="tv_title_nutrition" type="id" />
+
+    <!-- Recipe IDs -->
+    <item name="et_ingredients" type="id" />
+    <item name="btn_search_recipes" type="id" />
+    <item name="rv_recipes" type="id" />
+    <item name="tv_no_recipes" type="id" />
+    <item name="tv_recipe_title" type="id" />
+    <item name="tv_search_query" type="id" />
+    <item name="tv_servings" type="id" />
+    <item name="tv_ingredients_preview" type="id" />
+    <item name="tv_added_date" type="id" />
+    <item name="rv_saved_recipes" type="id" />
+    <item name="tv_no_saved_recipes" type="id" />
+    <item name="tv_recipe_summary" type="id" />
+    <item name="btn_recipe_search" type="id" />
+    <item name="btn_recipe_history" type="id" />
 </resources>
