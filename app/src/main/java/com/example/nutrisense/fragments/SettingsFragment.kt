@@ -32,7 +32,6 @@ class SettingsFragment : Fragment() {
     private lateinit var etWaterInterval: TextInputEditText
     private lateinit var btnSave: Button
     private lateinit var btnCalculateGoals: Button
-    private lateinit var btnLogout: Button
     private lateinit var btnBackToDashboard: Button
 
     override fun onCreateView(
@@ -79,7 +78,6 @@ class SettingsFragment : Fragment() {
         etWaterInterval = view.findViewById(R.id.et_water_interval)
         btnSave = view.findViewById(R.id.btn_save)
         btnCalculateGoals = view.findViewById(R.id.btn_calculate_goals)
-        btnLogout = view.findViewById(R.id.btn_logout)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
     }
 
@@ -151,10 +149,6 @@ class SettingsFragment : Fragment() {
             calculateRecommendedGoals()
         }
 
-        btnLogout.setOnClickListener {
-            performLogout()
-        }
-
         btnBackToDashboard.setOnClickListener {
             goToDashboard()
         }
@@ -211,7 +205,6 @@ class SettingsFragment : Fragment() {
         val heightText = etHeight.getTextString()
         val ageText = etAge.getTextString()
 
-        // Clear previous errors
         etWeight.clearErrorAndFocus()
         etHeight.clearErrorAndFocus()
         etAge.clearErrorAndFocus()
@@ -354,20 +347,6 @@ class SettingsFragment : Fragment() {
 
     private fun getCurrentUnits(): String {
         return if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
-    }
-
-    private fun performLogout() {
-        globalPreferencesManager.setUserLoggedOut()
-        requireContext().showSuccessToast("Successfully logged out")
-        goToLogin()
-    }
-
-    private fun goToLogin() {
-        try {
-            findNavController().navigate(R.id.loginFragment)
-        } catch (e: Exception) {
-            requireActivity().finish()
-        }
     }
 
     private fun goToDashboard() {

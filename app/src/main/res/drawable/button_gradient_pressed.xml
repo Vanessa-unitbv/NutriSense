@@ -2,22 +2,18 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
         android:shape="rectangle">
 
-    <!-- Forma capsulă -->
     <corners android:radius="50dp" />
 
-    <!-- Gradient închis cu culori din resources -->
     <gradient
             android:startColor="@color/button_pressed_start"
             android:centerColor="@color/button_pressed_center"
             android:endColor="@color/button_pressed_end"
             android:angle="135" />
 
-    <!-- Bordură -->
     <stroke
             android:width="2dp"
             android:color="@color/button_border_pressed" />
 
-    <!-- Padding -->
     <padding
             android:left="24dp"
             android:top="16dp"

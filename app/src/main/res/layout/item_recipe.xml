@@ -6,14 +6,14 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    android:background="#FFFFFF">
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="@drawable/pink_button">
+        android:background="@drawable/brown_button">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,18 +31,18 @@
                     android:id="@+id/tv_recipe_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Recipe Title"
+                    android:text="@string/recipe_title"
                     android:textSize="16sp"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/white"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_search_query"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Search: original query"
+                    android:text="@string/search_original_query"
                     android:textSize="12sp"
-                    android:textColor="#F8BBD0"
+                    android:textColor="@color/white"
                     android:layout_marginTop="2dp" />
 
             </LinearLayout>
@@ -53,7 +53,7 @@
                 android:layout_height="32dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_favorite_outline"
-                android:contentDescription="Toggle Favorite"
+                android:contentDescription="@string/toggle_favorite"
                 android:layout_marginEnd="4dp" />
 
             <ImageButton
@@ -62,7 +62,7 @@
                 android:layout_height="32dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_delete"
-                android:contentDescription="Delete Recipe" />
+                android:contentDescription="@string/delete_recipe" />
 
         </LinearLayout>
 
@@ -70,9 +70,9 @@
             android:id="@+id/tv_servings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Servings: 4"
+            android:text="@string/servings_4"
             android:textSize="14sp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
@@ -80,9 +80,9 @@
             android:id="@+id/tv_ingredients_preview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ingredients: chicken, rice, vegetables..."
+            android:text="@string/ingredients_chicken_rice_vegetables"
             android:textSize="12sp"
-            android:textColor="#F8BBD0"
+            android:textColor="@color/white"
             android:layout_marginBottom="8dp"
             android:maxLines="2"
             android:ellipsize="end" />
@@ -91,9 +91,9 @@
             android:id="@+id/tv_added_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Added: Today"
+            android:text="@string/added_today"
             android:textSize="10sp"
-            android:textColor="#F8BBD0"
+            android:textColor="@color/white"
             android:gravity="end" />
 
     </LinearLayout>

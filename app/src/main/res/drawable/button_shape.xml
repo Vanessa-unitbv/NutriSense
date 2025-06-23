@@ -2,18 +2,14 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
         android:shape="rectangle">
 
-    <!-- Forma capsulă -->
     <corners android:radius="50dp" />
 
-    <!-- Culoare pentru disabled (fără gradient) -->
-    <solid android:color="#BDBDBD" />
+    <solid android:color="#B4BDBDBD" />
 
-    <!-- Bordură -->
     <stroke
             android:width="2dp"
-            android:color="#9E9E9E" />
+            android:color="#C79E9E9E" />
 
-    <!-- Padding pentru formă -->
     <padding
             android:left="24dp"
             android:top="16dp"

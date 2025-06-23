@@ -23,7 +23,6 @@ class CalculateNutritionFragment : Fragment() {
     private lateinit var etFoodName: EditText
     private lateinit var etQuantity: EditText
     private lateinit var btnCalculateNutrition: Button
-    private lateinit var btnLogout: Button
     private lateinit var btnBackToDashboard: Button
 
     private lateinit var progressBar: ProgressBar
@@ -69,7 +68,6 @@ class CalculateNutritionFragment : Fragment() {
         etFoodName = view.findViewById(R.id.et_food_name)
         etQuantity = view.findViewById(R.id.et_quantity)
         btnCalculateNutrition = view.findViewById(R.id.btn_calculate_nutrition)
-        btnLogout = view.findViewById(R.id.btn_logout)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
 
         progressBar = view.findViewById(R.id.progress_bar)
@@ -101,10 +99,6 @@ class CalculateNutritionFragment : Fragment() {
 
         btnMarkConsumed.setOnClickListener {
             markCurrentFoodAsConsumed()
-        }
-
-        btnLogout.setOnClickListener {
-            performLogout()
         }
 
         btnBackToDashboard.setOnClickListener {
@@ -213,20 +207,6 @@ class CalculateNutritionFragment : Fragment() {
         llNutritionResults.hide()
         btnMarkConsumed.hide()
         currentFoodResult = null
-    }
-
-    private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
-        requireContext().showSuccessToast("Successfully logged out")
-        goToLogin()
-    }
-
-    private fun goToLogin() {
-        try {
-            findNavController().navigate(R.id.loginFragment)
-        } catch (e: Exception) {
-            requireActivity().finish()
-        }
     }
 
     private fun goToDashboard() {

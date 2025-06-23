@@ -28,7 +28,6 @@ class SearchHistoryFragment : Fragment() {
     private lateinit var rvSavedFoods: RecyclerView
     private lateinit var tvNoSavedFoods: TextView
     private lateinit var tvNutritionSummary: TextView
-    private lateinit var btnLogout: Button
     private lateinit var btnBackToDashboard: Button
 
     override fun onCreateView(
@@ -56,7 +55,6 @@ class SearchHistoryFragment : Fragment() {
         rvSavedFoods = view.findViewById(R.id.rv_saved_foods)
         tvNoSavedFoods = view.findViewById(R.id.tv_no_saved_foods)
         tvNutritionSummary = view.findViewById(R.id.tv_nutrition_summary)
-        btnLogout = view.findViewById(R.id.btn_logout)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
     }
 
@@ -89,10 +87,6 @@ class SearchHistoryFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        btnLogout.setOnClickListener {
-            performLogout()
-        }
-
         btnBackToDashboard.setOnClickListener {
             goToDashboard()
         }
@@ -206,20 +200,6 @@ class SearchHistoryFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out")
-        goToLogin()
-    }
-
-    private fun goToLogin() {
-        try {
-            findNavController().navigate(R.id.loginFragment)
-        } catch (e: Exception) {
-            requireActivity().finish()
-        }
     }
 
     private fun goToDashboard() {

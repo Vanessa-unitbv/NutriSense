@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fundalflori1">
+    android:background="@drawable/fundal1">
 
     <TextView
         android:id="@+id/tv_title"
@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login"
         android:textSize="24sp"
-        android:textColor="
-#D81B60"
+        android:textColor="@color/button_primary_start"
         app:layout_constraintVertical_bias="0.1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,16 +36,16 @@
             android:layout_height="wrap_content"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:backgroundTint="#F48FB1"
-            android:textColorHint="#F8BBD0"
+            android:backgroundTint="@color/white"
+            android:textColorHint="@color/white"
             />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:passwordToggleEnabled="true"
-            android:backgroundTint="#F48FB1"
-            android:textColorHint="#F8BBD0">
+            android:backgroundTint="@color/white"
+            android:textColorHint="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_password"
@@ -72,9 +71,9 @@
             android:layout_height="wrap_content"
             android:text="@string/do_login"
             android:id="@+id/btn_do_login"
-            android:background="@drawable/pink_button"
+            android:background="@drawable/button_selector"
             app:backgroundTint="@null"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             style="@null" />
         <Button
             android:layout_width="wrap_content"

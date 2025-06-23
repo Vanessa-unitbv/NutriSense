@@ -28,7 +28,6 @@ class DashboardFragment : Fragment() {
     private lateinit var btnRecipeHistory: Button
     private lateinit var btnSettings: Button
     private lateinit var btnProfile: Button
-    private lateinit var btnLogout: Button
 
     private var currentUser: User? = null
 
@@ -62,7 +61,6 @@ class DashboardFragment : Fragment() {
         btnRecipeHistory = view.findViewById(R.id.btn_recipe_history)
         btnSettings = view.findViewById(R.id.btn_settings)
         btnProfile = view.findViewById(R.id.btn_profile)
-        btnLogout = view.findViewById(R.id.btn_logout)
     }
 
     private fun loadUserData() {
@@ -100,10 +98,6 @@ class DashboardFragment : Fragment() {
 
         btnProfile.setOnClickListener {
             navigateToProfile()
-        }
-
-        btnLogout.setOnClickListener {
-            performLogout()
         }
     }
 
@@ -156,20 +150,10 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out", false)
-        goToLogin()
-    }
-
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             requireActivity().finish()
         }
-    }
-
-    private fun goToLogin() {
-        findNavController().navigate(R.id.loginFragment)
     }
 
     private fun showToast(message: String, isLong: Boolean) {

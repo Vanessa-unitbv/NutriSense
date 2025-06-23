@@ -3,15 +3,15 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/fundalflori4">
+        android:background="@drawable/fundal4">
 
     <TextView
             android:id="@+id/tv_title_register2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Complete Registration"
+            android:text="@string/complete_registration"
             android:textSize="24sp"
-            android:textColor="#D81B60"
+            android:textColor="@color/button_primary_start"
             app:layout_constraintVertical_bias="0.1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -33,9 +33,9 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tell us a bit about yourself:"
+                android:text="@string/tell_us_a_bit_about_yourself"
                 android:textSize="14sp"
-                android:textColor="#D81B60"
+                android:textColor="@color/button_primary_start"
                 android:layout_marginBottom="16dp"
                 android:layout_gravity="center_horizontal" />
 
@@ -44,8 +44,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/first_name"
-                android:backgroundTint="#F48FB1"
-                android:textColorHint="#F8BBD0"
+                android:backgroundTint="@color/white"
+                android:textColorHint="@color/white"
                 android:inputType="textPersonName">
         </com.google.android.material.textfield.TextInputEditText>
 
@@ -54,8 +54,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/last_name"
-                android:backgroundTint="#F48FB1"
-                android:textColorHint="#F8BBD0"
+                android:backgroundTint="@color/white"
+                android:textColorHint="@color/white"
                 android:inputType="textPersonName">
         </com.google.android.material.textfield.TextInputEditText>
 
@@ -64,8 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/age"
-                android:backgroundTint="#F48FB1"
-                android:textColorHint="#F8BBD0"
+                android:backgroundTint="@color/white"
+                android:textColorHint="@color/white"
                 android:inputType="number">
         </com.google.android.material.textfield.TextInputEditText>
     </LinearLayout>
@@ -74,7 +74,7 @@
             android:id="@+id/btn_go_to_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Account"
+            android:text="@string/create_account"
             app:backgroundTint="@null"
             android:background="@drawable/button_selector"
             android:textColor="@color/button_text_color"
@@ -89,7 +89,7 @@
             android:id="@+id/btn_logout"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="Back to Login"
+            android:text="@string/back_to_login"
             android:background="@drawable/button_selector"
             android:textColor="@color/button_text_color"
             android:textSize="16sp"

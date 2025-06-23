@@ -3,15 +3,15 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/fundalflori2">
+        android:background="@drawable/fundal9">
 
     <TextView
             android:id="@+id/tv_title_search_history"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Food Search History"
+            android:text="@string/food_search_history"
             android:textSize="24sp"
-            android:textColor="#D81B60"
+            android:textColor="@color/button_primary_start"
             android:textStyle="bold"
             app:layout_constraintVertical_bias="0.05"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -39,15 +39,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_marginBottom="24dp"
-                    android:background="@drawable/pink_button"
+                    android:background="@drawable/brown_button"
                     android:padding="16dp">
 
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📊 Today's Summary"
+                        android:text="@string/today_s_summary"
                         android:textSize="18sp"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/white"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
 
@@ -55,9 +55,9 @@
                         android:id="@+id/tv_nutrition_summary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No foods consumed today"
+                        android:text="@string/no_foods_consumed_today"
                         android:textSize="14sp"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/white" />
 
             </LinearLayout>
 
@@ -66,30 +66,30 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_marginBottom="24dp"
-                    android:background="@drawable/pink_button"
+                    android:background="@drawable/brown_button"
                     android:padding="16dp">
 
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🔍 Your Food Database"
+                        android:text="@string/your_food_database"
                         android:textSize="18sp"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/white"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
 
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All foods you've searched for are saved here. You can:"
+                        android:text="@string/all_foods_you_ve_searched_for_are_saved_here_you_can"
                         android:textSize="12sp"
-                        android:textColor="#F8BBD0"
+                        android:textColor="@color/white"
                         android:layout_marginBottom="8dp" />
 
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="• ⭐ Mark foods as favorites\n• ✅ Mark foods as consumed today\n• 🗑️ Delete foods from your database\n• 📊 View detailed nutrition information"
+                        android:text="@string/mark_foods_as_favorites_n_mark_foods_as_consumed_today_n_delete_foods_from_your_database_n_view_detailed_nutrition_information"
                         android:textSize="12sp"
                         android:textColor="#F8BBD0"
                         android:layout_marginBottom="16dp"
@@ -99,9 +99,9 @@
                         android:id="@+id/tv_no_saved_foods"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No foods in your database yet. Use 'Calculate Nutrition' to add foods!"
+                        android:text="@string/no_foods_in_your_database_yet_use_calculate_nutrition_to_add_foods"
                         android:textSize="14sp"
-                        android:textColor="#F8BBD0"
+                        android:textColor="@color/white"
                         android:gravity="center"
                         android:padding="16dp"
                         android:visibility="visible" />
@@ -132,7 +132,7 @@
                 android:id="@+id/btn_back_to_dashboard"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="Dashboard"
+                android:text="@string/dashboard"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
                 android:textSize="14sp"
@@ -143,23 +143,6 @@
                 android:minWidth="140dp"
                 android:maxWidth="180dp"
                 android:layout_marginEnd="8dp"
-                style="@null" />
-
-        <Button
-                android:id="@+id/btn_logout"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="Logout"
-                android:background="@drawable/button_selector"
-                android:textColor="@color/button_text_color"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:backgroundTint="@null"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:minWidth="140dp"
-                android:maxWidth="180dp"
-                android:layout_marginStart="8dp"
                 style="@null" />
 
     </LinearLayout>

@@ -25,7 +25,6 @@ class RecipeSearchFragment : Fragment() {
 
     private lateinit var etIngredients: EditText
     private lateinit var btnSearchRecipes: Button
-    private lateinit var btnLogout: Button
     private lateinit var btnBackToDashboard: Button
 
     private lateinit var progressBar: ProgressBar
@@ -57,7 +56,6 @@ class RecipeSearchFragment : Fragment() {
 
         etIngredients = view.findViewById(R.id.et_ingredients)
         btnSearchRecipes = view.findViewById(R.id.btn_search_recipes)
-        btnLogout = view.findViewById(R.id.btn_logout)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
 
         progressBar = view.findViewById(R.id.progress_bar)
@@ -86,10 +84,6 @@ class RecipeSearchFragment : Fragment() {
     private fun setupClickListeners() {
         btnSearchRecipes.setOnClickListener {
             searchRecipes()
-        }
-
-        btnLogout.setOnClickListener {
-            performLogout()
         }
 
         btnBackToDashboard.setOnClickListener {
@@ -184,20 +178,6 @@ class RecipeSearchFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out")
-        goToLogin()
-    }
-
-    private fun goToLogin() {
-        try {
-            findNavController().navigate(R.id.loginFragment)
-        } catch (e: Exception) {
-            requireActivity().finish()
-        }
     }
 
     private fun goToDashboard() {

@@ -3,16 +3,18 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="button_primary_start">#F06299</color>
-    <color name="button_primary_center">#EC407A</color>
-    <color name="button_primary_end">#C2185B</color>
+    <color name="button_primary_start">#70713B27</color>
+    <color name="button_primary_center">#A9713B27</color>
+    <color name="button_primary_end">#713B27</color>
 
-    <color name="button_pressed_start">#FFCDD2</color>
-    <color name="button_pressed_center">#FCE4EC</color>
-    <color name="button_pressed_end">#FBE9E7</color>
+    <color name="button_pressed_start">#6D5751</color>
+    <color name="button_pressed_center">#8C7570</color>
+    <color name="button_pressed_end">#6F6764</color>
 
-    <color name="button_border">#AD1457</color>
+    <color name="button_border">#E7713B27</color>
     <color name="button_border_pressed">#424242</color>
 
-    <color name="button_selected">#F06292</color>
+    <color name="button_selected">#BC6D5751</color>
+    <color name="green">#4CAF50</color>
+    <color name="c62828">#C62828</color>
 </resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Food nutrition IDs -->
     <item name="btn_mark_consumed" type="id" />
     <item name="tv_sugar" type="id" />
     <item name="tv_fiber" type="id" />
@@ -16,7 +15,6 @@
     <item name="et_food_name" type="id" />
     <item name="tv_title_nutrition" type="id" />
 
-    <!-- Recipe IDs -->
     <item name="et_ingredients" type="id" />
     <item name="btn_search_recipes" type="id" />
     <item name="rv_recipes" type="id" />

@@ -28,7 +28,6 @@ class RecipeHistoryFragment : Fragment() {
     private lateinit var rvSavedRecipes: RecyclerView
     private lateinit var tvNoSavedRecipes: TextView
     private lateinit var tvRecipeSummary: TextView
-    private lateinit var btnLogout: Button
     private lateinit var btnBackToDashboard: Button
 
     override fun onCreateView(
@@ -56,7 +55,6 @@ class RecipeHistoryFragment : Fragment() {
         rvSavedRecipes = view.findViewById(R.id.rv_saved_recipes)
         tvNoSavedRecipes = view.findViewById(R.id.tv_no_saved_recipes)
         tvRecipeSummary = view.findViewById(R.id.tv_recipe_summary)
-        btnLogout = view.findViewById(R.id.btn_logout)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
     }
 
@@ -88,10 +86,6 @@ class RecipeHistoryFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        btnLogout.setOnClickListener {
-            performLogout()
-        }
-
         btnBackToDashboard.setOnClickListener {
             goToDashboard()
         }
@@ -171,20 +165,6 @@ class RecipeHistoryFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun performLogout() {
-        preferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out")
-        goToLogin()
-    }
-
-    private fun goToLogin() {
-        try {
-            findNavController().navigate(R.id.loginFragment)
-        } catch (e: Exception) {
-            requireActivity().finish()
-        }
     }
 
     private fun goToDashboard() {

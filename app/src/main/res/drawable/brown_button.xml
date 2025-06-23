@@ -8,20 +8,19 @@
         </shape>
     </item>
 
-    <!-- Buton cu gradient -->
     <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="6dp">
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#F06292"
-                android:centerColor="#EC407A"
-                android:endColor="#C2185B"
-                android:angle="135" />
+                    android:startColor="#E5DC7A3B"
+                    android:centerColor="#BBDC7A3B"
+                    android:endColor="#55DC7A3B"
+                    android:angle="270" />
             <corners android:radius="24dp" />
             <padding
-                android:left="24dp"
-                android:top="12dp"
-                android:right="24dp"
-                android:bottom="12dp" />
+                    android:left="24dp"
+                    android:top="12dp"
+                    android:right="24dp"
+                    android:bottom="12dp" />
         </shape>
     </item>
 </layer-list>
