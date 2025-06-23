@@ -11,7 +11,7 @@
             android:layout_height="wrap_content"
             android:text="@string/my_profile"
             android:textSize="24sp"
-            android:textColor="@color/button_primary_start"
+            android:textColor="@color/brown"
             app:layout_constraintVertical_bias="0.05"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

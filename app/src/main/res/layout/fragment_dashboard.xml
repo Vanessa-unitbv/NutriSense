@@ -9,7 +9,7 @@
         android:id="@+id/tv_title_dashboard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NutriSense Dashboard"
+        android:text="@string/nutrisense_dashboard"
         android:textSize="26sp"
         android:textColor="@color/button_primary_start"
         android:textStyle="bold"

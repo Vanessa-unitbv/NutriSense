@@ -17,7 +17,7 @@
     <string name="my_email">Your Email:</string>
     <string name="logout">Logout</string>
 
-    <!-- Settings strings -->
+
     <string name="settings_title">Settings &amp; Goals</string>
     <string name="nutrition_goals">Nutrition Goals</string>
     <string name="daily_calorie_goal">Daily Calorie Goal (kcal)</string>
@@ -41,28 +41,28 @@
     <string name="update_settings">Update Settings &amp; Goals</string>
     <string name="complete_profile">Complete Your Profile</string>
 
-    <!-- Units -->
+
     <string name="metric_units">Metric (kg, cm)</string>
     <string name="imperial_units">Imperial (lbs, in)</string>
 
-    <!-- Gender options -->
+
     <string name="female">Female</string>
     <string name="male">Male</string>
 
-    <!-- Activity levels -->
+
     <string name="sedentary">Sedentary</string>
     <string name="light_activity">Light Activity</string>
     <string name="moderate_activity">Moderate Activity</string>
     <string name="active">Active</string>
     <string name="very_active">Very Active</string>
 
-    <!-- BMI categories -->
+
     <string name="underweight">Underweight</string>
     <string name="normal_weight">Normal</string>
     <string name="overweight">Overweight</string>
     <string name="obese">Obese</string>
 
-    <!-- Messages -->
+
     <string name="settings_saved">Settings saved successfully!</string>
     <string name="goals_calculated">Goals calculated successfully!</string>
     <string name="enter_valid_data">Please enter valid weight, height, and age</string>
@@ -98,20 +98,20 @@
     <string name="all_foods_you_ve_searched_for_are_saved_here_you_can">All foods you\'ve searched for are saved here. You can:</string>
     <string name="mark_foods_as_favorites_n_mark_foods_as_consumed_today_n_delete_foods_from_your_database_n_view_detailed_nutrition_information">• ⭐ Mark foods as favorites\n• ✅ Mark foods as consumed today\n• 🗑️ Delete foods from your database\n• 📊 View detailed nutrition information</string>
     <string name="no_foods_in_your_database_yet_use_calculate_nutrition_to_add_foods">No foods in your database yet. Use \'Calculate Nutrition\' to add foods!</string>
-    <string name="personal_information">👤 Personal Information</string>
+    <string name="personal_information">Personal Information</string>
     <string name="weight_amp_height"><![CDATA[Weight & Height:]]></string>
     <string name="calorie_goal_kcal_day">Calorie Goal (kcal/day):</string>
     <string name="water_goal_ml_day">Water Goal (ml/day):</string>
     <string name="calculate_recommended_goals">Calculate Recommended Goals</string>
     <string name="reminder_settings">Reminder Settings:</string>
     <string name="water_reminder_interval_minutes">Water Reminder Interval (minutes):</string>
-    <string name="save_all_settings">💾 Save All Settings</string>
+    <string name="save_all_settings">Save All Settings</string>
     <string name="food_name">Food Name</string>
     <string name="search_original_query">Search: original query</string>
     <string name="toggle_favorite">Toggle Favorite</string>
     <string name="mark_as_consumed">Mark as Consumed</string>
     <string name="delete_food">Delete Food</string>
-    <string name="not_consumed">⏳ Not consumed</string>
+    <string name="not_consumed">Not consumed</string>
     <string name="_100g">100g</string>
     <string name="_0_kcal">0 kcal</string>
     <string name="protein_0g">Protein: 0g</string>
@@ -122,4 +122,14 @@
     <string name="delete_recipe">Delete Recipe</string>
     <string name="servings_4">Servings: 4</string>
     <string name="ingredients_chicken_rice_vegetables">Ingredients: chicken, rice, vegetables...</string>
+    <string name="calculate_nutrition">Calculate Nutrition</string>
+    <string name="food_information">Food Information</string>
+    <string name="e_g_apple">e.g., Apple</string>
+    <string name="quantity_grams">Quantity (grams):</string>
+    <string name="e_g_100">e.g., 100</string>
+    <string name="nutrition_results">Nutrition Results</string>
+    <string name="mark_as_consumed_today">Mark as Consumed Today</string>
+    <string name="nutrisense_dashboard">NutriSense Dashboard</string>
+    <string name="n_l_ime_cm">cm</string>
+    <string name="greutate_kg">kg</string>
 </resources>

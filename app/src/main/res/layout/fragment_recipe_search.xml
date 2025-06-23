@@ -66,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/e_g_chicken_rice_tomato"
                     android:backgroundTint="@color/white"
-                    android:textColorHint="@color/white"
+                    android:textColorHint="@color/button_pressed_center"
                     android:textColor="@color/black"
                     android:background="@color/white"
                     android:padding="12dp"

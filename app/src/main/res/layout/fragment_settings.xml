@@ -107,7 +107,6 @@
                         android:layout_height="wrap_content"
                         android:background="@color/white"
                         android:padding="8dp" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -148,6 +147,8 @@
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
                             app:boxBackgroundColor="@color/white"
+                            android:hint="@string/greutate_kg"
+                            android:textColorHint="@color/button_pressed_start"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -155,7 +156,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="numberDecimal"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/button_pressed_start" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -164,6 +165,8 @@
                             android:layout_weight="1"
                             android:layout_marginStart="8dp"
                             app:boxBackgroundColor="@color/white"
+                            android:hint="@string/n_l_ime_cm"
+                            android:textColorHint="@color/button_pressed_start"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -171,9 +174,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="numberDecimal"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/button_pressed_start" />
                     </com.google.android.material.textfield.TextInputLayout>
-
                 </LinearLayout>
 
                 <TextView
@@ -182,7 +184,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/bmi_display"
                         android:textSize="14sp"
-                        android:textColor="@color/white"
+                        android:textColor="@color/button_pressed_start"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
 
@@ -201,7 +203,6 @@
                         android:layout_height="wrap_content"
                         android:background="@color/white"
                         android:padding="8dp" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -235,6 +236,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         app:boxBackgroundColor="@color/white"
+                        android:hint="Calorii (kcal)"
+                        android:textColorHint="@color/button_pressed_start"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -259,6 +262,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         app:boxBackgroundColor="@color/white"
+                        android:hint="Apă (ml)"
+                        android:textColorHint="@color/button_pressed_start"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -281,7 +286,6 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="8dp"
                         style="@null" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -350,6 +354,7 @@
                             android:layout_height="wrap_content" />
                 </LinearLayout>
 
+                <!-- Interval remindere apă -->
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -364,6 +369,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         app:boxBackgroundColor="@color/white"
+                        android:hint="Interval (minute)"
+                        android:textColorHint="@color/button_pressed_start"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -373,7 +380,6 @@
                             android:inputType="number"
                             android:textColor="@color/black" />
                 </com.google.android.material.textfield.TextInputLayout>
-
             </LinearLayout>
 
             <Button
@@ -389,10 +395,10 @@
                     android:padding="16dp"
                     android:layout_marginTop="16dp"
                     style="@null" />
-
         </LinearLayout>
     </ScrollView>
 
+    <!-- Butoane jos -->
     <LinearLayout
             android:id="@+id/bottom_buttons_layout"
             android:layout_width="0dp"
@@ -408,7 +414,7 @@
                 android:id="@+id/btn_back_to_dashboard"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="Dashboard"
+                android:text="@string/dashboard"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
                 android:textSize="14sp"
@@ -420,7 +426,5 @@
                 android:maxWidth="180dp"
                 android:layout_marginEnd="8dp"
                 style="@null" />
-
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
