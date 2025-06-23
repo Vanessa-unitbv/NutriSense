@@ -1,4 +1,4 @@
-package com.example.nutrisense
+package com.example.nutrisense.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.R
+import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.utils.NutritionCalculator
+import com.example.nutrisense.helpers.extensions.*
 import com.google.android.material.textfield.TextInputEditText
 
 class SettingsFragment : Fragment() {
@@ -166,9 +168,12 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updateBMI() {
-        val weight = etWeight.text.toString().toFloatOrNull()
-        val height = etHeight.text.toString().toFloatOrNull()
+        val weightText = etWeight.getTextString()
+        val heightText = etHeight.getTextString()
         val isImperial = spinnerUnits.selectedItemPosition == 1
+
+        val weight = weightText.toFloatOrNull()
+        val height = heightText.toFloatOrNull()
 
         if (weight != null && height != null && weight > 0 && height > 0) {
             val heightInMeters = if (isImperial) {
@@ -202,14 +207,33 @@ class SettingsFragment : Fragment() {
     }
 
     private fun calculateRecommendedGoals() {
-        val weight = etWeight.text.toString().toFloatOrNull()
-        val height = etHeight.text.toString().toFloatOrNull()
-        val age = etAge.text.toString().toIntOrNull()
+        val weightText = etWeight.getTextString()
+        val heightText = etHeight.getTextString()
+        val ageText = etAge.getTextString()
 
-        if (weight == null || height == null || age == null || weight <= 0 || height <= 0 || age <= 0) {
-            Toast.makeText(context, getString(R.string.enter_valid_data), Toast.LENGTH_LONG).show()
+        // Clear previous errors
+        etWeight.clearErrorAndFocus()
+        etHeight.clearErrorAndFocus()
+        etAge.clearErrorAndFocus()
+
+        if (!weightText.isValidWeight(getCurrentUnits())) {
+            etWeight.setErrorAndFocus("Please enter a valid weight")
             return
         }
+
+        if (!heightText.isValidHeight(getCurrentUnits())) {
+            etHeight.setErrorAndFocus("Please enter a valid height")
+            return
+        }
+
+        if (!ageText.isValidAge()) {
+            etAge.setErrorAndFocus("Please enter a valid age (13-120)")
+            return
+        }
+
+        val weight = weightText.toFloat()
+        val height = heightText.toFloat()
+        val age = ageText.toInt()
 
         val gender = if (spinnerGender.selectedItemPosition == 0) "female" else "male"
         val activityLevel = when (spinnerActivity.selectedItemPosition) {
@@ -233,35 +257,64 @@ class SettingsFragment : Fragment() {
             etCalories.setText(recommendedCalories.toString())
             etWater.setText(recommendedWater.toString())
 
-            Toast.makeText(context, getString(R.string.goals_calculated), Toast.LENGTH_SHORT).show()
+            requireContext().showSuccessToast("Goals calculated successfully!")
 
         } catch (e: Exception) {
-            Toast.makeText(context, "Error calculating: ${e.message}", Toast.LENGTH_LONG).show()
+            requireContext().showErrorToast("Error calculating goals: ${e.message}")
         }
     }
 
     private fun saveAllSettings() {
         try {
-            val calories = etCalories.text.toString().toIntOrNull() ?: 2000
-            val water = etWater.text.toString().toIntOrNull() ?: 2000
+            val caloriesText = etCalories.getTextString()
+            val waterText = etWater.getTextString()
+
+            // Validate inputs
+            if (!caloriesText.isValidCalorieGoal()) {
+                etCalories.setErrorAndFocus("Please enter a valid calorie goal (800-5000)")
+                return
+            }
+
+            if (!waterText.isValidWaterGoal()) {
+                etWater.setErrorAndFocus("Please enter a valid water goal (500-5000 ml)")
+                return
+            }
+
+            val calories = caloriesText.toInt()
+            val water = waterText.toInt()
 
             userPreferencesManager.setDailyCalorieGoal(calories)
             userPreferencesManager.setDailyWaterGoal(water)
 
-            val weight = etWeight.text.toString().toFloatOrNull()
-            val height = etHeight.text.toString().toFloatOrNull()
-            val age = etAge.text.toString().toIntOrNull()
+            val weightText = etWeight.getTextString()
+            val heightText = etHeight.getTextString()
+            val ageText = etAge.getTextString()
 
-            if (weight != null && weight > 0) {
-                userPreferencesManager.setUserWeight(weight)
+            if (weightText.isNotEmpty()) {
+                if (weightText.isValidWeight(getCurrentUnits())) {
+                    userPreferencesManager.setUserWeight(weightText.toFloat())
+                } else {
+                    etWeight.setErrorAndFocus("Invalid weight")
+                    return
+                }
             }
 
-            if (height != null && height > 0) {
-                userPreferencesManager.setUserHeight(height)
+            if (heightText.isNotEmpty()) {
+                if (heightText.isValidHeight(getCurrentUnits())) {
+                    userPreferencesManager.setUserHeight(heightText.toFloat())
+                } else {
+                    etHeight.setErrorAndFocus("Invalid height")
+                    return
+                }
             }
 
-            if (age != null && age > 0) {
-                userPreferencesManager.setUserAge(age)
+            if (ageText.isNotEmpty()) {
+                if (ageText.isValidAge()) {
+                    userPreferencesManager.setUserAge(ageText.toInt())
+                } else {
+                    etAge.setErrorAndFocus("Invalid age")
+                    return
+                }
             }
 
             val activityLevel = when (spinnerActivity.selectedItemPosition) {
@@ -280,24 +333,32 @@ class SettingsFragment : Fragment() {
             userPreferencesManager.setNotificationEnabled(switchNotifications.isChecked)
 
             val waterInterval = if (switchWaterReminder.isChecked) {
-                etWaterInterval.text.toString().toIntOrNull() ?: 60
+                val intervalText = etWaterInterval.getTextString()
+                if (intervalText.isNotEmpty()) {
+                    intervalText.toIntOrNull() ?: 60
+                } else {
+                    60
+                }
             } else {
                 0
             }
             userPreferencesManager.setWaterReminderInterval(waterInterval)
 
-            Toast.makeText(context, getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
-
+            requireContext().showSuccessToast("Settings saved successfully!")
             findNavController().popBackStack()
 
         } catch (e: Exception) {
-            Toast.makeText(context, "Error saving: ${e.message}", Toast.LENGTH_LONG).show()
+            requireContext().showErrorToast("Error saving settings: ${e.message}")
         }
+    }
+
+    private fun getCurrentUnits(): String {
+        return if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
     }
 
     private fun performLogout() {
         globalPreferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out")
+        requireContext().showSuccessToast("Successfully logged out")
         goToLogin()
     }
 
@@ -315,9 +376,5 @@ class SettingsFragment : Fragment() {
         } catch (e: Exception) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

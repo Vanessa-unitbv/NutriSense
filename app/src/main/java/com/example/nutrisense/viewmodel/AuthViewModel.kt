@@ -3,21 +3,22 @@ package com.example.nutrisense.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nutrisense.data.database.AppDatabase
+import com.example.nutrisense.activities.ApplicationController
 import com.example.nutrisense.data.entity.User
 import com.example.nutrisense.data.repository.UserRepository
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.managers.SharedPreferencesManager
+import com.example.nutrisense.utils.AppConstants
 import kotlinx.coroutines.launch
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: UserRepository
-    private val globalPreferencesManager: SharedPreferencesManager
+    private val appController: ApplicationController = ApplicationController.instance
+    private val globalPreferencesManager: SharedPreferencesManager = appController.globalPreferencesManager
 
     init {
-        val userDao = AppDatabase.getDatabase(application).userDao()
+        val userDao = appController.database.userDao()
         repository = UserRepository(userDao)
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
     }
 
     fun loginUser(
@@ -69,6 +70,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         if (email.isBlank() || password.isBlank()) {
             onError("Email and password are required")
             return
+        }
+
+        if (password.length < AppConstants.MIN_PASSWORD_LENGTH) {
+            onError("Password must be at least ${AppConstants.MIN_PASSWORD_LENGTH} characters")
+            return
+        }
+
+        age?.let { userAge ->
+            if (userAge < AppConstants.MIN_AGE || userAge > AppConstants.MAX_AGE) {
+                onError("Age must be between ${AppConstants.MIN_AGE} and ${AppConstants.MAX_AGE}")
+                return
+            }
         }
 
         viewModelScope.launch {
@@ -150,11 +163,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setDefaultNutritionGoals(preferencesManager: SharedPreferencesManager) {
-        preferencesManager.setDailyCalorieGoal(2000)
-        preferencesManager.setDailyWaterGoal(2000)
+        preferencesManager.setDailyCalorieGoal(AppConstants.DEFAULT_CALORIE_GOAL)
+        preferencesManager.setDailyWaterGoal(AppConstants.DEFAULT_WATER_GOAL_ML)
         preferencesManager.setNotificationEnabled(true)
-        preferencesManager.setWaterReminderInterval(60)
+        preferencesManager.setWaterReminderInterval(AppConstants.DEFAULT_WATER_REMINDER_INTERVAL)
         preferencesManager.setMealReminderEnabled(true)
-        preferencesManager.setPreferredUnits("metric")
+        preferencesManager.setPreferredUnits(AppConstants.DEFAULT_UNITS)
+        preferencesManager.setActivityLevel(AppConstants.DEFAULT_ACTIVITY_LEVEL)
     }
 }

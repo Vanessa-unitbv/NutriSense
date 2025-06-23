@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/navigation_auth"
-        app:startDestination="@id/loginFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_auth"
+    app:startDestination="@id/loginFragment">
 
     <fragment
-            android:id="@+id/loginFragment"
-            android:name="com.example.nutrisense.LoginFragment"
-            android:label="LoginFragment"
-            tools:layout="@layout/fragment_login">
+        android:id="@+id/loginFragment"
+        android:name="com.example.nutrisense.fragments.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
-                android:id="@+id/action_loginFragment_to_register2Fragment"
-                app:destination="@id/register2Fragment">
+            android:id="@+id/action_loginFragment_to_register2Fragment"
+            app:destination="@id/register2Fragment">
             <argument
-                    android:name="email"
-                    app:argType="string" />
+                android:name="email"
+                app:argType="string" />
             <argument
-                    android:name="password"
-                    app:argType="string" />
+                android:name="password"
+                app:argType="string" />
         </action>
         <action
-                android:id="@+id/action_loginFragment_to_navigation_profile"
-                app:destination="@id/navigation_profile">
+            android:id="@+id/action_loginFragment_to_navigation_profile"
+            app:destination="@id/navigation_profile">
             <argument
-                    android:name="email"
-                    app:argType="string" />
+                android:name="email"
+                app:argType="string" />
         </action>
     </fragment>
 
     <fragment
-            android:id="@+id/register2Fragment"
-            android:name="com.example.nutrisense.Register2Fragment"
-            android:label="Register2Fragment"
-            tools:layout="@layout/fragment_register_step_2">
+        android:id="@+id/register2Fragment"
+        android:name="com.example.nutrisense.fragments.Register2Fragment"
+        android:label="Register2Fragment"
+        tools:layout="@layout/fragment_register_step_2">
         <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="password"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_register2Fragment_to_navigation_profile"
+            app:destination="@id/navigation_profile">
+            <argument
                 android:name="email"
                 app:argType="string" />
-        <argument
-                android:name="password"
-                app:argType="string" />
-        <action
-                android:id="@+id/action_register2Fragment_to_navigation_profile"
-                app:destination="@id/navigation_profile">
-            <argument
-                    android:name="email"
-                    app:argType="string" />
         </action>
         <action
-                android:id="@+id/action_register2Fragment_to_loginFragment"
-                app:destination="@id/loginFragment" />
+            android:id="@+id/action_register2Fragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
     <include app:graph="@navigation/navigation_profile" />

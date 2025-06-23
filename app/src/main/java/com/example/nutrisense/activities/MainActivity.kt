@@ -1,4 +1,4 @@
-package com.example.nutrisense
+package com.example.nutrisense.activities
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -7,12 +7,19 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.R
+import com.example.nutrisense.fragments.LoginFragmentDirections
+import com.example.nutrisense.managers.SharedPreferencesManager
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
-    private lateinit var globalPreferencesManager: SharedPreferencesManager
+
+    private val appController: ApplicationController
+        get() = ApplicationController.instance
+
+    private val globalPreferencesManager: SharedPreferencesManager
+        get() = appController.globalPreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,13 +32,14 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(this)
+        setupNavigation()
+        checkUserLoginStatus()
+    }
 
+    private fun setupNavigation() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        checkUserLoginStatus()
     }
 
     private fun checkUserLoginStatus() {
@@ -48,5 +56,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

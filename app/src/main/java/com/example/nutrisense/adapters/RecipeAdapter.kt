@@ -1,4 +1,4 @@
-package com.example.nutrisense.ui.adapter
+package com.example.nutrisense.adapters
 
 import android.view.LayoutInflater
 import android.view.View

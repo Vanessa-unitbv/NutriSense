@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nutrisense.data.database.AppDatabase
 import com.example.nutrisense.data.entity.Recipe
 import com.example.nutrisense.data.repository.RecipeRepository
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.managers.SharedPreferencesManager
 import kotlinx.coroutines.launch
 
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {

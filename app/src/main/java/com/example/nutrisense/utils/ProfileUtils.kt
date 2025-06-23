@@ -1,6 +1,6 @@
 package com.example.nutrisense.utils
 
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.managers.SharedPreferencesManager
 
 object ProfileUtils {
 

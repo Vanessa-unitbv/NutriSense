@@ -1,4 +1,4 @@
-package com.example.nutrisense
+package com.example.nutrisense.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,9 +13,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Recipe
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
-import com.example.nutrisense.ui.adapter.RecipeAdapter
+import com.example.nutrisense.managers.SharedPreferencesManager
+import com.example.nutrisense.adapters.RecipeAdapter
 import com.example.nutrisense.viewmodel.RecipeViewModel
 
 class RecipeHistoryFragment : Fragment() {

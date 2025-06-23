@@ -1,4 +1,4 @@
-package com.example.nutrisense
+package com.example.nutrisense.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.nutrisense.R
 import com.example.nutrisense.viewmodel.AuthViewModel
 import com.google.android.material.textfield.TextInputEditText
 

@@ -12,8 +12,12 @@ import kotlinx.coroutines.flow.Flow
 class FoodRepository(
     private val foodDao: FoodDao,
     private val userDao: UserDao,
-    private val apiService: NutritionApiService = ApiClient.nutritionApiService // Actualizat
+    private val apiService: NutritionApiService = ApiClient.nutritionApiService
 ) {
+
+    suspend fun getUserIdByEmail(email: String): Long? {
+        return userDao.getUserByEmail(email)?.id
+    }
 
     fun getAllFoodsForUser(userId: Long): Flow<List<Food>> =
         foodDao.getAllFoodsForUser(userId)
@@ -63,8 +67,21 @@ class FoodRepository(
     suspend fun getTodayTotalFatForUser(userId: Long): Double =
         foodDao.getTodayTotalFatForUser(userId) ?: 0.0
 
-    suspend fun getUserIdByEmail(email: String): Long? {
-        return userDao.getUserByEmail(email)?.id
+    suspend fun getTodayNutritionSummaryForUser(userId: Long): NutritionSummary {
+        val todayConsumedFoods = foodDao.getTodayConsumedFoodsForUser(userId)
+        var foodCount = 0
+
+        todayConsumedFoods.collect { foods ->
+            foodCount = foods.size
+        }
+
+        return NutritionSummary(
+            totalCalories = getTodayTotalCaloriesForUser(userId),
+            totalProtein = getTodayTotalProteinForUser(userId),
+            totalCarbs = getTodayTotalCarbsForUser(userId),
+            totalFat = getTodayTotalFatForUser(userId),
+            foodCount = foodCount
+        )
     }
 
     suspend fun searchNutritionInfo(query: String): Result<List<NutritionResponse>> {
@@ -81,12 +98,17 @@ class FoodRepository(
                     401 -> "Unauthorized - Invalid API key for CalorieNinjas"
                     403 -> "Forbidden - API key limits exceeded"
                     429 -> "Too Many Requests - Try again later"
+                    500 -> "Server Error - CalorieNinjas service temporarily unavailable"
                     else -> "API Error: ${response.code()} - ${response.message()}"
                 }
                 Result.failure(Exception(errorMessage))
             }
+        } catch (e: java.net.UnknownHostException) {
+            Result.failure(Exception("No internet connection. Please check your network."))
+        } catch (e: java.net.SocketTimeoutException) {
+            Result.failure(Exception("Request timed out. Please try again."))
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Network error: ${e.message}"))
         }
     }
 
@@ -99,12 +121,30 @@ class FoodRepository(
             val userId = getUserIdByEmail(userEmail)
                 ?: return Result.failure(Exception("User not found"))
 
+            // Validate inputs
+            if (query.isBlank()) {
+                return Result.failure(Exception("Food name cannot be empty"))
+            }
+
+            if (requestedQuantity <= 0) {
+                return Result.failure(Exception("Quantity must be greater than 0"))
+            }
+
+            if (requestedQuantity > 10000) {
+                return Result.failure(Exception("Quantity too large (max 10kg)"))
+            }
+
             val apiQuery = "${requestedQuantity.toInt()}g $query"
 
             val nutritionResult = searchNutritionInfo(apiQuery)
 
             if (nutritionResult.isSuccess) {
                 val nutritionResponses = nutritionResult.getOrNull() ?: emptyList()
+
+                if (nutritionResponses.isEmpty()) {
+                    return Result.failure(Exception("No nutrition data found for '$query'. Try a different food name."))
+                }
+
                 val foods = nutritionResponses.map { response ->
                     response.toUserFood(
                         userId = userId,
@@ -119,25 +159,8 @@ class FoodRepository(
                 Result.failure(nutritionResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Error processing nutrition data: ${e.message}"))
         }
-    }
-
-    suspend fun getTodayNutritionSummaryForUser(userId: Long): NutritionSummary {
-        val todayConsumedFoods = foodDao.getTodayConsumedFoodsForUser(userId)
-        var foodCount = 0
-
-        todayConsumedFoods.collect { foods ->
-            foodCount = foods.size
-        }
-
-        return NutritionSummary(
-            totalCalories = getTodayTotalCaloriesForUser(userId),
-            totalProtein = getTodayTotalProteinForUser(userId),
-            totalCarbs = getTodayTotalCarbsForUser(userId),
-            totalFat = getTodayTotalFatForUser(userId),
-            foodCount = foodCount
-        )
     }
 }
 

@@ -1,4 +1,4 @@
-package com.example.nutrisense
+package com.example.nutrisense.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,9 +9,11 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Food
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.viewmodel.NutritionViewModel
+import com.example.nutrisense.helpers.extensions.*
 
 class CalculateNutritionFragment : Fragment() {
 
@@ -122,17 +124,21 @@ class CalculateNutritionFragment : Fragment() {
 
     private fun observeViewModel() {
         nutritionViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            if (isLoading) {
+                progressBar.show()
+            } else {
+                progressBar.hide()
+            }
             btnCalculateNutrition.isEnabled = !isLoading
         }
 
         nutritionViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
             if (errorMessage != null) {
                 tvErrorMessage.text = errorMessage
-                tvErrorMessage.visibility = View.VISIBLE
-                llNutritionResults.visibility = View.GONE
+                tvErrorMessage.show()
+                llNutritionResults.hide()
             } else {
-                tvErrorMessage.visibility = View.GONE
+                tvErrorMessage.hide()
             }
         }
 
@@ -141,36 +147,40 @@ class CalculateNutritionFragment : Fragment() {
                 currentFoodResult = searchResults.first()
                 displayNutritionResults(currentFoodResult!!)
 
-                llNutritionResults.visibility = View.VISIBLE
-                btnMarkConsumed.visibility = View.VISIBLE
+                llNutritionResults.show()
+                btnMarkConsumed.show()
 
-                showToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
+                requireContext().showSuccessToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
             }
         }
     }
 
     private fun calculateNutrition() {
-        val foodName = etFoodName.text.toString().trim()
-        val quantityText = etQuantity.text.toString().trim()
+        val foodName = etFoodName.getTextString()
+        val quantityText = etQuantity.getTextString()
+
+        etFoodName.clearErrorAndFocus()
+        etQuantity.clearErrorAndFocus()
 
         if (foodName.isEmpty()) {
-            showToast("Please enter a food name")
+            etFoodName.setErrorAndFocus("Please enter a food name")
             return
         }
 
         if (quantityText.isEmpty()) {
-            showToast("Please enter quantity in grams")
+            etQuantity.setErrorAndFocus("Please enter quantity in grams")
             return
         }
 
-        val quantity = quantityText.toDoubleOrNull()
-        if (quantity == null || quantity <= 0) {
-            showToast("Please enter a valid quantity")
+        if (!quantityText.isValidQuantity()) {
+            etQuantity.setErrorAndFocus("Please enter a valid quantity")
             return
         }
 
-        llNutritionResults.visibility = View.GONE
-        btnMarkConsumed.visibility = View.GONE
+        val quantity = quantityText.toDouble()
+
+        llNutritionResults.hide()
+        btnMarkConsumed.hide()
         nutritionViewModel.clearMessages()
 
         nutritionViewModel.searchFoodNutrition(foodName, quantity)
@@ -192,7 +202,7 @@ class CalculateNutritionFragment : Fragment() {
     private fun markCurrentFoodAsConsumed() {
         currentFoodResult?.let { food ->
             nutritionViewModel.markFoodAsConsumed(food)
-            showToast("Food marked as consumed today!")
+            requireContext().showSuccessToast("Food marked as consumed today!")
             clearForm()
         }
     }
@@ -200,14 +210,14 @@ class CalculateNutritionFragment : Fragment() {
     private fun clearForm() {
         etFoodName.text.clear()
         etQuantity.text.clear()
-        llNutritionResults.visibility = View.GONE
-        btnMarkConsumed.visibility = View.GONE
+        llNutritionResults.hide()
+        btnMarkConsumed.hide()
         currentFoodResult = null
     }
 
     private fun performLogout() {
         preferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out")
+        requireContext().showSuccessToast("Successfully logged out")
         goToLogin()
     }
 
@@ -225,9 +235,5 @@ class CalculateNutritionFragment : Fragment() {
         } catch (e: Exception) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

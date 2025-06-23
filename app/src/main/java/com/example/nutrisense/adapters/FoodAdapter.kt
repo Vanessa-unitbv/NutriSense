@@ -1,4 +1,4 @@
-package com.example.nutrisense.ui.adapter
+package com.example.nutrisense.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Food
+import com.example.nutrisense.helpers.extensions.show
+import com.example.nutrisense.helpers.extensions.hide
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -63,11 +65,11 @@ class FoodAdapter(
             if (food.consumedAt != null) {
                 val consumedFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                 tvConsumedStatus.text = "✅ Consumed: ${consumedFormat.format(Date(food.consumedAt))}"
-                tvConsumedStatus.visibility = View.VISIBLE
+                tvConsumedStatus.show()
                 tvConsumedStatus.setTextColor(itemView.context.getColor(android.R.color.holo_green_dark))
             } else {
                 tvConsumedStatus.text = "⏳ Not consumed"
-                tvConsumedStatus.visibility = View.VISIBLE
+                tvConsumedStatus.show()
                 tvConsumedStatus.setTextColor(itemView.context.getColor(android.R.color.holo_orange_dark))
             }
 
@@ -77,16 +79,16 @@ class FoodAdapter(
             )
 
             if (onConsumeClick != null) {
-                btnConsume.visibility = View.VISIBLE
+                btnConsume.show()
                 if (food.consumedAt != null) {
                     btnConsume.setImageResource(R.drawable.ic_check_circle_filled)
-                    btnConsume.alpha = 0.5f // Faded pentru consumed items
+                    btnConsume.alpha = 0.5f
                 } else {
                     btnConsume.setImageResource(R.drawable.ic_add_circle)
                     btnConsume.alpha = 1.0f
                 }
             } else {
-                btnConsume.visibility = View.GONE
+                btnConsume.hide()
             }
 
             itemView.setOnClickListener { onItemClick(food) }

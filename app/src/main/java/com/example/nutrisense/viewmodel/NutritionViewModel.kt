@@ -6,24 +6,24 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.nutrisense.data.database.AppDatabase
+import com.example.nutrisense.activities.ApplicationController
 import com.example.nutrisense.data.entity.Food
 import com.example.nutrisense.data.repository.FoodRepository
 import com.example.nutrisense.data.repository.NutritionSummary
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
+import com.example.nutrisense.managers.SharedPreferencesManager
 import kotlinx.coroutines.launch
 
 class NutritionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: FoodRepository
-    private val globalPreferencesManager: SharedPreferencesManager
+    private val appController: ApplicationController = ApplicationController.instance
+    private val globalPreferencesManager: SharedPreferencesManager = appController.globalPreferencesManager
 
     init {
-        val database = AppDatabase.getDatabase(application)
+        val database = appController.database
         val foodDao = database.foodDao()
         val userDao = database.userDao()
         repository = FoodRepository(foodDao, userDao)
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
     }
 
     private val currentUserEmail: String?

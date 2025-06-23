@@ -1,8 +1,9 @@
-package com.example.nutrisense.data.preferences
+package com.example.nutrisense.managers
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.nutrisense.utils.AppConstants
+import com.example.nutrisense.data.preferences.UserPreferences
 
 class SharedPreferencesManager private constructor(context: Context, userEmail: String? = null) {
 
@@ -35,7 +36,7 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
 
         fun setCurrentUser(userEmail: String?) {
             currentUserEmail = userEmail
-            INSTANCE = null // Reset instance pentru a forța recrearea cu noul user
+            INSTANCE = null
         }
 
         private fun getPrefsName(userEmail: String?): String {

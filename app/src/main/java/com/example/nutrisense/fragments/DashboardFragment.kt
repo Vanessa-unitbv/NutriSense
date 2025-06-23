@@ -1,20 +1,19 @@
-package com.example.nutrisense
+package com.example.nutrisense.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.User
-import com.example.nutrisense.data.preferences.SharedPreferencesManager
-import com.example.nutrisense.utils.ProfileUtils
+import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.viewmodel.AuthViewModel
 
 class DashboardFragment : Fragment() {
