@@ -25,14 +25,12 @@ object ApiClient {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    // Retrofit pentru CalorieNinjas (nutrition)
     private val nutritionRetrofit = Retrofit.Builder()
         .baseUrl(NutritionApiService.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
-    // Retrofit pentru API Ninjas (recipes)
     private val recipeRetrofit = Retrofit.Builder()
         .baseUrl(RecipeApiService.BASE_URL)
         .client(okHttpClient)

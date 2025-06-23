@@ -67,7 +67,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun validateRegistrationInput(email: String, password: String): Boolean {
-        // Clear previous errors
         emailEditText.clearErrorAndFocus()
         passwordEditText.clearErrorAndFocus()
 
@@ -98,7 +97,6 @@ class LoginFragment : Fragment() {
         val email = emailEditText.getTextString()
         val password = passwordEditText.getTextString()
 
-        // Clear previous errors
         emailEditText.clearErrorAndFocus()
         passwordEditText.clearErrorAndFocus()
 

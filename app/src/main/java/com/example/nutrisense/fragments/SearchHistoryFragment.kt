@@ -120,10 +120,10 @@ class SearchHistoryFragment : Fragment() {
         }
 
         val summaryText = buildString {
-            appendLine("📊 Your Food Database:")
-            appendLine("🍽️ Total saved foods: $totalFoods")
-            appendLine("⭐ Favorite foods: $favoriteFoods")
-            appendLine("✅ Consumed today: $consumedToday")
+            appendLine("Your Food Database:")
+            appendLine("Total saved foods: $totalFoods")
+            appendLine("Favorite foods: $favoriteFoods")
+            appendLine("Consumed today: $consumedToday")
         }
     }
 

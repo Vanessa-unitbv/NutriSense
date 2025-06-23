@@ -91,7 +91,7 @@
                 android:id="@+id/btn_settings"
                 android:layout_width="280dp"
                 android:layout_height="50dp"
-                android:text="Settings &amp; Goals"
+                android:text="@string/settings_amp_goals"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
                 android:textSize="14sp"

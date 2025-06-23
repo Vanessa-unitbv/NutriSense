@@ -354,7 +354,6 @@
                             android:layout_height="wrap_content" />
                 </LinearLayout>
 
-                <!-- Interval remindere apă -->
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -398,7 +397,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Butoane jos -->
     <LinearLayout
             android:id="@+id/bottom_buttons_layout"
             android:layout_width="0dp"

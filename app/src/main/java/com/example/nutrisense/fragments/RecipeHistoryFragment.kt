@@ -127,9 +127,9 @@ class RecipeHistoryFragment : Fragment() {
         val favoriteRecipes = recipes.count { it.isFavorite }
 
         val summaryText = buildString {
-            appendLine("📚 Your Recipe Collection:")
-            appendLine("🍽️ Total saved recipes: $totalRecipes")
-            appendLine("⭐ Favorite recipes: $favoriteRecipes")
+            appendLine("Your Recipe Collection:")
+            appendLine("Total saved recipes: $totalRecipes")
+            appendLine("Favorite recipes: $favoriteRecipes")
         }
 
         tvRecipeSummary.text = summaryText

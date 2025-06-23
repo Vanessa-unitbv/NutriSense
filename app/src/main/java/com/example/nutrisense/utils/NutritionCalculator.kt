@@ -106,13 +106,13 @@ object NutritionCalculator {
         return if (fromUnits == AppConstants.UNITS_IMPERIAL) {
             height * AppConstants.INCHES_TO_METERS
         } else {
-            height / 100f // cm to meters
+            height / 100f
         }
     }
 
     fun convertHeightToCm(height: Float, fromUnits: String): Float {
         return if (fromUnits == AppConstants.UNITS_IMPERIAL) {
-            height * 2.54f // inches to cm
+            height * 2.54f 
         } else {
             height
         }

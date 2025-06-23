@@ -150,9 +150,9 @@ class ProfileFragment : Fragment() {
         emailEditText.setOnClickListener {
             val weight = userPreferencesManager.getUserWeight()
             val message = if (weight > 0) {
-                "👋 Profile looks good! Use Settings to make changes or go back to Dashboard."
+                "Profile looks good! Use Settings to make changes or go back to Dashboard."
             } else {
-                "🎯 Complete your profile in Settings to get personalized recommendations!"
+                "Complete your profile in Settings to get personalized recommendations!"
             }
             showToast(message, false)
         }

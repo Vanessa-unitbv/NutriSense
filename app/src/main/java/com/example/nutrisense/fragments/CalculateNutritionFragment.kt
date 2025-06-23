@@ -129,12 +129,10 @@ class CalculateNutritionFragment : Fragment() {
 
         nutritionViewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
             if (searchResults.isNotEmpty()) {
-                // MODIFICAT: Nu mai salvăm currentFoodResult
                 val food = searchResults.first()
                 displayNutritionResults(food)
 
                 llNutritionResults.show()
-                // ȘTERS: btnMarkConsumed.show()
 
                 requireContext().showSuccessToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
             }
@@ -166,7 +164,6 @@ class CalculateNutritionFragment : Fragment() {
         val quantity = quantityText.toDouble()
 
         llNutritionResults.hide()
-        // ȘTERS: btnMarkConsumed.hide()
         nutritionViewModel.clearMessages()
 
         nutritionViewModel.searchFoodNutrition(foodName, quantity)

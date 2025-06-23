@@ -9,7 +9,7 @@
         android:id="@+id/tv_title_recipe_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recipe Collection"
+        android:text="@string/recipe_collection"
         android:textSize="24sp"
         android:textColor="@color/button_primary_start"
         android:textStyle="bold"

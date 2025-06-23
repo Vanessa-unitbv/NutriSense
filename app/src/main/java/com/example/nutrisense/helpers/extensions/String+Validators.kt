@@ -33,7 +33,6 @@ fun String.isValidHeight(units: String = AppConstants.UNITS_METRIC): Boolean {
     if (height == null || height <= 0) return false
 
     return if (units == AppConstants.UNITS_IMPERIAL) {
-        // Convert inches to cm for validation
         val heightCm = height * 2.54f
         heightCm >= AppConstants.MIN_HEIGHT_CM && heightCm <= AppConstants.MAX_HEIGHT_CM
     } else {
