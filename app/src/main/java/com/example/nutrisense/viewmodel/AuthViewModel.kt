@@ -45,6 +45,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (userPreferencesManager.isFirstTimeUser()) {
                         setDefaultNutritionGoals(userPreferencesManager)
+
+                        user.age?.let { age ->
+                            userPreferencesManager.setUserAge(age)
+                        }
+
                         userPreferencesManager.setFirstTimeUser(false)
                     }
 
@@ -110,6 +115,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 )
 
                 setDefaultNutritionGoals(userPreferencesManager)
+
+                newUser.age?.let { userAge ->
+                    userPreferencesManager.setUserAge(userAge)
+                }
+
                 userPreferencesManager.setFirstTimeUser(false)
 
                 onSuccess(newUser)
@@ -143,6 +153,15 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.updateUser(user)
                 globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)
+
+                val userPreferencesManager = SharedPreferencesManager.getInstance(
+                    getApplication(),
+                    user.email
+                )
+                user.age?.let { age ->
+                    userPreferencesManager.setUserAge(age)
+                }
+
                 onSuccess()
             } catch (e: Exception) {
                 onError("Error updating user: ${e.message}")

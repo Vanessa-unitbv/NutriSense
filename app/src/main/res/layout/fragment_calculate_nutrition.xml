@@ -1,247 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/fundal9">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fundal9">
 
     <TextView
-            android:id="@+id/tv_title_nutrition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/calculate_nutrition"
-            android:textSize="24sp"
-            android:textColor="@color/button_primary_start"
-            android:textStyle="bold"
-            app:layout_constraintVertical_bias="0.05"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/tv_title_nutrition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/calculate_nutrition"
+        android:textSize="24sp"
+        android:textColor="@color/button_primary_start"
+        android:textStyle="bold"
+        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
-            android:id="@+id/scroll_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="@dimen/default_space"
-            app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_nutrition">
+        android:id="@+id/scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="@dimen/default_space"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_nutrition">
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/brown_button"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/food_information"
+                    android:textSize="18sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/food_name"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/et_food_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/brown_button"
-                    android:padding="16dp">
+                    android:hint="@string/e_g_apple"
+                    android:backgroundTint="@color/white"
+                    android:textColorHint="@color/button_pressed_center"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:inputType="textCapWords" />
 
                 <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/food_information"
-                        android:textSize="18sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp" />
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/food_name"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/quantity_grams"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
 
                 <EditText
-                        android:id="@+id/et_food_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/e_g_apple"
-                        android:backgroundTint="@color/white"
-                        android:textColorHint="@color/button_pressed_center"
-                        android:textColor="@color/black"
-                        android:background="@color/white"
-                        android:padding="12dp"
-                        android:layout_marginBottom="12dp"
-                        android:inputType="textCapWords" />
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/quantity_grams"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
-
-                <EditText
-                        android:id="@+id/et_quantity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/e_g_100"
-                        android:backgroundTint="@color/white"
-                        android:textColorHint="@color/button_pressed_center"
-                        android:textColor="@color/black"
-                        android:background="@color/white"
-                        android:padding="12dp"
-                        android:layout_marginBottom="16dp"
-                        android:inputType="numberDecimal" />
+                    android:id="@+id/et_quantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/e_g_100"
+                    android:backgroundTint="@color/white"
+                    android:textColorHint="@color/button_pressed_center"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="numberDecimal" />
 
                 <Button
-                        android:id="@+id/btn_calculate_nutrition"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/calculate_nutrition"
-                        android:background="@drawable/button_selector"
-                        android:textColor="@color/button_text_color"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="@null"
-                        android:layout_gravity="center"
-                        android:padding="16dp"
-                        style="@null" />
+                    android:id="@+id/btn_calculate_nutrition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/calculate_nutrition"
+                    android:background="@drawable/button_selector"
+                    android:textColor="@color/button_text_color"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    style="@null" />
 
             </LinearLayout>
 
             <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
             <TextView
-                    android:id="@+id/tv_error_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:textColor="#C62828"
-                    android:padding="12dp"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone"
-                    android:gravity="center" />
+                android:id="@+id/tv_error_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:textColor="#C62828"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                android:gravity="center" />
 
             <LinearLayout
-                    android:id="@+id/ll_nutrition_results"
-                    android:layout_width="match_parent"
+                android:id="@+id/ll_nutrition_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/brown_button"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/brown_button"
-                    android:padding="16dp"
-                    android:visibility="gone">
+                    android:text="@string/nutrition_results"
+                    android:textSize="18sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
 
                 <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/nutrition_results"
-                        android:textSize="18sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp" />
+                    android:id="@+id/tv_calories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
-                        android:id="@+id/tv_calories"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                    android:id="@+id/tv_protein"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_protein"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_carbs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_carbs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_fat_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_fat_total"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_fat_saturated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
-                        android:id="@+id/tv_fat_saturated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="8dp" />
+                    android:id="@+id/tv_sodium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_sodium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_potassium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_potassium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_cholesterol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_cholesterol"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_fiber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                        android:id="@+id/tv_fiber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="4dp" />
+                    android:id="@+id/tv_sugar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="16dp" />
 
-                <TextView
-                        android:id="@+id/tv_sugar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="16dp" />
-
-                <Button
-                        android:id="@+id/btn_mark_consumed"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/mark_as_consumed_today"
-                        android:background="@color/green"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:backgroundTint="@null"
-                        android:layout_gravity="center"
-                        android:visibility="gone"
-                        style="@null" />
 
             </LinearLayout>
 
@@ -249,32 +237,32 @@
     </ScrollView>
 
     <LinearLayout
-            android:id="@+id/bottom_buttons_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="16dp"
-            android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+        android:id="@+id/bottom_buttons_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
-                android:id="@+id/btn_back_to_dashboard"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="@string/dashboard"
-                android:background="@drawable/button_selector"
-                android:textColor="@color/button_text_color"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:backgroundTint="@null"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:minWidth="140dp"
-                android:maxWidth="180dp"
-                android:layout_marginEnd="8dp"
-                style="@null" />
+            android:id="@+id/btn_back_to_dashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/dashboard"
+            android:background="@drawable/button_selector"
+            android:textColor="@color/button_text_color"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:minWidth="140dp"
+            android:maxWidth="180dp"
+            android:layout_marginEnd="8dp"
+            style="@null" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,6 +29,7 @@ class ProfileFragment : Fragment() {
     private lateinit var emailEditText: EditText
     private lateinit var logoutButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var dashboardButton: Button
     private lateinit var tvCalorieGoal: TextView
     private lateinit var tvWaterGoal: TextView
     private lateinit var tvWeight: TextView
@@ -78,6 +79,7 @@ class ProfileFragment : Fragment() {
         emailEditText = view.findViewById(R.id.et_email)
         logoutButton = view.findViewById(R.id.btn_logout)
         settingsButton = view.findViewById(R.id.btn_settings)
+        dashboardButton = view.findViewById(R.id.btn_dashboard)
         tvCalorieGoal = view.findViewById(R.id.tv_calorie_goal)
         tvWaterGoal = view.findViewById(R.id.tv_water_goal)
         tvWeight = view.findViewById(R.id.tv_weight)
@@ -143,6 +145,7 @@ class ProfileFragment : Fragment() {
     private fun setupClickListeners() {
         logoutButton.setOnClickListener { performLogout() }
         settingsButton.setOnClickListener { navigateToSettings() }
+        dashboardButton.setOnClickListener { navigateToDashboard() }
 
         emailEditText.setOnClickListener {
             val weight = userPreferencesManager.getUserWeight()
@@ -166,7 +169,8 @@ class ProfileFragment : Fragment() {
 
     private fun navigateToDashboard() {
         try {
-            findNavController().popBackStack()
+            val action = ProfileFragmentDirections.actionProfileFragmentToDashboardFragment(args.email)
+            findNavController().navigate(action)
         } catch (e: Exception) {
             showToast("Error navigating to Dashboard: ${e.message}", true)
         }

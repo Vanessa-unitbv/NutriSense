@@ -40,10 +40,6 @@ class CalculateNutritionFragment : Fragment() {
     private lateinit var tvFiber: TextView
     private lateinit var tvSugar: TextView
 
-    private lateinit var btnMarkConsumed: Button
-
-    private var currentFoodResult: Food? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,7 +81,6 @@ class CalculateNutritionFragment : Fragment() {
         tvFiber = view.findViewById(R.id.tv_fiber)
         tvSugar = view.findViewById(R.id.tv_sugar)
 
-        btnMarkConsumed = view.findViewById(R.id.btn_mark_consumed)
     }
 
     private fun setupViewModel() {
@@ -95,10 +90,6 @@ class CalculateNutritionFragment : Fragment() {
     private fun setupClickListeners() {
         btnCalculateNutrition.setOnClickListener {
             calculateNutrition()
-        }
-
-        btnMarkConsumed.setOnClickListener {
-            markCurrentFoodAsConsumed()
         }
 
         btnBackToDashboard.setOnClickListener {
@@ -138,11 +129,12 @@ class CalculateNutritionFragment : Fragment() {
 
         nutritionViewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
             if (searchResults.isNotEmpty()) {
-                currentFoodResult = searchResults.first()
-                displayNutritionResults(currentFoodResult!!)
+                // MODIFICAT: Nu mai salvăm currentFoodResult
+                val food = searchResults.first()
+                displayNutritionResults(food)
 
                 llNutritionResults.show()
-                btnMarkConsumed.show()
+                // ȘTERS: btnMarkConsumed.show()
 
                 requireContext().showSuccessToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
             }
@@ -174,7 +166,7 @@ class CalculateNutritionFragment : Fragment() {
         val quantity = quantityText.toDouble()
 
         llNutritionResults.hide()
-        btnMarkConsumed.hide()
+        // ȘTERS: btnMarkConsumed.hide()
         nutritionViewModel.clearMessages()
 
         nutritionViewModel.searchFoodNutrition(foodName, quantity)
@@ -193,20 +185,10 @@ class CalculateNutritionFragment : Fragment() {
         tvSugar.text = "🍯 Sugar: ${String.format("%.1f", food.sugarG)} g"
     }
 
-    private fun markCurrentFoodAsConsumed() {
-        currentFoodResult?.let { food ->
-            nutritionViewModel.markFoodAsConsumed(food)
-            requireContext().showSuccessToast("Food marked as consumed today!")
-            clearForm()
-        }
-    }
-
     private fun clearForm() {
         etFoodName.text.clear()
         etQuantity.text.clear()
         llNutritionResults.hide()
-        btnMarkConsumed.hide()
-        currentFoodResult = null
     }
 
     private fun goToDashboard() {

@@ -150,7 +150,7 @@ class SettingsFragment : Fragment() {
         }
 
         btnBackToDashboard.setOnClickListener {
-            goToDashboard()
+            goBack()
         }
 
         spinnerUnits.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -262,7 +262,6 @@ class SettingsFragment : Fragment() {
             val caloriesText = etCalories.getTextString()
             val waterText = etWater.getTextString()
 
-            // Validate inputs
             if (!caloriesText.isValidCalorieGoal()) {
                 etCalories.setErrorAndFocus("Please enter a valid calorie goal (800-5000)")
                 return
@@ -338,7 +337,7 @@ class SettingsFragment : Fragment() {
             userPreferencesManager.setWaterReminderInterval(waterInterval)
 
             requireContext().showSuccessToast("Settings saved successfully!")
-            findNavController().popBackStack()
+            goBack()
 
         } catch (e: Exception) {
             requireContext().showErrorToast("Error saving settings: ${e.message}")
@@ -349,11 +348,15 @@ class SettingsFragment : Fragment() {
         return if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
     }
 
-    private fun goToDashboard() {
+    private fun goBack() {
         try {
-            findNavController().popBackStack()
+            findNavController().popBackStack(R.id.dashboardFragment, false)
         } catch (e: Exception) {
-            requireActivity().finish()
+            try {
+                findNavController().popBackStack()
+            } catch (ex: Exception) {
+                requireActivity().finish()
+            }
         }
     }
 }
