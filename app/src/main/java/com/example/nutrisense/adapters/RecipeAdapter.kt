@@ -19,7 +19,7 @@ class RecipeAdapter(
     private val onItemClick: (Recipe) -> Unit,
     private val onFavoriteClick: (Recipe) -> Unit,
     private val onDeleteClick: (Recipe) -> Unit,
-    private val showActionButtons: Boolean = true  // New parameter to control button visibility
+    private val showActionButtons: Boolean = true
 ) : ListAdapter<Recipe, RecipeAdapter.RecipeViewHolder>(RecipeDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
