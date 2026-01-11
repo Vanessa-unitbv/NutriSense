@@ -36,6 +36,8 @@ class SettingsFragment : Fragment() {
     private lateinit var btnCalculateGoals: Button
     private lateinit var btnBackToDashboard: Button
 
+    private var suppressActivitySpinnerCallback: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -114,6 +116,23 @@ class SettingsFragment : Fragment() {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+
+        spinnerActivity.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (suppressActivitySpinnerCallback) return
+                val activityLevel = when (position) {
+                    0 -> "sedentary"
+                    1 -> "light"
+                    2 -> "moderate"
+                    3 -> "active"
+                    4 -> "very_active"
+                    else -> "moderate"
+                }
+                settingsViewModel.updateActivityLevel(activityLevel)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
     private fun observeViewModel() {
@@ -153,7 +172,11 @@ class SettingsFragment : Fragment() {
             "very_active" -> 4
             else -> 2
         }
-        spinnerActivity.setSelection(activityPosition)
+        if (spinnerActivity.selectedItemPosition != activityPosition) {
+            suppressActivitySpinnerCallback = true
+            spinnerActivity.setSelection(activityPosition)
+            suppressActivitySpinnerCallback = false
+        }
 
         spinnerUnits.setSelection(if (state.preferredUnits == "metric") 0 else 1)
 
@@ -179,14 +202,7 @@ class SettingsFragment : Fragment() {
         val age = ageText.toIntOrNull() ?: return
 
         val gender = if (spinnerGender.selectedItemPosition == 0) "female" else "male"
-        val activityLevel = when (spinnerActivity.selectedItemPosition) {
-            0 -> "sedentary"
-            1 -> "light"
-            2 -> "moderate"
-            3 -> "active"
-            4 -> "very_active"
-            else -> "moderate"
-        }
+        val activityLevel = settingsViewModel.uiState.value.activityLevel
         val units = if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
 
         settingsViewModel.calculateRecommendedGoals(

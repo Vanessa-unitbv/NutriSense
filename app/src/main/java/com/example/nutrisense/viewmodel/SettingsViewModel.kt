@@ -1,5 +1,6 @@
 package com.example.nutrisense.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nutrisense.managers.PreferencesRepository
@@ -18,6 +19,10 @@ class SettingsViewModel @Inject constructor(
     private val globalPreferencesManager: SharedPreferencesManager,
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "SettingsViewModel"
+    }
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -92,6 +97,10 @@ class SettingsViewModel @Inject constructor(
         activityLevel: String,
         units: String
     ) {
+        Log.d(TAG, "calculateRecommendedGoals called with activityLevel=$activityLevel")
+        _uiState.value = _uiState.value.copy(activityLevel = activityLevel)
+
+        // Validare
         val validation = validatePhysicalData(weight, height, age, units)
         if (validation is ValidationResult.Error) {
             _uiState.value = _uiState.value.copy(
@@ -130,6 +139,11 @@ class SettingsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun updateActivityLevel(level: String) {
+        Log.d(TAG, "updateActivityLevel called with level=$level")
+        _uiState.value = _uiState.value.copy(activityLevel = level)
     }
 
     fun saveAllSettings(
