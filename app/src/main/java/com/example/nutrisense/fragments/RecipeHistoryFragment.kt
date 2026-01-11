@@ -6,25 +6,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Recipe
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.adapters.RecipeAdapter
 import com.example.nutrisense.viewmodel.RecipeViewModel
+import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class RecipeHistoryFragment : Fragment() {
 
-    private lateinit var recipeViewModel: RecipeViewModel
-    private lateinit var recipeAdapter: RecipeAdapter
-    private lateinit var preferencesManager: SharedPreferencesManager
+    private val recipeViewModel: RecipeViewModel by viewModels()
 
+    private lateinit var recipeAdapter: RecipeAdapter
     private lateinit var rvSavedRecipes: RecyclerView
     private lateinit var tvNoSavedRecipes: TextView
     private lateinit var tvRecipeSummary: TextView
@@ -42,7 +44,6 @@ class RecipeHistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(view)
-        setupViewModel()
         setupRecyclerView()
         observeViewModel()
         setupBackPressHandler()
@@ -50,16 +51,10 @@ class RecipeHistoryFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
-
         rvSavedRecipes = view.findViewById(R.id.rv_saved_recipes)
         tvNoSavedRecipes = view.findViewById(R.id.tv_no_saved_recipes)
         tvRecipeSummary = view.findViewById(R.id.tv_recipe_summary)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
-    }
-
-    private fun setupViewModel() {
-        recipeViewModel = ViewModelProvider(this)[RecipeViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
@@ -77,11 +72,7 @@ class RecipeHistoryFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            try {
-                findNavController().popBackStack()
-            } catch (e: Exception) {
-                requireActivity().finish()
-            }
+            goToDashboard()
         }
     }
 
@@ -92,27 +83,27 @@ class RecipeHistoryFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        recipeViewModel.userRecipes.observe(viewLifecycleOwner) { liveDataRecipes ->
-            liveDataRecipes?.observe(viewLifecycleOwner) { recipes ->
-                recipeAdapter.submitList(recipes)
-                tvNoSavedRecipes.visibility = if (recipes.isEmpty()) View.VISIBLE else View.GONE
-                rvSavedRecipes.visibility = if (recipes.isEmpty()) View.GONE else View.VISIBLE
-
-                updateRecipeSummary(recipes)
+        viewLifecycleOwner.lifecycleScope.launch {
+            recipeViewModel.userRecipes.collect { liveDataRecipes ->
+                liveDataRecipes?.observe(viewLifecycleOwner) { recipes ->
+                    recipeAdapter.submitList(recipes)
+                    tvNoSavedRecipes.visibility = if (recipes.isEmpty()) View.VISIBLE else View.GONE
+                    rvSavedRecipes.visibility = if (recipes.isEmpty()) View.GONE else View.VISIBLE
+                    updateRecipeSummary(recipes)
+                }
             }
         }
 
-        recipeViewModel.successMessage.observe(viewLifecycleOwner) { successMessage ->
-            if (successMessage != null) {
-                showToast(successMessage)
-                recipeViewModel.clearMessages()
-            }
-        }
-
-        recipeViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            if (errorMessage != null) {
-                showToast(errorMessage)
-                recipeViewModel.clearMessages()
+        viewLifecycleOwner.lifecycleScope.launch {
+            recipeViewModel.uiState.collect { state ->
+                state.successMessage?.let {
+                    requireContext().showSuccessToast(it)
+                    recipeViewModel.clearMessages()
+                }
+                state.errorMessage?.let {
+                    requireContext().showErrorToast(it)
+                    recipeViewModel.clearMessages()
+                }
             }
         }
     }
@@ -158,10 +149,9 @@ class RecipeHistoryFragment : Fragment() {
     private fun showDeleteConfirmation(recipe: Recipe) {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Recipe")
-            .setMessage("Are you sure you want to delete ${recipe.title} from your collection?")
+            .setMessage("Are you sure you want to delete ${recipe.title}?")
             .setPositiveButton("Delete") { _, _ ->
                 recipeViewModel.deleteRecipe(recipe)
-                showToast("${recipe.title} deleted from your collection")
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -173,9 +163,5 @@ class RecipeHistoryFragment : Fragment() {
         } catch (e: Exception) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

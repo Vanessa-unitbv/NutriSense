@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.nutrisense.utils.AppConstants
 import com.example.nutrisense.data.preferences.UserPreferences
+import java.security.MessageDigest
 
 class SharedPreferencesManager private constructor(context: Context, userEmail: String? = null) {
 
@@ -39,9 +40,19 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
             INSTANCE = null
         }
 
+        private fun hashEmail(email: String): String {
+            return try {
+                val md = MessageDigest.getInstance("SHA-256")
+                val digest = md.digest(email.lowercase().toByteArray(Charsets.UTF_8))
+                digest.joinToString("") { "%02x".format(it) }
+            } catch (e: Exception) {
+                email.replace("@", "_").replace(".", "_")
+            }
+        }
+
         private fun getPrefsName(userEmail: String?): String {
             return if (userEmail != null) {
-                "${PREFS_NAME}_${userEmail.replace("@", "_").replace(".", "_")}"
+                "${PREFS_NAME}_${hashEmail(userEmail)}"
             } else {
                 GLOBAL_PREFS_NAME
             }

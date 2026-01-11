@@ -1,53 +1,36 @@
 package com.example.nutrisense.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.nutrisense.data.database.AppDatabase
 import com.example.nutrisense.data.entity.Recipe
 import com.example.nutrisense.data.repository.RecipeRepository
 import com.example.nutrisense.managers.SharedPreferencesManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipeViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository: RecipeRepository
+@HiltViewModel
+class RecipeViewModel @Inject constructor(
+    private val repository: RecipeRepository,
     private val globalPreferencesManager: SharedPreferencesManager
+) : ViewModel() {
 
-    init {
-        val database = AppDatabase.getDatabase(application)
-        val recipeDao = database.recipeDao()
-        val userDao = database.userDao()
-        repository = RecipeRepository(recipeDao, userDao)
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(application)
-    }
+    private val _uiState = MutableStateFlow(RecipeUiState())
+    val uiState: StateFlow<RecipeUiState> = _uiState.asStateFlow()
 
-    private val currentUserEmail: String?
-        get() = globalPreferencesManager.getUserEmail()
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+    val currentUserId: StateFlow<Long?> = _currentUserId.asStateFlow()
 
-    private val _currentUserId = MutableLiveData<Long?>()
-    val currentUserId: LiveData<Long?> = _currentUserId
+    private val _userRecipes = MutableStateFlow<LiveData<List<Recipe>>?>(null)
+    val userRecipes: StateFlow<LiveData<List<Recipe>>?> = _userRecipes.asStateFlow()
 
-    private val _userRecipes = MutableLiveData<LiveData<List<Recipe>>>()
-    val userRecipes: LiveData<LiveData<List<Recipe>>> = _userRecipes
-
-    private val _userFavoriteRecipes = MutableLiveData<LiveData<List<Recipe>>>()
-    val userFavoriteRecipes: LiveData<LiveData<List<Recipe>>> = _userFavoriteRecipes
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
-
-    private val _searchResults = MutableLiveData<List<Recipe>>()
-    val searchResults: LiveData<List<Recipe>> = _searchResults
-
-    private val _successMessage = MutableLiveData<String?>()
-    val successMessage: LiveData<String?> = _successMessage
+    private val _userFavoriteRecipes = MutableStateFlow<LiveData<List<Recipe>>?>(null)
+    val userFavoriteRecipes: StateFlow<LiveData<List<Recipe>>?> = _userFavoriteRecipes.asStateFlow()
 
     init {
         loadCurrentUser()
@@ -55,19 +38,23 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadCurrentUser() {
         viewModelScope.launch {
-            currentUserEmail?.let { email ->
+            val email = globalPreferencesManager.getUserEmail()
+            email?.let {
                 try {
-                    val userId = repository.getUserIdByEmail(email)
+                    val userId = repository.getUserIdByEmail(it)
                     if (userId != null) {
                         _currentUserId.value = userId
                         setupUserSpecificData(userId)
-
-                        SharedPreferencesManager.setCurrentUser(email)
+                        SharedPreferencesManager.setCurrentUser(it)
                     } else {
-                        _errorMessage.value = "User not found"
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "User not found"
+                        )
                     }
                 } catch (e: Exception) {
-                    _errorMessage.value = "Error loading user: ${e.message}"
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Error loading user: ${e.message}"
+                    )
                 }
             }
         }
@@ -79,20 +66,28 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun searchRecipes(ingredients: String) {
-        if (ingredients.isBlank()) {
-            _errorMessage.value = "Please enter ingredients"
+        val validation = validateRecipeInput(ingredients)
+        if (validation is ValidationResult.Error) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                errorMessage = validation.message
+            )
             return
         }
 
-        val userEmail = currentUserEmail
+        val userEmail = globalPreferencesManager.getUserEmail()
         if (userEmail == null) {
-            _errorMessage.value = "User not logged in"
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "User not logged in"
+            )
             return
         }
 
         viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
+            )
 
             try {
                 val result = repository.searchAndSaveRecipesForUser(
@@ -102,22 +97,33 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
                 if (result.isSuccess) {
                     val recipes = result.getOrNull() ?: emptyList()
-                    _searchResults.value = recipes
 
-                    if (recipes.isEmpty()) {
-                        _errorMessage.value = "No recipes found for '$ingredients'"
+                    _uiState.value = if (recipes.isEmpty()) {
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = "No recipes found for '$ingredients'",
+                            searchResults = emptyList()
+                        )
                     } else {
-                        _errorMessage.value = null
-                        _successMessage.value = "Found ${recipes.size} recipe(s)! All recipes have been saved to your collection."
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = null,
+                            searchResults = recipes,
+                            successMessage = "Found ${recipes.size} recipe(s)! All recipes have been saved to your collection."
+                        )
                     }
                 } else {
                     val exception = result.exceptionOrNull()
-                    _errorMessage.value = "Error: ${exception?.message ?: "Unknown error occurred"}"
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = exception?.message ?: "Unknown error occurred"
+                    )
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Network error: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Network error: ${e.message}"
+                )
             }
         }
     }
@@ -126,9 +132,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             try {
                 repository.insertRecipe(recipe)
-                _successMessage.value = "Recipe saved successfully!"
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "Recipe saved successfully!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error saving recipe: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error saving recipe: ${e.message}"
+                )
             }
         }
     }
@@ -138,9 +148,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             try {
                 repository.updateFavoriteStatus(recipe.id, recipe.isFavorite)
                 val status = if (recipe.isFavorite) "added to" else "removed from"
-                _successMessage.value = "${recipe.title} $status favorites!"
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "${recipe.title} $status favorites!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error updating favorite: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error updating favorite: ${e.message}"
+                )
             }
         }
     }
@@ -149,9 +163,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             try {
                 repository.deleteRecipe(recipe)
-                _successMessage.value = "${recipe.title} deleted successfully!"
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "${recipe.title} deleted successfully!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error deleting recipe: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error deleting recipe: ${e.message}"
+                )
             }
         }
     }
@@ -159,26 +177,53 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun clearAllUserRecipes() {
         viewModelScope.launch {
             try {
-                currentUserId.value?.let { userId ->
+                _currentUserId.value?.let { userId ->
                     repository.deleteAllRecipesForUser(userId)
-                    _successMessage.value = "All recipes cleared successfully!"
+                    _uiState.value = _uiState.value.copy(
+                        successMessage = "All recipes cleared successfully!"
+                    )
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Error clearing recipes: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error clearing recipes: ${e.message}"
+                )
             }
         }
     }
 
     fun clearMessages() {
-        _errorMessage.value = null
-        _successMessage.value = null
+        _uiState.value = _uiState.value.copy(
+            errorMessage = null,
+            successMessage = null
+        )
     }
 
     fun clearSearchResults() {
-        _searchResults.value = emptyList()
+        _uiState.value = _uiState.value.copy(
+            searchResults = emptyList()
+        )
     }
 
     fun refreshUserData() {
         loadCurrentUser()
+    }
+
+    private fun validateRecipeInput(ingredients: String): ValidationResult {
+        return when {
+            ingredients.isBlank() -> ValidationResult.Error("Please enter ingredients")
+            else -> ValidationResult.Success
+        }
+    }
+
+    data class RecipeUiState(
+        val isLoading: Boolean = false,
+        val searchResults: List<Recipe> = emptyList(),
+        val errorMessage: String? = null,
+        val successMessage: String? = null
+    )
+
+    sealed class ValidationResult {
+        object Success : ValidationResult()
+        data class Error(val message: String) : ValidationResult()
     }
 }

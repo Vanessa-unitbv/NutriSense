@@ -10,16 +10,16 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.nutrisense.R
 import com.example.nutrisense.fragments.LoginFragmentDirections
 import com.example.nutrisense.managers.SharedPreferencesManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
 
-    private val appController: ApplicationController
-        get() = ApplicationController.instance
-
-    private val globalPreferencesManager: SharedPreferencesManager
-        get() = appController.globalPreferencesManager
+    @Inject
+    lateinit var globalPreferencesManager: SharedPreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

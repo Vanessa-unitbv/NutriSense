@@ -2,9 +2,11 @@ package com.example.nutrisense.activities
 
 import android.app.Application
 import android.util.Log
-import com.example.nutrisense.data.database.AppDatabase
 import com.example.nutrisense.managers.SharedPreferencesManager
+import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
+@HiltAndroidApp
 class ApplicationController : Application() {
 
     companion object {
@@ -14,15 +16,8 @@ class ApplicationController : Application() {
             private set
     }
 
-    val database by lazy {
-        Log.d(TAG, "Initializing database...")
-        AppDatabase.getDatabase(this)
-    }
-
-    val globalPreferencesManager by lazy {
-        Log.d(TAG, "Initializing global preferences manager...")
-        SharedPreferencesManager.getGlobalInstance(this)
-    }
+    @Inject
+    lateinit var globalPreferencesManager: SharedPreferencesManager
 
     override fun onCreate() {
         super.onCreate()
@@ -36,15 +31,11 @@ class ApplicationController : Application() {
         Log.d(TAG, "Initializing application...")
 
         try {
-            val prefs = globalPreferencesManager
-
-            if (prefs.isFirstTimeUser()) {
+            if (globalPreferencesManager.isFirstTimeUser()) {
                 Log.d(TAG, "First time user detected, setting up defaults...")
                 setupDefaultValues()
-                prefs.setFirstTimeUser(false)
+                globalPreferencesManager.setFirstTimeUser(false)
             }
-
-            Log.d(TAG, "Database will be initialized when first needed")
 
             Log.d(TAG, "Application initialization completed")
 

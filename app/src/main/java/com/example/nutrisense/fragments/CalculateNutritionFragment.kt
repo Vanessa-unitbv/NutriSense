@@ -7,27 +7,26 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Food
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.viewmodel.NutritionViewModel
 import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CalculateNutritionFragment : Fragment() {
-
-    private lateinit var nutritionViewModel: NutritionViewModel
-    private lateinit var preferencesManager: SharedPreferencesManager
+    private val nutritionViewModel: NutritionViewModel by viewModels()
 
     private lateinit var etFoodName: EditText
     private lateinit var etQuantity: EditText
     private lateinit var btnCalculateNutrition: Button
     private lateinit var btnBackToDashboard: Button
-
     private lateinit var progressBar: ProgressBar
     private lateinit var tvErrorMessage: TextView
-
     private lateinit var llNutritionResults: LinearLayout
     private lateinit var tvCalories: TextView
     private lateinit var tvProtein: TextView
@@ -52,23 +51,18 @@ class CalculateNutritionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(view)
-        setupViewModel()
         setupClickListeners()
         observeViewModel()
         setupBackPressHandler()
     }
 
     private fun initializeViews(view: View) {
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
-
         etFoodName = view.findViewById(R.id.et_food_name)
         etQuantity = view.findViewById(R.id.et_quantity)
         btnCalculateNutrition = view.findViewById(R.id.btn_calculate_nutrition)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
-
         progressBar = view.findViewById(R.id.progress_bar)
         tvErrorMessage = view.findViewById(R.id.tv_error_message)
-
         llNutritionResults = view.findViewById(R.id.ll_nutrition_results)
         tvCalories = view.findViewById(R.id.tv_calories)
         tvProtein = view.findViewById(R.id.tv_protein)
@@ -80,11 +74,6 @@ class CalculateNutritionFragment : Fragment() {
         tvCholesterol = view.findViewById(R.id.tv_cholesterol)
         tvFiber = view.findViewById(R.id.tv_fiber)
         tvSugar = view.findViewById(R.id.tv_sugar)
-
-    }
-
-    private fun setupViewModel() {
-        nutritionViewModel = ViewModelProvider(this)[NutritionViewModel::class.java]
     }
 
     private fun setupClickListeners() {
@@ -99,45 +88,10 @@ class CalculateNutritionFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            try {
-                findNavController().popBackStack()
-            } catch (e: Exception) {
-                requireActivity().finish()
-            }
+            goToDashboard()
         }
     }
 
-    private fun observeViewModel() {
-        nutritionViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                progressBar.show()
-            } else {
-                progressBar.hide()
-            }
-            btnCalculateNutrition.isEnabled = !isLoading
-        }
-
-        nutritionViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            if (errorMessage != null) {
-                tvErrorMessage.text = errorMessage
-                tvErrorMessage.show()
-                llNutritionResults.hide()
-            } else {
-                tvErrorMessage.hide()
-            }
-        }
-
-        nutritionViewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            if (searchResults.isNotEmpty()) {
-                val food = searchResults.first()
-                displayNutritionResults(food)
-
-                llNutritionResults.show()
-
-                requireContext().showSuccessToast("Food automatically saved to your database! Check 'Search History' to see all saved foods.")
-            }
-        }
-    }
 
     private fun calculateNutrition() {
         val foodName = etFoodName.getTextString()
@@ -152,21 +106,58 @@ class CalculateNutritionFragment : Fragment() {
         }
 
         if (quantityText.isEmpty()) {
-            etQuantity.setErrorAndFocus("Please enter quantity in grams")
+            etQuantity.setErrorAndFocus("Please enter quantity")
             return
         }
 
-        if (!quantityText.isValidQuantity()) {
-            etQuantity.setErrorAndFocus("Please enter a valid quantity")
+        val quantity = quantityText.toDoubleOrNull()
+        if (quantity == null) {
+            etQuantity.setErrorAndFocus("Please enter a valid number")
             return
         }
-
-        val quantity = quantityText.toDouble()
 
         llNutritionResults.hide()
-        nutritionViewModel.clearMessages()
 
         nutritionViewModel.searchFoodNutrition(foodName, quantity)
+    }
+
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            nutritionViewModel.uiState.collect { state ->
+                // Loading state
+                if (state.isLoading) {
+                    progressBar.show()
+                    btnCalculateNutrition.isEnabled = false
+                } else {
+                    progressBar.hide()
+                    btnCalculateNutrition.isEnabled = true
+                }
+
+                // Error message
+                if (state.errorMessage != null) {
+                    tvErrorMessage.text = state.errorMessage
+                    tvErrorMessage.show()
+                    llNutritionResults.hide()
+                    nutritionViewModel.clearMessages()
+                } else {
+                    tvErrorMessage.hide()
+                }
+
+                // Search results
+                if (state.searchResults.isNotEmpty()) {
+                    val food = state.searchResults.first()
+                    displayNutritionResults(food)
+                    llNutritionResults.show()
+                }
+
+                // Success message
+                state.successMessage?.let { message ->
+                    requireContext().showSuccessToast(message)
+                    nutritionViewModel.clearMessages()
+                }
+            }
+        }
     }
 
     private fun displayNutritionResults(food: Food) {
@@ -180,12 +171,6 @@ class CalculateNutritionFragment : Fragment() {
         tvCholesterol.text = "🧡 Cholesterol: ${String.format("%.1f", food.cholesterolMg)} mg"
         tvFiber.text = "🌾 Fiber: ${String.format("%.1f", food.fiberG)} g"
         tvSugar.text = "🍯 Sugar: ${String.format("%.1f", food.sugarG)} g"
-    }
-
-    private fun clearForm() {
-        etFoodName.text.clear()
-        etQuantity.text.clear()
-        llNutritionResults.hide()
     }
 
     private fun goToDashboard() {

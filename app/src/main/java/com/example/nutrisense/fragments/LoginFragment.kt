@@ -8,16 +8,21 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.nutrisense.R
 import com.example.nutrisense.viewmodel.AuthViewModel
 import com.example.nutrisense.helpers.extensions.*
 import com.google.android.material.textfield.TextInputEditText
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    private lateinit var authViewModel: AuthViewModel
+    private val authViewModel: AuthViewModel by viewModels()
+
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: TextInputEditText
     private lateinit var loginButton: Button
@@ -34,14 +39,10 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializeComponents()
         initializeViews(view)
         setupClickListeners()
+        observeViewModel()
         setupBackPressHandler()
-    }
-
-    private fun initializeComponents() {
-        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
     }
 
     private fun initializeViews(view: View) {
@@ -55,42 +56,12 @@ class LoginFragment : Fragment() {
         registerButton.setOnClickListener {
             val email = emailEditText.getTextString()
             val password = passwordEditText.getTextString()
-
-            if (validateRegistrationInput(email, password)) {
-                goToRegister(email, password)
-            }
+            goToRegister(email, password)
         }
 
         loginButton.setOnClickListener {
             performLogin()
         }
-    }
-
-    private fun validateRegistrationInput(email: String, password: String): Boolean {
-        emailEditText.clearErrorAndFocus()
-        passwordEditText.clearErrorAndFocus()
-
-        if (email.isEmpty()) {
-            emailEditText.setErrorAndFocus("Email is required for registration")
-            return false
-        }
-
-        if (!email.isValidEmail()) {
-            emailEditText.setErrorAndFocus("Invalid email format")
-            return false
-        }
-
-        if (password.isEmpty()) {
-            passwordEditText.setErrorAndFocus("Password is required for registration")
-            return false
-        }
-
-        if (!password.isValidPassword()) {
-            passwordEditText.setErrorAndFocus("Password must be at least 6 characters for registration")
-            return false
-        }
-
-        return true
     }
 
     private fun performLogin() {
@@ -100,31 +71,35 @@ class LoginFragment : Fragment() {
         emailEditText.clearErrorAndFocus()
         passwordEditText.clearErrorAndFocus()
 
-        if (email.isEmpty()) {
-            emailEditText.setErrorAndFocus("Email is required")
-            return
-        }
+        authViewModel.loginUser(email, password)
+    }
 
-        if (password.isEmpty()) {
-            passwordEditText.setErrorAndFocus("Password is required")
-            return
-        }
-
-        setButtonsEnabled(false)
-
-        authViewModel.loginUser(
-            email = email,
-            password = password,
-            onSuccess = { user ->
-                setButtonsEnabled(true)
-                requireContext().showSuccessToast("Welcome, ${user.firstName ?: user.email}!")
-                goToProfile(user.email)
-            },
-            onError = { errorMessage ->
-                setButtonsEnabled(true)
-                requireContext().showErrorToast(errorMessage)
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.loginState.collect { state ->
+                when (state) {
+                    is AuthViewModel.LoginState.Idle -> {
+                        setButtonsEnabled(true)
+                    }
+                    is AuthViewModel.LoginState.Loading -> {
+                        setButtonsEnabled(false)
+                    }
+                    is AuthViewModel.LoginState.Success -> {
+                        setButtonsEnabled(true)
+                        requireContext().showSuccessToast(
+                            "Welcome, ${state.user.firstName ?: state.user.email}!"
+                        )
+                        goToProfile(state.user.email)
+                        authViewModel.resetLoginState()
+                    }
+                    is AuthViewModel.LoginState.Error -> {
+                        setButtonsEnabled(true)
+                        requireContext().showErrorToast(state.message)
+                        authViewModel.resetLoginState()
+                    }
+                }
             }
-        )
+        }
     }
 
     private fun setButtonsEnabled(enabled: Boolean) {

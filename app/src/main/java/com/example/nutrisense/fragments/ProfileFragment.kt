@@ -7,24 +7,26 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.nutrisense.R
-import com.example.nutrisense.data.entity.User
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.utils.ProfileUtils
 import com.example.nutrisense.viewmodel.AuthViewModel
+import com.example.nutrisense.viewmodel.ProfileViewModel
+import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
     private val args: ProfileFragmentArgs by navArgs()
-    private lateinit var authViewModel: AuthViewModel
-    private lateinit var userPreferencesManager: SharedPreferencesManager
-    private lateinit var globalPreferencesManager: SharedPreferencesManager
+    private val authViewModel: AuthViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
 
     private lateinit var emailEditText: EditText
     private lateinit var logoutButton: Button
@@ -35,8 +37,6 @@ class ProfileFragment : Fragment() {
     private lateinit var tvWeight: TextView
     private lateinit var tvBMI: TextView
     private lateinit var tvLastUpdate: TextView
-
-    private var currentUser: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,30 +49,17 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializeComponents()
         initializeViews(view)
+        profileViewModel.loadProfile(args.email)
         loadUserData()
         setupClickListeners()
         setupBackPressHandler()
-        updateProfileDisplay()
+        observeProfileState()
     }
 
     override fun onResume() {
         super.onResume()
-        updateProfileDisplay()
-    }
-
-    private fun initializeComponents() {
-        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
-
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(requireContext())
-
-        userPreferencesManager = SharedPreferencesManager.getInstance(
-            requireContext(),
-            args.email
-        )
-
-        SharedPreferencesManager.setCurrentUser(args.email)
+        profileViewModel.refresh()
     }
 
     private fun initializeViews(view: View) {
@@ -95,66 +82,66 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadUserData() {
-        authViewModel.getUserByEmail(
-            email = args.email,
-            onSuccess = { user ->
-                currentUser = user
-                updateUI(user)
-            },
-            onError = { errorMessage ->
-                showToast("Error loading profile: $errorMessage", true)
-                emailEditText.setText(args.email)
-            }
-        )
-    }
+        authViewModel.getUserByEmail(args.email)
 
-    private fun updateUI(user: User?) {
-        if (user != null) {
-            emailEditText.setText(user.email)
-            val welcomeText = if (!user.firstName.isNullOrEmpty()) {
-                "${user.firstName}'s Profile"
-            } else {
-                "My Profile"
+        viewLifecycleOwner.lifecycleScope.launch {
+            authViewModel.userData.collect { user ->
+                user?.let {
+                    emailEditText.setText(it.email)
+                    val welcomeText = if (!it.firstName.isNullOrEmpty()) {
+                        "${it.firstName}'s Profile"
+                    } else {
+                        "My Profile"
+                    }
+                    view?.findViewById<TextView>(R.id.tv_title_profile)?.text = welcomeText
+                } ?: run {
+                    emailEditText.setText(args.email)
+                }
             }
-            view?.findViewById<TextView>(R.id.tv_title_profile)?.text = welcomeText
-        } else {
-            emailEditText.setText(args.email)
         }
     }
 
-    private fun updateProfileDisplay() {
-        tvCalorieGoal.text = "Daily Calorie Goal: ${userPreferencesManager.getDailyCalorieGoal()} kcal"
-        tvWaterGoal.text = "Daily Water Goal: ${userPreferencesManager.getDailyWaterGoal()} ml"
+    private fun observeProfileState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            profileViewModel.profileUiState.collect { state ->
+                tvCalorieGoal.text = state.dailyCalorieGoalText
+                tvWaterGoal.text = state.dailyWaterGoalText
+                tvWeight.text = state.weightDisplay
+                tvBMI.text = state.bmiText
+                tvBMI.setTextColor(resources.getColor(state.bmiColor, null))
+                tvLastUpdate.text = state.lastUpdateText
+                settingsButton.text = state.settingsButtonText
 
-        tvWeight.text = ProfileUtils.formatWeightDisplay(userPreferencesManager)
+                view?.findViewById<TextView>(R.id.tv_title_profile)?.text = state.welcomeTitle
 
-        val (bmiText, bmiColor) = ProfileUtils.getBMIDisplay(userPreferencesManager)
-        tvBMI.text = bmiText
-        tvBMI.setTextColor(resources.getColor(bmiColor, null))
-
-        val lastUpdate = userPreferencesManager.getLastWeightUpdate()
-        tvLastUpdate.text = if (lastUpdate > 0) {
-            "Last weight update: ${ProfileUtils.formatTimeAgo(lastUpdate)}"
-        } else {
-            "Last weight update: Never"
+                if (emailEditText.text.isNullOrEmpty()) {
+                    emailEditText.setText(state.email)
+                }
+            }
         }
-
-        settingsButton.text = ProfileUtils.getSettingsButtonText(userPreferencesManager)
     }
 
     private fun setupClickListeners() {
-        logoutButton.setOnClickListener { performLogout() }
-        settingsButton.setOnClickListener { navigateToSettings() }
-        dashboardButton.setOnClickListener { navigateToDashboard() }
+        logoutButton.setOnClickListener {
+            performLogout()
+        }
+
+        settingsButton.setOnClickListener {
+            navigateToSettings()
+        }
+
+        dashboardButton.setOnClickListener {
+            navigateToDashboard()
+        }
 
         emailEditText.setOnClickListener {
-            val weight = userPreferencesManager.getUserWeight()
+            val weight = profileViewModel.profileUiState.value.rawWeight
             val message = if (weight > 0) {
                 "Profile looks good! Use Settings to make changes or go back to Dashboard."
             } else {
                 "Complete your profile in Settings to get personalized recommendations!"
             }
-            showToast(message, false)
+            requireContext().showToast(message, false)
         }
     }
 
@@ -163,7 +150,7 @@ class ProfileFragment : Fragment() {
             val action = ProfileFragmentDirections.actionProfileFragmentToSettingsFragment()
             findNavController().navigate(action)
         } catch (e: Exception) {
-            showToast("Error opening Settings: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Settings: ${e.message}")
         }
     }
 
@@ -172,13 +159,13 @@ class ProfileFragment : Fragment() {
             val action = ProfileFragmentDirections.actionProfileFragmentToDashboardFragment(args.email)
             findNavController().navigate(action)
         } catch (e: Exception) {
-            showToast("Error navigating to Dashboard: ${e.message}", true)
+            requireContext().showErrorToast("Error navigating to Dashboard: ${e.message}")
         }
     }
 
     private fun performLogout() {
-        globalPreferencesManager.setUserLoggedOut()
-        showToast("Successfully logged out", false)
+        authViewModel.logoutUser()
+        requireContext().showSuccessToast("Successfully logged out")
         goToLogin()
     }
 
@@ -190,10 +177,5 @@ class ProfileFragment : Fragment() {
 
     private fun goToLogin() {
         findNavController().navigate(R.id.loginFragment)
-    }
-
-    private fun showToast(message: String, isLong: Boolean) {
-        val duration = if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-        Toast.makeText(context, message, duration).show()
     }
 }

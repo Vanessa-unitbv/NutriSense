@@ -1,63 +1,47 @@
 package com.example.nutrisense.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.nutrisense.activities.ApplicationController
 import com.example.nutrisense.data.entity.Food
 import com.example.nutrisense.data.repository.FoodRepository
 import com.example.nutrisense.data.repository.NutritionSummary
 import com.example.nutrisense.managers.SharedPreferencesManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NutritionViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class NutritionViewModel @Inject constructor(
+    private val repository: FoodRepository,
+    private val globalPreferencesManager: SharedPreferencesManager
+) : ViewModel() {
 
-    private val repository: FoodRepository
-    private val appController: ApplicationController = ApplicationController.instance
-    private val globalPreferencesManager: SharedPreferencesManager = appController.globalPreferencesManager
+    private val _uiState = MutableStateFlow(NutritionUiState())
+    val uiState: StateFlow<NutritionUiState> = _uiState.asStateFlow()
 
-    init {
-        val database = appController.database
-        val foodDao = database.foodDao()
-        val userDao = database.userDao()
-        repository = FoodRepository(foodDao, userDao)
-    }
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+    val currentUserId: StateFlow<Long?> = _currentUserId.asStateFlow()
 
-    private val currentUserEmail: String?
-        get() = globalPreferencesManager.getUserEmail()
+    private val _userFoods = MutableStateFlow<LiveData<List<Food>>?>(null)
+    val userFoods: StateFlow<LiveData<List<Food>>?> = _userFoods.asStateFlow()
 
-    private val _currentUserId = MutableLiveData<Long?>()
-    val currentUserId: LiveData<Long?> = _currentUserId
+    private val _userFavoriteFoods = MutableStateFlow<LiveData<List<Food>>?>(null)
+    val userFavoriteFoods: StateFlow<LiveData<List<Food>>?> = _userFavoriteFoods.asStateFlow()
 
-    private val _userFoods = MutableLiveData<LiveData<List<Food>>>()
-    val userFoods: LiveData<LiveData<List<Food>>> = _userFoods
+    private val _userTodayFoods = MutableStateFlow<LiveData<List<Food>>?>(null)
+    val userTodayFoods: StateFlow<LiveData<List<Food>>?> = _userTodayFoods.asStateFlow()
 
-    private val _userFavoriteFoods = MutableLiveData<LiveData<List<Food>>>()
-    val userFavoriteFoods: LiveData<LiveData<List<Food>>> = _userFavoriteFoods
+    private val _userTodayConsumedFoods = MutableStateFlow<LiveData<List<Food>>?>(null)
+    val userTodayConsumedFoods: StateFlow<LiveData<List<Food>>?> = _userTodayConsumedFoods.asStateFlow()
 
-    private val _userTodayFoods = MutableLiveData<LiveData<List<Food>>>()
-    val userTodayFoods: LiveData<LiveData<List<Food>>> = _userTodayFoods
-
-    private val _userTodayConsumedFoods = MutableLiveData<LiveData<List<Food>>>()
-    val userTodayConsumedFoods: LiveData<LiveData<List<Food>>> = _userTodayConsumedFoods
-
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
-
-    private val _searchResults = MutableLiveData<List<Food>>()
-    val searchResults: LiveData<List<Food>> = _searchResults
-
-    private val _nutritionSummary = MutableLiveData<NutritionSummary>()
-    val nutritionSummary: LiveData<NutritionSummary> = _nutritionSummary
-
-    private val _successMessage = MutableLiveData<String?>()
-    val successMessage: LiveData<String?> = _successMessage
+    // Summary
+    private val _nutritionSummary = MutableStateFlow<NutritionSummary?>(null)
+    val nutritionSummary: StateFlow<NutritionSummary?> = _nutritionSummary.asStateFlow()
 
     init {
         loadCurrentUser()
@@ -65,20 +49,24 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun loadCurrentUser() {
         viewModelScope.launch {
-            currentUserEmail?.let { email ->
+            val email = globalPreferencesManager.getUserEmail()
+            email?.let {
                 try {
-                    val userId = repository.getUserIdByEmail(email)
+                    val userId = repository.getUserIdByEmail(it)
                     if (userId != null) {
                         _currentUserId.value = userId
                         setupUserSpecificData(userId)
                         loadNutritionSummary(userId)
-
-                        SharedPreferencesManager.setCurrentUser(email)
+                        SharedPreferencesManager.setCurrentUser(it)
                     } else {
-                        _errorMessage.value = "User not found"
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "User not found"
+                        )
                     }
                 } catch (e: Exception) {
-                    _errorMessage.value = "Error loading user: ${e.message}"
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Error loading user: ${e.message}"
+                    )
                 }
             }
         }
@@ -92,25 +80,30 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun searchFoodNutrition(foodName: String, quantity: Double) {
-        if (foodName.isBlank()) {
-            _errorMessage.value = "Please enter a food name"
+        val validation = validateFoodInput(foodName, quantity)
+        if (validation is ValidationResult.Error) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                errorMessage = validation.message,
+                searchResults = emptyList()
+            )
             return
         }
 
-        if (quantity <= 0) {
-            _errorMessage.value = "Please enter a valid quantity"
-            return
-        }
-
-        val userEmail = currentUserEmail
+        val userEmail = globalPreferencesManager.getUserEmail()
         if (userEmail == null) {
-            _errorMessage.value = "User not logged in"
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                errorMessage = "User not logged in"
+            )
             return
         }
 
         viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
+            )
 
             try {
                 val result = repository.searchAndSaveNutritionInfoForUser(
@@ -121,26 +114,35 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
 
                 if (result.isSuccess) {
                     val foods = result.getOrNull() ?: emptyList()
-                    _searchResults.value = foods
 
-                    if (foods.isEmpty()) {
-                        _errorMessage.value = "No nutrition information found for '$foodName'"
+                    _uiState.value = if (foods.isEmpty()) {
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = "No nutrition information found for '$foodName'",
+                            searchResults = emptyList()
+                        )
                     } else {
-                        _errorMessage.value = null
-                        _successMessage.value = "Found nutrition info for ${foods.size} food(s)!"
+                        _currentUserId.value?.let { loadNutritionSummary(it) }
 
-                        currentUserId.value?.let { userId ->
-                            loadNutritionSummary(userId)
-                        }
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = null,
+                            searchResults = foods,
+                            successMessage = "Found nutrition info for ${foods.size} food(s)!"
+                        )
                     }
                 } else {
                     val exception = result.exceptionOrNull()
-                    _errorMessage.value = "Error: ${exception?.message ?: "Unknown error occurred"}"
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = exception?.message ?: "Unknown error occurred"
+                    )
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Network error: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Network error: ${e.message}"
+                )
             }
         }
     }
@@ -149,12 +151,14 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             try {
                 repository.insertFood(food)
-                currentUserId.value?.let { userId ->
-                    loadNutritionSummary(userId)
-                }
-                _successMessage.value = "Food saved successfully!"
+                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "Food saved successfully!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error saving food: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error saving food: ${e.message}"
+                )
             }
         }
     }
@@ -163,12 +167,14 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             try {
                 repository.markAsConsumed(food.id)
-                currentUserId.value?.let { userId ->
-                    loadNutritionSummary(userId)
-                }
-                _successMessage.value = "${food.name} marked as consumed!"
+                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "${food.name} marked as consumed!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error marking food as consumed: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error marking food as consumed: ${e.message}"
+                )
             }
         }
     }
@@ -178,9 +184,13 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
             try {
                 repository.updateFavoriteStatus(food.id, food.isFavorite)
                 val status = if (food.isFavorite) "added to" else "removed from"
-                _successMessage.value = "${food.name} $status favorites!"
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "${food.name} $status favorites!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error updating favorite: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error updating favorite: ${e.message}"
+                )
             }
         }
     }
@@ -189,12 +199,14 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             try {
                 repository.deleteFood(food)
-                currentUserId.value?.let { userId ->
-                    loadNutritionSummary(userId)
-                }
-                _successMessage.value = "${food.name} deleted successfully!"
+                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "${food.name} deleted successfully!"
+                )
             } catch (e: Exception) {
-                _errorMessage.value = "Error deleting food: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error deleting food: ${e.message}"
+                )
             }
         }
     }
@@ -202,13 +214,17 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
     fun clearAllUserFoods() {
         viewModelScope.launch {
             try {
-                currentUserId.value?.let { userId ->
+                _currentUserId.value?.let { userId ->
                     repository.deleteAllFoodsForUser(userId)
                     loadNutritionSummary(userId)
-                    _successMessage.value = "All foods cleared successfully!"
+                    _uiState.value = _uiState.value.copy(
+                        successMessage = "All foods cleared successfully!"
+                    )
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Error clearing foods: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error clearing foods: ${e.message}"
+                )
             }
         }
     }
@@ -219,21 +235,49 @@ class NutritionViewModel(application: Application) : AndroidViewModel(applicatio
                 val summary = repository.getTodayNutritionSummaryForUser(userId)
                 _nutritionSummary.value = summary
             } catch (e: Exception) {
-                _errorMessage.value = "Error loading nutrition summary: ${e.message}"
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error loading nutrition summary: ${e.message}"
+                )
             }
         }
     }
 
     fun clearMessages() {
-        _errorMessage.value = null
-        _successMessage.value = null
+        _uiState.value = _uiState.value.copy(
+            errorMessage = null,
+            successMessage = null
+        )
     }
 
     fun clearSearchResults() {
-        _searchResults.value = emptyList()
+        _uiState.value = _uiState.value.copy(
+            searchResults = emptyList()
+        )
     }
 
     fun refreshUserData() {
         loadCurrentUser()
+    }
+
+    private fun validateFoodInput(foodName: String, quantity: Double): ValidationResult {
+        return when {
+            foodName.isBlank() -> ValidationResult.Error("Please enter a food name")
+            quantity <= 0 -> ValidationResult.Error("Please enter a valid quantity (greater than 0)")
+            quantity > 10000 -> ValidationResult.Error("Quantity too large (max 10kg)")
+            else -> ValidationResult.Success
+        }
+    }
+
+
+    data class NutritionUiState(
+        val isLoading: Boolean = false,
+        val searchResults: List<Food> = emptyList(),
+        val errorMessage: String? = null,
+        val successMessage: String? = null
+    )
+
+    sealed class ValidationResult {
+        object Success : ValidationResult()
+        data class Error(val message: String) : ValidationResult()
     }
 }

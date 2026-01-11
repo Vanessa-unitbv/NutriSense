@@ -5,22 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.nutrisense.R
-import com.example.nutrisense.data.entity.User
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.viewmodel.AuthViewModel
+import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DashboardFragment : Fragment() {
 
     private val args: DashboardFragmentArgs by navArgs()
-    private lateinit var authViewModel: AuthViewModel
-    private lateinit var preferencesManager: SharedPreferencesManager
+
+    private val authViewModel: AuthViewModel by viewModels()
 
     private lateinit var btnCalculateNutrition: Button
     private lateinit var btnViewHistory: Button
@@ -28,8 +28,6 @@ class DashboardFragment : Fragment() {
     private lateinit var btnRecipeHistory: Button
     private lateinit var btnSettings: Button
     private lateinit var btnProfile: Button
-
-    private var currentUser: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,16 +40,10 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializeComponents()
         initializeViews(view)
         loadUserData()
         setupClickListeners()
         setupBackPressHandler()
-    }
-
-    private fun initializeComponents() {
-        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
     }
 
     private fun initializeViews(view: View) {
@@ -64,15 +56,8 @@ class DashboardFragment : Fragment() {
     }
 
     private fun loadUserData() {
-        authViewModel.getUserByEmail(
-            email = args.email,
-            onSuccess = { user ->
-                currentUser = user
-            },
-            onError = { errorMessage ->
-                showToast("Error loading profile: $errorMessage", true)
-            }
-        )
+        // Încarcă datele utilizatorului (opțional, pentru validare)
+        authViewModel.getUserByEmail(args.email)
     }
 
     private fun setupClickListeners() {
@@ -105,7 +90,7 @@ class DashboardFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_dashboardFragment_to_searchHistoryFragment)
         } catch (e: Exception) {
-            showToast("Error opening Search History: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Search History: ${e.message}")
         }
     }
 
@@ -113,7 +98,7 @@ class DashboardFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_dashboardFragment_to_calculateNutritionFragment)
         } catch (e: Exception) {
-            showToast("Error opening Nutrition Calculator: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Nutrition Calculator: ${e.message}")
         }
     }
 
@@ -121,7 +106,7 @@ class DashboardFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_dashboardFragment_to_settingsFragment)
         } catch (e: Exception) {
-            showToast("Error opening Settings: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Settings: ${e.message}")
         }
     }
 
@@ -130,7 +115,7 @@ class DashboardFragment : Fragment() {
             val action = DashboardFragmentDirections.actionDashboardFragmentToProfileFragment(args.email)
             findNavController().navigate(action)
         } catch (e: Exception) {
-            showToast("Error opening Profile: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Profile: ${e.message}")
         }
     }
 
@@ -138,7 +123,7 @@ class DashboardFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_dashboardFragment_to_recipeSearchFragment)
         } catch (e: Exception) {
-            showToast("Error opening Recipe Search: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Recipe Search: ${e.message}")
         }
     }
 
@@ -146,7 +131,7 @@ class DashboardFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_dashboardFragment_to_recipeHistoryFragment)
         } catch (e: Exception) {
-            showToast("Error opening Recipe Collection: ${e.message}", true)
+            requireContext().showErrorToast("Error opening Recipe Collection: ${e.message}")
         }
     }
 
@@ -154,10 +139,5 @@ class DashboardFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String, isLong: Boolean) {
-        val duration = if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-        Toast.makeText(context, message, duration).show()
     }
 }

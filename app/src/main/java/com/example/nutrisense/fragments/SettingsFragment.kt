@@ -6,17 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.nutrisense.R
-import com.example.nutrisense.managers.SharedPreferencesManager
-import com.example.nutrisense.utils.NutritionCalculator
+import com.example.nutrisense.viewmodel.SettingsViewModel
 import com.example.nutrisense.helpers.extensions.*
 import com.google.android.material.textfield.TextInputEditText
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
-
-    private lateinit var userPreferencesManager: SharedPreferencesManager
-    private lateinit var globalPreferencesManager: SharedPreferencesManager
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     private lateinit var etWeight: TextInputEditText
     private lateinit var etHeight: TextInputEditText
@@ -45,22 +47,10 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initializePreferences()
         initializeViews(view)
         setupSpinners()
-        loadCurrentSettings()
         setupClickListeners()
-    }
-
-    private fun initializePreferences() {
-        globalPreferencesManager = SharedPreferencesManager.getGlobalInstance(requireContext())
-        val currentUserEmail = globalPreferencesManager.getUserEmail()
-
-        userPreferencesManager = if (currentUserEmail != null) {
-            SharedPreferencesManager.getInstance(requireContext(), currentUserEmail)
-        } else {
-            SharedPreferencesManager.getGlobalInstance(requireContext())
-        }
+        observeViewModel()
     }
 
     private fun initializeViews(view: View) {
@@ -104,42 +94,6 @@ class SettingsFragment : Fragment() {
         spinnerUnits.adapter = unitsAdapter
     }
 
-    private fun loadCurrentSettings() {
-        etCalories.setText(userPreferencesManager.getDailyCalorieGoal().toString())
-        etWater.setText(userPreferencesManager.getDailyWaterGoal().toString())
-
-        val weight = userPreferencesManager.getUserWeight()
-        if (weight > 0) etWeight.setText(weight.toString())
-
-        val height = userPreferencesManager.getUserHeight()
-        if (height > 0) etHeight.setText(height.toString())
-
-        val age = userPreferencesManager.getUserAge()
-        if (age > 0) etAge.setText(age.toString())
-
-        val currentActivity = userPreferencesManager.getActivityLevel()
-        val activityPosition = when (currentActivity) {
-            "sedentary" -> 0
-            "light" -> 1
-            "moderate" -> 2
-            "active" -> 3
-            "very_active" -> 4
-            else -> 2
-        }
-        spinnerActivity.setSelection(activityPosition)
-
-        val currentUnits = userPreferencesManager.getPreferredUnits()
-        spinnerUnits.setSelection(if (currentUnits == "metric") 0 else 1)
-
-        switchNotifications.isChecked = userPreferencesManager.isNotificationEnabled()
-        switchWaterReminder.isChecked = userPreferencesManager.getWaterReminderInterval() > 0
-
-        val waterInterval = userPreferencesManager.getWaterReminderInterval()
-        etWaterInterval.setText(if (waterInterval > 0) waterInterval.toString() else "60")
-
-        updateBMI()
-    }
-
     private fun setupClickListeners() {
         btnSave.setOnClickListener {
             saveAllSettings()
@@ -155,49 +109,59 @@ class SettingsFragment : Fragment() {
 
         spinnerUnits.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateBMI()
+                val units = if (position == 0) "metric" else "imperial"
+                settingsViewModel.updateUnits(units)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
-    private fun updateBMI() {
-        val weightText = etWeight.getTextString()
-        val heightText = etHeight.getTextString()
-        val isImperial = spinnerUnits.selectedItemPosition == 1
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            settingsViewModel.uiState.collect { state ->
+                updateUIFromState(state)
 
-        val weight = weightText.toFloatOrNull()
-        val height = heightText.toFloatOrNull()
+                state.errorMessage?.let {
+                    requireContext().showErrorToast(it)
+                    settingsViewModel.clearMessages()
+                }
 
-        if (weight != null && height != null && weight > 0 && height > 0) {
-            val heightInMeters = if (isImperial) {
-                height * 0.0254f
-            } else {
-                height / 100f
+                state.successMessage?.let {
+                    requireContext().showSuccessToast(it)
+                    settingsViewModel.clearMessages()
+                }
             }
-
-            val weightInKg = if (isImperial) {
-                weight * 0.453592f
-            } else {
-                weight
-            }
-
-            val bmi = NutritionCalculator.calculateBMI(weightInKg, heightInMeters)
-            val bmiCategory = NutritionCalculator.getBMICategory(bmi)
-
-            val bmiColor = when (bmiCategory) {
-                "Normal" -> resources.getColor(android.R.color.holo_green_dark, null)
-                "Underweight" -> resources.getColor(android.R.color.holo_blue_dark, null)
-                "Overweight" -> resources.getColor(android.R.color.holo_orange_dark, null)
-                else -> resources.getColor(android.R.color.holo_red_dark, null)
-            }
-
-            tvBMI.text = "BMI: %.1f (%s)".format(bmi, bmiCategory)
-            tvBMI.setTextColor(bmiColor)
-        } else {
-            tvBMI.text = getString(R.string.bmi_display)
-            tvBMI.setTextColor(resources.getColor(android.R.color.tertiary_text_light, null))
         }
+    }
+
+    private fun updateUIFromState(state: SettingsViewModel.SettingsUiState) {
+        etCalories.setText(state.dailyCalorieGoal.toString())
+        etWater.setText(state.dailyWaterGoal.toString())
+
+        if (state.userWeight > 0) etWeight.setText(state.userWeight.toString())
+        if (state.userHeight > 0) etHeight.setText(state.userHeight.toString())
+        if (state.userAge > 0) etAge.setText(state.userAge.toString())
+
+        tvBMI.text = state.bmiDisplayText
+        tvBMI.setTextColor(resources.getColor(state.bmiColorResource, null))
+
+        val activityPosition = when (state.activityLevel) {
+            "sedentary" -> 0
+            "light" -> 1
+            "moderate" -> 2
+            "active" -> 3
+            "very_active" -> 4
+            else -> 2
+        }
+        spinnerActivity.setSelection(activityPosition)
+
+        spinnerUnits.setSelection(if (state.preferredUnits == "metric") 0 else 1)
+
+        switchNotifications.isChecked = state.notificationEnabled
+        switchWaterReminder.isChecked = state.waterReminderInterval > 0
+        etWaterInterval.setText(
+            if (state.waterReminderInterval > 0) state.waterReminderInterval.toString() else "60"
+        )
     }
 
     private fun calculateRecommendedGoals() {
@@ -205,28 +169,14 @@ class SettingsFragment : Fragment() {
         val heightText = etHeight.getTextString()
         val ageText = etAge.getTextString()
 
-        etWeight.clearErrorAndFocus()
-        etHeight.clearErrorAndFocus()
-        etAge.clearErrorAndFocus()
-
-        if (!weightText.isValidWeight(getCurrentUnits())) {
-            etWeight.setErrorAndFocus("Please enter a valid weight")
+        if (weightText.isEmpty() || heightText.isEmpty() || ageText.isEmpty()) {
+            requireContext().showErrorToast("Please enter weight, height, and age")
             return
         }
 
-        if (!heightText.isValidHeight(getCurrentUnits())) {
-            etHeight.setErrorAndFocus("Please enter a valid height")
-            return
-        }
-
-        if (!ageText.isValidAge()) {
-            etAge.setErrorAndFocus("Please enter a valid age (13-120)")
-            return
-        }
-
-        val weight = weightText.toFloat()
-        val height = heightText.toFloat()
-        val age = ageText.toInt()
+        val weight = weightText.toFloatOrNull() ?: return
+        val height = heightText.toFloatOrNull() ?: return
+        val age = ageText.toIntOrNull() ?: return
 
         val gender = if (spinnerGender.selectedItemPosition == 0) "female" else "male"
         val activityLevel = when (spinnerActivity.selectedItemPosition) {
@@ -237,126 +187,59 @@ class SettingsFragment : Fragment() {
             4 -> "very_active"
             else -> "moderate"
         }
+        val units = if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
 
-        try {
-            val isImperial = spinnerUnits.selectedItemPosition == 1
-            val weightInKg = if (isImperial) weight * 0.453592f else weight
-            val heightInCm = if (isImperial) height * 2.54f else height
-
-            val bmr = NutritionCalculator.calculateBMR(weightInKg, heightInCm, age, gender)
-            val recommendedCalories = NutritionCalculator.calculateDailyCalorieNeeds(bmr, activityLevel)
-            val recommendedWater = NutritionCalculator.calculateWaterIntake(weightInKg, activityLevel)
-
-            etCalories.setText(recommendedCalories.toString())
-            etWater.setText(recommendedWater.toString())
-
-            requireContext().showSuccessToast("Goals calculated successfully!")
-
-        } catch (e: Exception) {
-            requireContext().showErrorToast("Error calculating goals: ${e.message}")
-        }
+        settingsViewModel.calculateRecommendedGoals(
+            weight, height, age, gender, activityLevel, units
+        )
     }
 
     private fun saveAllSettings() {
-        try {
-            val caloriesText = etCalories.getTextString()
-            val waterText = etWater.getTextString()
+        val caloriesText = etCalories.getTextString()
+        val waterText = etWater.getTextString()
 
-            if (!caloriesText.isValidCalorieGoal()) {
-                etCalories.setErrorAndFocus("Please enter a valid calorie goal (800-5000)")
-                return
-            }
+        val calories = caloriesText.toIntOrNull() ?: return
+        val water = waterText.toIntOrNull() ?: return
 
-            if (!waterText.isValidWaterGoal()) {
-                etWater.setErrorAndFocus("Please enter a valid water goal (500-5000 ml)")
-                return
-            }
+        val weight = etWeight.getTextString().toFloatOrNull()
+        val height = etHeight.getTextString().toFloatOrNull()
+        val age = etAge.getTextString().toIntOrNull()
 
-            val calories = caloriesText.toInt()
-            val water = waterText.toInt()
-
-            userPreferencesManager.setDailyCalorieGoal(calories)
-            userPreferencesManager.setDailyWaterGoal(water)
-
-            val weightText = etWeight.getTextString()
-            val heightText = etHeight.getTextString()
-            val ageText = etAge.getTextString()
-
-            if (weightText.isNotEmpty()) {
-                if (weightText.isValidWeight(getCurrentUnits())) {
-                    userPreferencesManager.setUserWeight(weightText.toFloat())
-                } else {
-                    etWeight.setErrorAndFocus("Invalid weight")
-                    return
-                }
-            }
-
-            if (heightText.isNotEmpty()) {
-                if (heightText.isValidHeight(getCurrentUnits())) {
-                    userPreferencesManager.setUserHeight(heightText.toFloat())
-                } else {
-                    etHeight.setErrorAndFocus("Invalid height")
-                    return
-                }
-            }
-
-            if (ageText.isNotEmpty()) {
-                if (ageText.isValidAge()) {
-                    userPreferencesManager.setUserAge(ageText.toInt())
-                } else {
-                    etAge.setErrorAndFocus("Invalid age")
-                    return
-                }
-            }
-
-            val activityLevel = when (spinnerActivity.selectedItemPosition) {
-                0 -> "sedentary"
-                1 -> "light"
-                2 -> "moderate"
-                3 -> "active"
-                4 -> "very_active"
-                else -> "moderate"
-            }
-            userPreferencesManager.setActivityLevel(activityLevel)
-
-            val units = if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
-            userPreferencesManager.setPreferredUnits(units)
-
-            userPreferencesManager.setNotificationEnabled(switchNotifications.isChecked)
-
-            val waterInterval = if (switchWaterReminder.isChecked) {
-                val intervalText = etWaterInterval.getTextString()
-                if (intervalText.isNotEmpty()) {
-                    intervalText.toIntOrNull() ?: 60
-                } else {
-                    60
-                }
-            } else {
-                0
-            }
-            userPreferencesManager.setWaterReminderInterval(waterInterval)
-
-            requireContext().showSuccessToast("Settings saved successfully!")
-            goBack()
-
-        } catch (e: Exception) {
-            requireContext().showErrorToast("Error saving settings: ${e.message}")
+        val activityLevel = when (spinnerActivity.selectedItemPosition) {
+            0 -> "sedentary"
+            1 -> "light"
+            2 -> "moderate"
+            3 -> "active"
+            4 -> "very_active"
+            else -> "moderate"
         }
-    }
 
-    private fun getCurrentUnits(): String {
-        return if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
+        val units = if (spinnerUnits.selectedItemPosition == 0) "metric" else "imperial"
+
+        val waterInterval = if (switchWaterReminder.isChecked) {
+            etWaterInterval.getTextString().toIntOrNull() ?: 60
+        } else {
+            0
+        }
+
+        settingsViewModel.saveAllSettings(
+            calorieGoal = calories,
+            waterGoal = water,
+            weight = weight,
+            height = height,
+            age = age,
+            activityLevel = activityLevel,
+            units = units,
+            notificationsEnabled = switchNotifications.isChecked,
+            waterInterval = waterInterval
+        )
     }
 
     private fun goBack() {
         try {
             findNavController().popBackStack(R.id.dashboardFragment, false)
         } catch (e: Exception) {
-            try {
-                findNavController().popBackStack()
-            } catch (ex: Exception) {
-                requireActivity().finish()
-            }
+            requireActivity().finish()
         }
     }
 }

@@ -6,25 +6,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Food
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.adapters.FoodAdapter
 import com.example.nutrisense.viewmodel.NutritionViewModel
+import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
+@AndroidEntryPoint
 class SearchHistoryFragment : Fragment() {
+    private val nutritionViewModel: NutritionViewModel by viewModels()
 
-    private lateinit var nutritionViewModel: NutritionViewModel
     private lateinit var foodAdapter: FoodAdapter
-    private lateinit var preferencesManager: SharedPreferencesManager
-
     private lateinit var rvSavedFoods: RecyclerView
     private lateinit var tvNoSavedFoods: TextView
     private lateinit var tvNutritionSummary: TextView
@@ -42,7 +45,6 @@ class SearchHistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(view)
-        setupViewModel()
         setupRecyclerView()
         observeViewModel()
         setupBackPressHandler()
@@ -50,16 +52,10 @@ class SearchHistoryFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
-
         rvSavedFoods = view.findViewById(R.id.rv_saved_foods)
         tvNoSavedFoods = view.findViewById(R.id.tv_no_saved_foods)
         tvNutritionSummary = view.findViewById(R.id.tv_nutrition_summary)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
-    }
-
-    private fun setupViewModel() {
-        nutritionViewModel = ViewModelProvider(this)[NutritionViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
@@ -78,11 +74,7 @@ class SearchHistoryFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            try {
-                findNavController().popBackStack()
-            } catch (e: Exception) {
-                requireActivity().finish()
-            }
+            goToDashboard()
         }
     }
 
@@ -93,37 +85,35 @@ class SearchHistoryFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        nutritionViewModel.userFoods.observe(viewLifecycleOwner) { liveDataFoods ->
-            liveDataFoods?.observe(viewLifecycleOwner) { foods ->
-                foodAdapter.submitList(foods)
-                tvNoSavedFoods.visibility = if (foods.isEmpty()) View.VISIBLE else View.GONE
-                rvSavedFoods.visibility = if (foods.isEmpty()) View.GONE else View.VISIBLE
-
-                updateFoodSummary(foods)
+        viewLifecycleOwner.lifecycleScope.launch {
+            nutritionViewModel.userFoods.collect { liveDataFoods ->
+                liveDataFoods?.observe(viewLifecycleOwner) { foods ->
+                    foodAdapter.submitList(foods)
+                    tvNoSavedFoods.visibility = if (foods.isEmpty()) View.VISIBLE else View.GONE
+                    rvSavedFoods.visibility = if (foods.isEmpty()) View.GONE else View.VISIBLE
+                }
             }
         }
 
-        nutritionViewModel.userTodayConsumedFoods.observe(viewLifecycleOwner) { liveDataFoods ->
-            liveDataFoods?.observe(viewLifecycleOwner) { consumedFoods ->
-                updateNutritionSummary(consumedFoods)
+        viewLifecycleOwner.lifecycleScope.launch {
+            nutritionViewModel.userTodayConsumedFoods.collect { liveDataFoods ->
+                liveDataFoods?.observe(viewLifecycleOwner) { consumedFoods ->
+                    updateNutritionSummary(consumedFoods)
+                }
             }
         }
-    }
 
-    private fun updateFoodSummary(foods: List<Food>) {
-        if (foods.isEmpty()) return
-
-        val totalFoods = foods.size
-        val favoriteFoods = foods.count { it.isFavorite }
-        val consumedToday = foods.count { food ->
-            food.consumedAt != null && isToday(food.consumedAt)
-        }
-
-        val summaryText = buildString {
-            appendLine("Your Food Database:")
-            appendLine("Total saved foods: $totalFoods")
-            appendLine("Favorite foods: $favoriteFoods")
-            appendLine("Consumed today: $consumedToday")
+        viewLifecycleOwner.lifecycleScope.launch {
+            nutritionViewModel.uiState.collect { state ->
+                state.successMessage?.let {
+                    requireContext().showSuccessToast(it)
+                    nutritionViewModel.clearMessages()
+                }
+                state.errorMessage?.let {
+                    requireContext().showErrorToast(it)
+                    nutritionViewModel.clearMessages()
+                }
+            }
         }
     }
 
@@ -150,12 +140,6 @@ class SearchHistoryFragment : Fragment() {
         tvNutritionSummary.text = summaryText
     }
 
-    private fun isToday(timestamp: Long): Boolean {
-        val today = System.currentTimeMillis()
-        val oneDayInMillis = 24 * 60 * 60 * 1000
-        return (today - timestamp) < oneDayInMillis
-    }
-
     private fun showFoodDetails(food: Food) {
         val details = buildString {
             appendLine("📊 ${food.name.uppercase()}")
@@ -177,7 +161,8 @@ class SearchHistoryFragment : Fragment() {
             appendLine("🍯 Sugar: ${String.format("%.1f", food.sugarG)}g")
             appendLine()
             if (food.consumedAt != null) {
-                appendLine("✅ Consumed: ${java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(food.consumedAt))}")
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                appendLine("✅ Consumed: ${dateFormat.format(Date(food.consumedAt))}")
             } else {
                 appendLine("⏳ Not consumed yet")
             }
@@ -196,7 +181,6 @@ class SearchHistoryFragment : Fragment() {
             .setMessage("Are you sure you want to delete ${food.name} from your database?")
             .setPositiveButton("Delete") { _, _ ->
                 nutritionViewModel.deleteFood(food)
-                showToast("${food.name} deleted from your database")
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -208,9 +192,5 @@ class SearchHistoryFragment : Fragment() {
         } catch (e: Exception) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

@@ -7,26 +7,27 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nutrisense.R
 import com.example.nutrisense.data.entity.Recipe
-import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.adapters.RecipeAdapter
 import com.example.nutrisense.viewmodel.RecipeViewModel
+import com.example.nutrisense.helpers.extensions.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class RecipeSearchFragment : Fragment() {
+    private val recipeViewModel: RecipeViewModel by viewModels()
 
-    private lateinit var recipeViewModel: RecipeViewModel
     private lateinit var recipeAdapter: RecipeAdapter
-    private lateinit var preferencesManager: SharedPreferencesManager
-
     private lateinit var etIngredients: EditText
     private lateinit var btnSearchRecipes: Button
     private lateinit var btnBackToDashboard: Button
-
     private lateinit var progressBar: ProgressBar
     private lateinit var tvErrorMessage: TextView
     private lateinit var rvRecipes: RecyclerView
@@ -44,7 +45,6 @@ class RecipeSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(view)
-        setupViewModel()
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
@@ -52,20 +52,13 @@ class RecipeSearchFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
-        preferencesManager = SharedPreferencesManager.getInstance(requireContext())
-
         etIngredients = view.findViewById(R.id.et_ingredients)
         btnSearchRecipes = view.findViewById(R.id.btn_search_recipes)
         btnBackToDashboard = view.findViewById(R.id.btn_back_to_dashboard)
-
         progressBar = view.findViewById(R.id.progress_bar)
         tvErrorMessage = view.findViewById(R.id.tv_error_message)
         rvRecipes = view.findViewById(R.id.rv_recipes)
         tvNoRecipes = view.findViewById(R.id.tv_no_recipes)
-    }
-
-    private fun setupViewModel() {
-        recipeViewModel = ViewModelProvider(this)[RecipeViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
@@ -93,58 +86,51 @@ class RecipeSearchFragment : Fragment() {
 
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            try {
-                findNavController().popBackStack()
-            } catch (e: Exception) {
-                requireActivity().finish()
-            }
-        }
-    }
-
-    private fun observeViewModel() {
-        recipeViewModel.isLoading.observe(viewLifecycleOwner) { isLoading: Boolean ->
-            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            btnSearchRecipes.isEnabled = !isLoading
-        }
-
-        recipeViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage: String? ->
-            if (errorMessage != null) {
-                tvErrorMessage.text = errorMessage
-                tvErrorMessage.visibility = View.VISIBLE
-            } else {
-                tvErrorMessage.visibility = View.GONE
-            }
-        }
-
-        recipeViewModel.searchResults.observe(viewLifecycleOwner) { searchResults: List<Recipe> ->
-            if (searchResults.isNotEmpty()) {
-                recipeAdapter.submitList(searchResults)
-                rvRecipes.visibility = View.VISIBLE
-                tvNoRecipes.visibility = View.GONE
-                showToast("Found ${searchResults.size} recipe(s)!")
-            } else {
-                rvRecipes.visibility = View.GONE
-                tvNoRecipes.visibility = View.VISIBLE
-            }
-        }
-
-        recipeViewModel.successMessage.observe(viewLifecycleOwner) { successMessage: String? ->
-            if (successMessage != null) {
-                showToast(successMessage)
-                recipeViewModel.clearMessages()
-            }
+            goToDashboard()
         }
     }
 
     private fun searchRecipes() {
-        val ingredients = etIngredients.text.toString().trim()
+        val ingredients = etIngredients.getTextString()
 
         if (ingredients.isEmpty()) {
-            showToast("Please enter ingredients")
+            requireContext().showErrorToast("Please enter ingredients")
             return
         }
 
         recipeViewModel.searchRecipes(ingredients)
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            recipeViewModel.uiState.collect { state ->
+
+                progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                btnSearchRecipes.isEnabled = !state.isLoading
+
+                if (state.errorMessage != null) {
+                    tvErrorMessage.text = state.errorMessage
+                    tvErrorMessage.visibility = View.VISIBLE
+                    recipeViewModel.clearMessages()
+                } else {
+                    tvErrorMessage.visibility = View.GONE
+                }
+
+                if (state.searchResults.isNotEmpty()) {
+                    recipeAdapter.submitList(state.searchResults)
+                    rvRecipes.visibility = View.VISIBLE
+                    tvNoRecipes.visibility = View.GONE
+                } else if (!state.isLoading && state.errorMessage == null) {
+                    rvRecipes.visibility = View.GONE
+                    tvNoRecipes.visibility = View.VISIBLE
+                }
+
+                state.successMessage?.let {
+                    requireContext().showSuccessToast(it)
+                    recipeViewModel.clearMessages()
+                }
+            }
+        }
     }
 
     private fun showRecipeDetails(recipe: Recipe) {
@@ -171,10 +157,9 @@ class RecipeSearchFragment : Fragment() {
     private fun showDeleteConfirmation(recipe: Recipe) {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Recipe")
-            .setMessage("Are you sure you want to delete ${recipe.title} from your saved recipes?")
+            .setMessage("Are you sure you want to delete ${recipe.title}?")
             .setPositiveButton("Delete") { _, _ ->
                 recipeViewModel.deleteRecipe(recipe)
-                showToast("${recipe.title} deleted from your recipes")
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -186,9 +171,5 @@ class RecipeSearchFragment : Fragment() {
         } catch (e: Exception) {
             requireActivity().finish()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
