@@ -22,7 +22,9 @@
         </action>
         <action
             android:id="@+id/action_loginFragment_to_navigation_profile"
-            app:destination="@id/navigation_profile">
+            app:destination="@id/navigation_profile"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true">
             <argument
                 android:name="email"
                 app:argType="string" />
@@ -42,14 +44,18 @@
             app:argType="string" />
         <action
             android:id="@+id/action_register2Fragment_to_navigation_profile"
-            app:destination="@id/navigation_profile">
+            app:destination="@id/navigation_profile"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true">
             <argument
                 android:name="email"
                 app:argType="string" />
         </action>
         <action
             android:id="@+id/action_register2Fragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <include app:graph="@navigation/navigation_profile" />
