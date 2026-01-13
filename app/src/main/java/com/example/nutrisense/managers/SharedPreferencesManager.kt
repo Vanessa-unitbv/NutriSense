@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import com.example.nutrisense.utils.AppConstants
 import com.example.nutrisense.data.preferences.UserPreferences
 import java.security.MessageDigest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SharedPreferencesManager private constructor(context: Context, userEmail: String? = null) {
 
@@ -59,6 +61,105 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
         }
     }
 
+    suspend fun setUserLoggedInAsync(email: String, name: String?) = withContext(Dispatchers.IO) {
+        savePreferences {
+            putBoolean(AppConstants.PrefsKeys.IS_LOGGED_IN, true)
+            putString(AppConstants.PrefsKeys.USER_EMAIL, email)
+            putString(AppConstants.PrefsKeys.USER_NAME, name)
+        }
+        setCurrentUser(email)
+    }
+
+    suspend fun setUserLoggedOutAsync() = withContext(Dispatchers.IO) {
+        savePreferences {
+            putBoolean(AppConstants.PrefsKeys.IS_LOGGED_IN, false)
+            remove(AppConstants.PrefsKeys.USER_EMAIL)
+            remove(AppConstants.PrefsKeys.USER_NAME)
+        }
+        setCurrentUser(null)
+    }
+
+    suspend fun setUserWeightAsync(weight: Float) = withContext(Dispatchers.IO) {
+        savePreferences {
+            putFloat(AppConstants.PrefsKeys.USER_WEIGHT, weight)
+            putLong(AppConstants.PrefsKeys.LAST_WEIGHT_UPDATE, System.currentTimeMillis())
+        }
+    }
+
+    suspend fun setUserHeightAsync(height: Float) = withContext(Dispatchers.IO) {
+        saveFloat(AppConstants.PrefsKeys.USER_HEIGHT, height)
+    }
+
+    suspend fun setUserAgeAsync(age: Int) = withContext(Dispatchers.IO) {
+        saveInt(AppConstants.PrefsKeys.USER_AGE, age)
+    }
+
+    suspend fun setDailyCalorieGoalAsync(goal: Int) = withContext(Dispatchers.IO) {
+        saveInt(AppConstants.PrefsKeys.DAILY_CALORIE_GOAL, goal)
+    }
+
+    suspend fun setDailyWaterGoalAsync(goal: Int) = withContext(Dispatchers.IO) {
+        saveInt(AppConstants.PrefsKeys.DAILY_WATER_GOAL, goal)
+    }
+
+    suspend fun setActivityLevelAsync(level: String) = withContext(Dispatchers.IO) {
+        saveString(AppConstants.PrefsKeys.ACTIVITY_LEVEL, level)
+    }
+
+    suspend fun setPreferredUnitsAsync(units: String) = withContext(Dispatchers.IO) {
+        saveString(AppConstants.PrefsKeys.PREFERRED_UNITS, units)
+    }
+
+    suspend fun setNotificationEnabledAsync(enabled: Boolean) = withContext(Dispatchers.IO) {
+        saveBoolean(AppConstants.PrefsKeys.NOTIFICATION_ENABLED, enabled) // Removed the 'S'
+    }
+
+    suspend fun setWaterReminderIntervalAsync(interval: Int) = withContext(Dispatchers.IO) {
+        saveInt(AppConstants.PrefsKeys.WATER_REMINDER_INTERVAL, interval)
+    }
+
+    // Read operations - also async to ensure consistency
+    suspend fun getUserEmailAsync(): String? = withContext(Dispatchers.IO) {
+        sharedPreferences.getString(AppConstants.PrefsKeys.USER_EMAIL, null)
+    }
+
+    suspend fun getUserWeightAsync(): Float = withContext(Dispatchers.IO) {
+        getFloat(AppConstants.PrefsKeys.USER_WEIGHT, 0f)
+    }
+
+    suspend fun getUserHeightAsync(): Float = withContext(Dispatchers.IO) {
+        getFloat(AppConstants.PrefsKeys.USER_HEIGHT, 0f)
+    }
+
+    suspend fun getUserAgeAsync(): Int = withContext(Dispatchers.IO) {
+        getInt(AppConstants.PrefsKeys.USER_AGE, 0)
+    }
+
+    suspend fun getDailyCalorieGoalAsync(): Int = withContext(Dispatchers.IO) {
+        getInt(AppConstants.PrefsKeys.DAILY_CALORIE_GOAL, 2000)
+    }
+
+    suspend fun getDailyWaterGoalAsync(): Int = withContext(Dispatchers.IO) {
+        getInt(AppConstants.PrefsKeys.DAILY_WATER_GOAL, 2000)
+    }
+
+    suspend fun getActivityLevelAsync(): String = withContext(Dispatchers.IO) {
+        getString(AppConstants.PrefsKeys.ACTIVITY_LEVEL, "moderate") ?: "moderate"
+    }
+
+    suspend fun getPreferredUnitsAsync(): String = withContext(Dispatchers.IO) {
+        getString(AppConstants.PrefsKeys.PREFERRED_UNITS, "metric") ?: "metric"
+    }
+
+    suspend fun isNotificationEnabledAsync(): Boolean = withContext(Dispatchers.IO) {
+        getBoolean(AppConstants.PrefsKeys.NOTIFICATION_ENABLED, true)
+    }
+
+    suspend fun getWaterReminderIntervalAsync(): Int = withContext(Dispatchers.IO) {
+        getInt(AppConstants.PrefsKeys.WATER_REMINDER_INTERVAL, 60)
+    }
+
+    // Synchronous versions (kept for backward compatibility in UI operations)
     fun setUserLoggedIn(email: String, name: String?) {
         savePreferences {
             putBoolean(AppConstants.PrefsKeys.IS_LOGGED_IN, true)

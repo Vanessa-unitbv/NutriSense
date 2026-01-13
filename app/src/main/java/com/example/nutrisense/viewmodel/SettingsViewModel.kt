@@ -8,6 +8,7 @@ import com.example.nutrisense.managers.SharedPreferencesManager
 import com.example.nutrisense.utils.AppConstants
 import com.example.nutrisense.utils.NutritionCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +32,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         initializeUserPreferences()
-        loadCurrentSettings()
+        loadCurrentSettingsAsync()
     }
 
     private fun initializeUserPreferences() {
@@ -44,23 +45,44 @@ class SettingsViewModel @Inject constructor(
         return preferencesRepository.getManagerForUser(email)
     }
 
-    private fun loadCurrentSettings() {
-        val prefs = resolveUserPrefs()
+    private fun loadCurrentSettingsAsync() {
+        viewModelScope.launch {
+            try {
+                val prefs = resolveUserPrefs()
 
-        _uiState.value = _uiState.value.copy(
-            dailyCalorieGoal = prefs.getDailyCalorieGoal(),
-            dailyWaterGoal = prefs.getDailyWaterGoal(),
-            userWeight = prefs.getUserWeight(),
-            userHeight = prefs.getUserHeight(),
-            userAge = prefs.getUserAge(),
-            activityLevel = prefs.getActivityLevel(),
-            preferredUnits = prefs.getPreferredUnits(),
-            notificationEnabled = prefs.isNotificationEnabled(),
-            waterReminderInterval = prefs.getWaterReminderInterval(),
-            mealReminderEnabled = prefs.isMealReminderEnabled()
-        )
+                // Use async to load multiple preferences in parallel
+                val calorieGoalAsync = async { prefs.getDailyCalorieGoal() }
+                val waterGoalAsync = async { prefs.getDailyWaterGoal() }
+                val weightAsync = async { prefs.getUserWeight() }
+                val heightAsync = async { prefs.getUserHeight() }
+                val ageAsync = async { prefs.getUserAge() }
+                val activityLevelAsync = async { prefs.getActivityLevel() }
+                val unitsAsync = async { prefs.getPreferredUnits() }
+                val notificationAsync = async { prefs.isNotificationEnabled() }
+                val waterReminderAsync = async { prefs.getWaterReminderInterval() }
+                val mealReminderAsync = async { prefs.isMealReminderEnabled() }
 
-        calculateAndUpdateBMI()
+                _uiState.value = _uiState.value.copy(
+                    dailyCalorieGoal = calorieGoalAsync.await(),
+                    dailyWaterGoal = waterGoalAsync.await(),
+                    userWeight = weightAsync.await(),
+                    userHeight = heightAsync.await(),
+                    userAge = ageAsync.await(),
+                    activityLevel = activityLevelAsync.await(),
+                    preferredUnits = unitsAsync.await(),
+                    notificationEnabled = notificationAsync.await(),
+                    waterReminderInterval = waterReminderAsync.await(),
+                    mealReminderEnabled = mealReminderAsync.await()
+                )
+
+                calculateAndUpdateBMI()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading settings", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error loading settings: ${e.message}"
+                )
+            }
+        }
     }
 
     fun calculateAndUpdateBMI() {
@@ -100,7 +122,6 @@ class SettingsViewModel @Inject constructor(
         Log.d(TAG, "calculateRecommendedGoals called with activityLevel=$activityLevel")
         _uiState.value = _uiState.value.copy(activityLevel = activityLevel)
 
-        // Validare
         val validation = validatePhysicalData(weight, height, age, units)
         if (validation is ValidationResult.Error) {
             _uiState.value = _uiState.value.copy(
@@ -123,17 +144,22 @@ class SettingsViewModel @Inject constructor(
                     height
                 }
 
-                val bmr = NutritionCalculator.calculateBMR(weightKg, heightCm, age, gender)
-                val recommendedCalories = NutritionCalculator.calculateDailyCalorieNeeds(bmr, activityLevel)
-                val recommendedWater = NutritionCalculator.calculateWaterIntake(weightKg, activityLevel)
+                // Use async for parallel calculations
+                val bmrAsync = async { NutritionCalculator.calculateBMR(weightKg, heightCm, age, gender) }
+                val caloriesAsync = async { NutritionCalculator.calculateDailyCalorieNeeds(bmrAsync.await(), activityLevel) }
+                val waterAsync = async { NutritionCalculator.calculateWaterIntake(weightKg, activityLevel) }
+
+                val calories = caloriesAsync.await()
+                val water = waterAsync.await()
 
                 _uiState.value = _uiState.value.copy(
-                    dailyCalorieGoal = recommendedCalories,
-                    dailyWaterGoal = recommendedWater,
+                    dailyCalorieGoal = calories,
+                    dailyWaterGoal = water,
                     successMessage = "Goals calculated successfully!"
                 )
 
             } catch (e: Exception) {
+                Log.e(TAG, "Error calculating goals", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error calculating goals: ${e.message}"
                 )
@@ -197,17 +223,27 @@ class SettingsViewModel @Inject constructor(
             try {
                 val prefs = resolveUserPrefs()
 
-                prefs.setDailyCalorieGoal(calorieGoal)
-                prefs.setDailyWaterGoal(waterGoal)
+                // Launch all async preference save operations in parallel
+                val saveCalorieAsync = async { prefs.setDailyCalorieGoal(calorieGoal) }
+                val saveWaterAsync = async { prefs.setDailyWaterGoal(waterGoal) }
+                val saveWeightAsync = async { weight?.let { prefs.setUserWeight(it) } }
+                val saveHeightAsync = async { height?.let { prefs.setUserHeight(it) } }
+                val saveAgeAsync = async { age?.let { prefs.setUserAge(it) } }
+                val saveActivityAsync = async { prefs.setActivityLevel(activityLevel) }
+                val saveUnitsAsync = async { prefs.setPreferredUnits(units) }
+                val saveNotificationAsync = async { prefs.setNotificationEnabled(notificationsEnabled) }
+                val saveWaterIntervalAsync = async { prefs.setWaterReminderInterval(waterInterval) }
 
-                weight?.let { prefs.setUserWeight(it) }
-                height?.let { prefs.setUserHeight(it) }
-                age?.let { prefs.setUserAge(it) }
-
-                prefs.setActivityLevel(activityLevel)
-                prefs.setPreferredUnits(units)
-                prefs.setNotificationEnabled(notificationsEnabled)
-                prefs.setWaterReminderInterval(waterInterval)
+                // Wait for all save operations to complete
+                saveCalorieAsync.await()
+                saveWaterAsync.await()
+                saveWeightAsync.await()
+                saveHeightAsync.await()
+                saveAgeAsync.await()
+                saveActivityAsync.await()
+                saveUnitsAsync.await()
+                saveNotificationAsync.await()
+                saveWaterIntervalAsync.await()
 
                 _uiState.value = _uiState.value.copy(
                     dailyCalorieGoal = calorieGoal,
@@ -225,6 +261,7 @@ class SettingsViewModel @Inject constructor(
                 calculateAndUpdateBMI()
 
             } catch (e: Exception) {
+                Log.e(TAG, "Error saving settings", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error saving settings: ${e.message}"
                 )

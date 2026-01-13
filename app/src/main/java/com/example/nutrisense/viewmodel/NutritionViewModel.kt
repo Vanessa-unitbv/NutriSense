@@ -1,5 +1,6 @@
 package com.example.nutrisense.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -9,9 +10,11 @@ import com.example.nutrisense.data.repository.FoodRepository
 import com.example.nutrisense.data.repository.NutritionSummary
 import com.example.nutrisense.managers.SharedPreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +23,10 @@ class NutritionViewModel @Inject constructor(
     private val repository: FoodRepository,
     private val globalPreferencesManager: SharedPreferencesManager
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "NutritionViewModel"
+    }
 
     private val _uiState = MutableStateFlow(NutritionUiState())
     val uiState: StateFlow<NutritionUiState> = _uiState.asStateFlow()
@@ -39,35 +46,35 @@ class NutritionViewModel @Inject constructor(
     private val _userTodayConsumedFoods = MutableStateFlow<LiveData<List<Food>>?>(null)
     val userTodayConsumedFoods: StateFlow<LiveData<List<Food>>?> = _userTodayConsumedFoods.asStateFlow()
 
-    // Summary
     private val _nutritionSummary = MutableStateFlow<NutritionSummary?>(null)
     val nutritionSummary: StateFlow<NutritionSummary?> = _nutritionSummary.asStateFlow()
 
     init {
-        loadCurrentUser()
+        loadCurrentUserAsync()
     }
 
-    private fun loadCurrentUser() {
+    private fun loadCurrentUserAsync() {
         viewModelScope.launch {
-            val email = globalPreferencesManager.getUserEmail()
-            email?.let {
-                try {
+            try {
+                val email = globalPreferencesManager.getUserEmail()
+                email?.let {
                     val userId = repository.getUserIdByEmail(it)
                     if (userId != null) {
                         _currentUserId.value = userId
                         setupUserSpecificData(userId)
-                        loadNutritionSummary(userId)
+                        loadNutritionSummaryAsync(userId)
                         SharedPreferencesManager.setCurrentUser(it)
                     } else {
                         _uiState.value = _uiState.value.copy(
                             errorMessage = "User not found"
                         )
                     }
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(
-                        errorMessage = "Error loading user: ${e.message}"
-                    )
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading user", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error loading user: ${e.message}"
+                )
             }
         }
     }
@@ -122,7 +129,7 @@ class NutritionViewModel @Inject constructor(
                             searchResults = emptyList()
                         )
                     } else {
-                        _currentUserId.value?.let { loadNutritionSummary(it) }
+                        _currentUserId.value?.let { loadNutritionSummaryAsync(it) }
 
                         _uiState.value.copy(
                             isLoading = false,
@@ -139,6 +146,7 @@ class NutritionViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "Network error during food search", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Network error: ${e.message}"
@@ -151,11 +159,12 @@ class NutritionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.insertFood(food)
-                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _currentUserId.value?.let { loadNutritionSummaryAsync(it) }
                 _uiState.value = _uiState.value.copy(
                     successMessage = "Food saved successfully!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error saving food", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error saving food: ${e.message}"
                 )
@@ -167,11 +176,12 @@ class NutritionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.markAsConsumed(food.id)
-                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _currentUserId.value?.let { loadNutritionSummaryAsync(it) }
                 _uiState.value = _uiState.value.copy(
                     successMessage = "${food.name} marked as consumed!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error marking food as consumed", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error marking food as consumed: ${e.message}"
                 )
@@ -188,6 +198,7 @@ class NutritionViewModel @Inject constructor(
                     successMessage = "${food.name} $status favorites!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error updating favorite status", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error updating favorite: ${e.message}"
                 )
@@ -199,11 +210,12 @@ class NutritionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.deleteFood(food)
-                _currentUserId.value?.let { loadNutritionSummary(it) }
+                _currentUserId.value?.let { loadNutritionSummaryAsync(it) }
                 _uiState.value = _uiState.value.copy(
                     successMessage = "${food.name} deleted successfully!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error deleting food", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error deleting food: ${e.message}"
                 )
@@ -211,30 +223,29 @@ class NutritionViewModel @Inject constructor(
         }
     }
 
-    fun clearAllUserFoods() {
+    private fun loadNutritionSummaryAsync(userId: Long) {
         viewModelScope.launch {
             try {
-                _currentUserId.value?.let { userId ->
-                    repository.deleteAllFoodsForUser(userId)
-                    loadNutritionSummary(userId)
-                    _uiState.value = _uiState.value.copy(
-                        successMessage = "All foods cleared successfully!"
-                    )
+                // Use async/await for parallel operations
+                val caloriesAsync = async { repository.getTodayTotalCaloriesForUser(userId) }
+                val proteinAsync = async { repository.getTodayTotalProteinForUser(userId) }
+                val carbsAsync = async { repository.getTodayTotalCarbsForUser(userId) }
+                val fatAsync = async { repository.getTodayTotalFatForUser(userId) }
+                val foodCountAsync = async {
+                    repository.getTodayConsumedFoodsForUser(userId).first().size
                 }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Error clearing foods: ${e.message}"
-                )
-            }
-        }
-    }
 
-    private fun loadNutritionSummary(userId: Long) {
-        viewModelScope.launch {
-            try {
-                val summary = repository.getTodayNutritionSummaryForUser(userId)
+                val summary = NutritionSummary(
+                    totalCalories = caloriesAsync.await(),
+                    totalProtein = proteinAsync.await(),
+                    totalCarbs = carbsAsync.await(),
+                    totalFat = fatAsync.await(),
+                    foodCount = foodCountAsync.await()
+                )
+
                 _nutritionSummary.value = summary
             } catch (e: Exception) {
+                Log.e(TAG, "Error loading nutrition summary", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error loading nutrition summary: ${e.message}"
                 )
@@ -249,20 +260,10 @@ class NutritionViewModel @Inject constructor(
         )
     }
 
-    fun clearSearchResults() {
-        _uiState.value = _uiState.value.copy(
-            searchResults = emptyList()
-        )
-    }
-
-    fun refreshUserData() {
-        loadCurrentUser()
-    }
-
     private fun validateFoodInput(foodName: String, quantity: Double): ValidationResult {
         return when {
-            foodName.isBlank() -> ValidationResult.Error("Please enter a food name")
-            quantity <= 0 -> ValidationResult.Error("Please enter a valid quantity (greater than 0)")
+            foodName.isBlank() -> ValidationResult.Error("Food name cannot be empty")
+            quantity <= 0 -> ValidationResult.Error("Quantity must be greater than 0")
             quantity > 10000 -> ValidationResult.Error("Quantity too large (max 10kg)")
             else -> ValidationResult.Success
         }

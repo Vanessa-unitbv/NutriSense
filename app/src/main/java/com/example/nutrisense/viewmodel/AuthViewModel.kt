@@ -1,6 +1,7 @@
 package com.example.nutrisense.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nutrisense.data.entity.User
@@ -24,6 +25,10 @@ class AuthViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "AuthViewModel"
+    }
+
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState.asStateFlow()
 
@@ -46,13 +51,13 @@ class AuthViewModel @Inject constructor(
             try {
                 val user = repository.loginUser(email, password)
                 if (user != null) {
-                    saveUserSession(user)
+                    saveUserSessionAsync(user)
                     _loginState.value = LoginState.Success(user)
                 } else {
                     _loginState.value = LoginState.Error("Invalid email or password")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Login error", e)
                 _loginState.value = LoginState.Error("Login error: ${e.message}")
             }
         }
@@ -91,13 +96,13 @@ class AuthViewModel @Inject constructor(
                 val userId = repository.registerUser(user)
                 val newUser = user.copy(id = userId)
 
-                saveUserSession(newUser)
-                setDefaultUserSettings(email, age)
+                saveUserSessionAsync(newUser)
+                setDefaultUserSettingsAsync(email, age)
 
                 _registerState.value = RegisterState.Success(newUser)
 
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Registration error", e)
                 _registerState.value = RegisterState.Error("Registration error: ${e.message}")
             }
         }
@@ -109,7 +114,7 @@ class AuthViewModel @Inject constructor(
                 val user = repository.getUserByEmail(email)
                 _userData.value = user
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Error getting user by email", e)
             }
         }
     }
@@ -127,7 +132,19 @@ class AuthViewModel @Inject constructor(
 
                 _userData.value = user
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Error updating user", e)
+            }
+        }
+    }
+
+    fun logoutUserAsync() {
+        viewModelScope.launch {
+            try {
+                globalPreferencesManager.setUserLoggedOut()
+                _loginState.value = LoginState.Idle
+                _userData.value = null
+            } catch (e: Exception) {
+                Log.e(TAG, "Error logging out user", e)
             }
         }
     }
@@ -152,6 +169,33 @@ class AuthViewModel @Inject constructor(
 
     fun resetRegisterState() {
         _registerState.value = RegisterState.Idle
+    }
+
+    private suspend fun saveUserSessionAsync(user: User) {
+        try {
+            globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)
+            SharedPreferencesManager.setCurrentUser(user.email)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving user session", e)
+        }
+    }
+
+    private suspend fun setDefaultUserSettingsAsync(email: String, age: Int?) {
+        try {
+            val userPrefs = preferencesRepository.getManagerForUser(email)
+            userPrefs.clearUserData()
+
+            // Setari directe - sunt operatii sincrone rapide
+            userPrefs.setDailyCalorieGoal(AppConstants.DEFAULT_CALORIE_GOAL)
+            userPrefs.setDailyWaterGoal(AppConstants.DEFAULT_WATER_GOAL_ML)
+            userPrefs.setNotificationEnabled(true)
+            userPrefs.setWaterReminderInterval(AppConstants.DEFAULT_WATER_REMINDER_INTERVAL)
+            userPrefs.setMealReminderEnabled(true)
+            userPrefs.setPreferredUnits(AppConstants.DEFAULT_UNITS)
+            age?.let { userPrefs.setUserAge(it) }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting default user settings", e)
+        }
     }
 
     private fun validateLoginInput(email: String, password: String): ValidationResult {
@@ -180,28 +224,6 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun saveUserSession(user: User) {
-        globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)
-        SharedPreferencesManager.setCurrentUser(user.email)
-    }
-
-    private fun setDefaultUserSettings(email: String, age: Int?) {
-        try {
-            val userPrefs = preferencesRepository.getManagerForUser(email)
-            userPrefs.clearUserData()
-
-            userPrefs.setDailyCalorieGoal(AppConstants.DEFAULT_CALORIE_GOAL)
-            userPrefs.setDailyWaterGoal(AppConstants.DEFAULT_WATER_GOAL_ML)
-            userPrefs.setNotificationEnabled(true)
-            userPrefs.setWaterReminderInterval(AppConstants.DEFAULT_WATER_REMINDER_INTERVAL)
-            userPrefs.setMealReminderEnabled(true)
-            userPrefs.setPreferredUnits(AppConstants.DEFAULT_UNITS)
-
-            age?.let { userPrefs.setUserAge(it) }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 
     sealed class LoginState {
         object Idle : LoginState()

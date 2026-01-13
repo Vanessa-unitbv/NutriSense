@@ -1,5 +1,6 @@
 package com.example.nutrisense.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -8,6 +9,7 @@ import com.example.nutrisense.data.entity.Recipe
 import com.example.nutrisense.data.repository.RecipeRepository
 import com.example.nutrisense.managers.SharedPreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +21,10 @@ class RecipeViewModel @Inject constructor(
     private val repository: RecipeRepository,
     private val globalPreferencesManager: SharedPreferencesManager
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "RecipeViewModel"
+    }
 
     private val _uiState = MutableStateFlow(RecipeUiState())
     val uiState: StateFlow<RecipeUiState> = _uiState.asStateFlow()
@@ -33,14 +39,14 @@ class RecipeViewModel @Inject constructor(
     val userFavoriteRecipes: StateFlow<LiveData<List<Recipe>>?> = _userFavoriteRecipes.asStateFlow()
 
     init {
-        loadCurrentUser()
+        loadCurrentUserAsync()
     }
 
-    private fun loadCurrentUser() {
+    private fun loadCurrentUserAsync() {
         viewModelScope.launch {
-            val email = globalPreferencesManager.getUserEmail()
-            email?.let {
-                try {
+            try {
+                val email = globalPreferencesManager.getUserEmail()
+                email?.let {
                     val userId = repository.getUserIdByEmail(it)
                     if (userId != null) {
                         _currentUserId.value = userId
@@ -51,11 +57,12 @@ class RecipeViewModel @Inject constructor(
                             errorMessage = "User not found"
                         )
                     }
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(
-                        errorMessage = "Error loading user: ${e.message}"
-                    )
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading user", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error loading user: ${e.message}"
+                )
             }
         }
     }
@@ -120,6 +127,7 @@ class RecipeViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "Network error during recipe search", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Network error: ${e.message}"
@@ -136,6 +144,7 @@ class RecipeViewModel @Inject constructor(
                     successMessage = "Recipe saved successfully!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error saving recipe", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error saving recipe: ${e.message}"
                 )
@@ -152,6 +161,7 @@ class RecipeViewModel @Inject constructor(
                     successMessage = "${recipe.title} $status favorites!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error updating favorite status", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error updating favorite: ${e.message}"
                 )
@@ -167,25 +177,9 @@ class RecipeViewModel @Inject constructor(
                     successMessage = "${recipe.title} deleted successfully!"
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error deleting recipe", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Error deleting recipe: ${e.message}"
-                )
-            }
-        }
-    }
-
-    fun clearAllUserRecipes() {
-        viewModelScope.launch {
-            try {
-                _currentUserId.value?.let { userId ->
-                    repository.deleteAllRecipesForUser(userId)
-                    _uiState.value = _uiState.value.copy(
-                        successMessage = "All recipes cleared successfully!"
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Error clearing recipes: ${e.message}"
                 )
             }
         }
@@ -198,19 +192,9 @@ class RecipeViewModel @Inject constructor(
         )
     }
 
-    fun clearSearchResults() {
-        _uiState.value = _uiState.value.copy(
-            searchResults = emptyList()
-        )
-    }
-
-    fun refreshUserData() {
-        loadCurrentUser()
-    }
-
     private fun validateRecipeInput(ingredients: String): ValidationResult {
         return when {
-            ingredients.isBlank() -> ValidationResult.Error("Please enter ingredients")
+            ingredients.isBlank() -> ValidationResult.Error("Ingredients cannot be empty")
             else -> ValidationResult.Success
         }
     }
