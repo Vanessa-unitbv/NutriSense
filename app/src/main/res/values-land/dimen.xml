@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Landscape mode - smaller vertical space -->
+    <dimen name="default_space">12dp</dimen>
+    <dimen name="small_space">6dp</dimen>
+    <dimen name="medium_space">10dp</dimen>
+    <dimen name="large_space">16dp</dimen>
+    <dimen name="xlarge_space">24dp</dimen>
+
+    <!-- Text sizes adjusted for landscape -->
+    <dimen name="text_size_small">11sp</dimen>
+    <dimen name="text_size_normal">13sp</dimen>
+    <dimen name="text_size_subtitle">15sp</dimen>
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_heading">22sp</dimen>
+    <dimen name="text_size_large">24sp</dimen>
+
+    <!-- Button sizes for landscape - smaller heights -->
+    <dimen name="button_height_small">36dp</dimen>
+    <dimen name="button_height_normal">44dp</dimen>
+    <dimen name="button_height_large">48dp</dimen>
+    <dimen name="button_min_width">160dp</dimen>
+    <dimen name="button_max_width">250dp</dimen>
+
+    <!-- Input field heights -->
+    <dimen name="input_height">40dp</dimen>
+    <dimen name="input_padding">10dp</dimen>
+
+    <!-- Card/Container sizes -->
+    <dimen name="card_padding">12dp</dimen>
+    <dimen name="card_margin">6dp</dimen>
+
+    <!-- Max widths for tablets in landscape -->
+    <dimen name="max_content_width">700dp</dimen>
+</resources>
+

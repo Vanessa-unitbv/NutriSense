@@ -132,4 +132,5 @@
     <string name="nutrisense_dashboard">NutriSense Dashboard</string>
     <string name="n_l_ime_cm">cm</string>
     <string name="greutate_kg">kg</string>
+    <string name="back_to_dashboard">Back to Dashboard</string>
 </resources>

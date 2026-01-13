@@ -56,7 +56,19 @@ class LoginFragment : Fragment() {
         registerButton.setOnClickListener {
             val email = emailEditText.getTextString()
             val password = passwordEditText.getTextString()
-            goToRegister(email, password)
+
+            // Validare email și parolă înainte de a merge la register
+            if (email.isBlank()) {
+                emailEditText.setErrorAndFocus("Please enter email")
+                return@setOnClickListener
+            }
+            if (password.isBlank()) {
+                passwordEditText.setErrorAndFocus("Please enter password")
+                return@setOnClickListener
+            }
+
+            // Verifica dacă email-ul deja există
+            checkEmailExistsAndNavigate(email, password)
         }
 
         loginButton.setOnClickListener {
@@ -72,6 +84,26 @@ class LoginFragment : Fragment() {
         passwordEditText.clearErrorAndFocus()
 
         authViewModel.loginUser(email, password)
+    }
+
+    private fun checkEmailExistsAndNavigate(email: String, password: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // Apela viewModel pentru a verifica daca email-ul exista
+                val emailExists = authViewModel.checkIfEmailExists(email)
+
+                if (emailExists) {
+                    // Email deja exista - afiseaza eroare
+                    requireContext().showErrorToast("An account with this email already exists. Please try another email or log in.")
+                    emailEditText.setErrorAndFocus("Email already registered")
+                } else {
+                    // Email nu exista - mergi la register
+                    goToRegister(email, password)
+                }
+            } catch (e: Exception) {
+                requireContext().showErrorToast("Error checking email: ${e.message}")
+            }
+        }
     }
 
     private fun observeViewModel() {

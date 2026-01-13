@@ -171,6 +171,15 @@ class AuthViewModel @Inject constructor(
         _registerState.value = RegisterState.Idle
     }
 
+    suspend fun checkIfEmailExists(email: String): Boolean {
+        return try {
+            repository.isEmailExists(email)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking if email exists", e)
+            false
+        }
+    }
+
     private suspend fun saveUserSessionAsync(user: User) {
         try {
             globalPreferencesManager.setUserLoggedIn(user.email, user.firstName)

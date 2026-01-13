@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nutrisense_dashboard"
-        android:textSize="26sp"
+        android:textSize="@dimen/text_size_heading"
         android:textColor="@color/button_primary_start"
         android:textStyle="bold"
         app:layout_constraintVertical_bias="0.05"
@@ -33,84 +33,85 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="40dp">
+            android:layout_marginTop="@dimen/xlarge_space"
+            android:maxWidth="@dimen/max_content_width">
 
             <Button
                 android:id="@+id/btn_calculate_nutrition"
-                android:layout_width="300dp"
-                android:layout_height="60dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_large"
                 android:text="@string/calculate_food_nutrition"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subtitle"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/medium_space"
                 style="@null" />
 
             <Button
                 android:id="@+id/btn_view_history"
-                android:layout_width="280dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_normal"
                 android:text="@string/view_food_history"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/small_space"
                 style="@null" />
 
             <Button
                 android:id="@+id/btn_recipe_search"
-                android:layout_width="280dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_normal"
                 android:text="@string/recipe_search"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/small_space"
                 style="@null" />
 
             <Button
                 android:id="@+id/btn_recipe_history"
-                android:layout_width="280dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_normal"
                 android:text="@string/recipe_collection"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/small_space"
                 style="@null" />
 
             <Button
                 android:id="@+id/btn_settings"
-                android:layout_width="280dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_normal"
                 android:text="@string/settings_amp_goals"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/small_space"
                 style="@null" />
 
             <Button
                 android:id="@+id/btn_profile"
-                android:layout_width="280dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/button_max_width"
+                android:layout_height="@dimen/button_height_normal"
                 android:text="@string/my_profile"
                 android:background="@drawable/button_selector"
                 android:textColor="@color/button_text_color"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_normal"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/small_space"
                 style="@null" />
 
         </LinearLayout>

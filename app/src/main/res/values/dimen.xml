@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Default spacing/padding -->
     <dimen name="default_space">16dp</dimen>
+    <dimen name="small_space">8dp</dimen>
+    <dimen name="medium_space">12dp</dimen>
+    <dimen name="large_space">24dp</dimen>
+    <dimen name="xlarge_space">32dp</dimen>
+
+    <!-- Text sizes -->
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_subtitle">16sp</dimen>
+    <dimen name="text_size_title">24sp</dimen>
+    <dimen name="text_size_heading">26sp</dimen>
+    <dimen name="text_size_large">28sp</dimen>
+
+    <!-- Button sizes -->
+    <dimen name="button_height_small">40dp</dimen>
+    <dimen name="button_height_normal">50dp</dimen>
+    <dimen name="button_height_large">60dp</dimen>
+    <dimen name="button_min_width">200dp</dimen>
+    <dimen name="button_max_width">300dp</dimen>
+
+    <!-- Corner radius -->
+    <dimen name="corner_radius_small">4dp</dimen>
+    <dimen name="corner_radius_normal">8dp</dimen>
+    <dimen name="corner_radius_large">12dp</dimen>
+
+    <!-- Input field heights -->
+    <dimen name="input_height">48dp</dimen>
+    <dimen name="input_padding">12dp</dimen>
+
+    <!-- Card/Container sizes -->
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_margin">8dp</dimen>
+
+    <!-- Max widths for tablets -->
+    <dimen name="max_content_width">600dp</dimen>
 </resources>
