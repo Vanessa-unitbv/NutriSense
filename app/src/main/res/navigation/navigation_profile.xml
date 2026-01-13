@@ -79,6 +79,23 @@
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_settingsFragment_to_notificationSettingsFragment"
+            app:destination="@id/notificationSettingsFragment" />
+    </fragment>
+
+    <!-- Notification Settings -->
+    <fragment
+        android:id="@+id/notificationSettingsFragment"
+        android:name="com.example.nutrisense.fragments.NotificationSettingsFragment"
+        android:label="NotificationSettingsFragment">
+
+        <action
+            android:id="@+id/action_notificationSettingsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- Calculate Nutrition -->

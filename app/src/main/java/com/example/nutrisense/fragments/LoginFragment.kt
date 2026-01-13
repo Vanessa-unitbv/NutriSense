@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import androidx.activity.addCallback
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.nutrisense.R
+import com.example.nutrisense.ui.screens.LoginScreenCompose
+import com.example.nutrisense.ui.screens.LoginScreenState
+import com.example.nutrisense.ui.theme.NutriSenseTheme
 import com.example.nutrisense.viewmodel.AuthViewModel
 import com.example.nutrisense.helpers.extensions.*
-import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,122 +25,121 @@ class LoginFragment : Fragment() {
 
     private val authViewModel: AuthViewModel by viewModels()
 
-    private lateinit var emailEditText: EditText
-    private lateinit var passwordEditText: TextInputEditText
-    private lateinit var loginButton: Button
-    private lateinit var registerButton: Button
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                var email by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
+                var errorMessage by remember { mutableStateOf<String?>(null) }
+                var emailError by remember { mutableStateOf<String?>(null) }
+                var passwordError by remember { mutableStateOf<String?>(null) }
+                var isLoading by remember { mutableStateOf(false) }
+
+                val loginState by authViewModel.loginState.collectAsStateWithLifecycle()
+
+                // Handle login state changes
+                LaunchedEffect(loginState) {
+                    when (loginState) {
+                        is AuthViewModel.LoginState.Loading -> {
+                            isLoading = true
+                            errorMessage = null
+                        }
+                        is AuthViewModel.LoginState.Success -> {
+                            isLoading = false
+                            val user = (loginState as AuthViewModel.LoginState.Success).user
+                            requireContext().showSuccessToast("Welcome, ${user.firstName ?: user.email}!")
+                            goToProfile(user.email)
+                            authViewModel.resetLoginState()
+                        }
+                        is AuthViewModel.LoginState.Error -> {
+                            isLoading = false
+                            errorMessage = (loginState as AuthViewModel.LoginState.Error).message
+                            authViewModel.resetLoginState()
+                        }
+                        is AuthViewModel.LoginState.Idle -> {
+                            isLoading = false
+                        }
+                    }
+                }
+
+                NutriSenseTheme {
+                    LoginScreenCompose(
+                        state = LoginScreenState(
+                            email = email,
+                            password = password,
+                            isLoading = isLoading,
+                            errorMessage = errorMessage,
+                            emailError = emailError,
+                            passwordError = passwordError
+                        ),
+                        onEmailChange = {
+                            email = it
+                            emailError = null
+                            errorMessage = null
+                        },
+                        onPasswordChange = {
+                            password = it
+                            passwordError = null
+                            errorMessage = null
+                        },
+                        onLoginClick = {
+                            // Validate
+                            var valid = true
+                            if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                emailError = "Please enter a valid email"
+                                valid = false
+                            }
+                            if (password.length < 6) {
+                                passwordError = "Password must be at least 6 characters"
+                                valid = false
+                            }
+                            if (valid) {
+                                authViewModel.loginUser(email, password)
+                            }
+                        },
+                        onRegisterClick = {
+                            // Validate before register
+                            var valid = true
+                            if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                emailError = "Please enter a valid email"
+                                valid = false
+                            }
+                            if (password.length < 6) {
+                                passwordError = "Password must be at least 6 characters"
+                                valid = false
+                            }
+                            if (valid) {
+                                checkEmailExistsAndNavigate(email, password)
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        initializeViews(view)
-        setupClickListeners()
-        observeViewModel()
         setupBackPressHandler()
-    }
-
-    private fun initializeViews(view: View) {
-        emailEditText = view.findViewById(R.id.et_email)
-        passwordEditText = view.findViewById(R.id.tiet_password)
-        loginButton = view.findViewById(R.id.btn_do_login)
-        registerButton = view.findViewById(R.id.btn_go_to_register)
-    }
-
-    private fun setupClickListeners() {
-        registerButton.setOnClickListener {
-            val email = emailEditText.getTextString()
-            val password = passwordEditText.getTextString()
-
-            // Validări fără popup - doar pe câmpuri
-            if (!emailEditText.validateEmailField()) {
-                return@setOnClickListener
-            }
-            if (!passwordEditText.validatePasswordField()) {
-                return@setOnClickListener
-            }
-
-            // Verifica dacă email-ul deja există
-            checkEmailExistsAndNavigate(email, password)
-        }
-
-        loginButton.setOnClickListener {
-            performLogin()
-        }
-    }
-
-    private fun performLogin() {
-        val email = emailEditText.getTextString()
-        val password = passwordEditText.getTextString()
-
-        // Validări fără popup - doar pe câmpuri
-        if (!emailEditText.validateEmailField()) {
-            return
-        }
-        if (!passwordEditText.validatePasswordField()) {
-            return
-        }
-
-        authViewModel.loginUser(email, password)
     }
 
     private fun checkEmailExistsAndNavigate(email: String, password: String) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Apela viewModel pentru a verifica daca email-ul exista
                 val emailExists = authViewModel.checkIfEmailExists(email)
-
                 if (emailExists) {
-                    // Email deja exista - afiseaza eroare
-                    requireContext().showErrorToast("Email already registered. Please login or use a different email.")
+                    requireContext().showErrorToast("Email already registered. Please login.")
                 } else {
-                    // Email nu exista - mergi la register
                     goToRegister(email, password)
                 }
             } catch (e: Exception) {
-                requireContext().showErrorToast("Error checking email: ${e.message}")
+                requireContext().showErrorToast("Error: ${e.message}")
             }
         }
-    }
-
-    private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            authViewModel.loginState.collect { state ->
-                when (state) {
-                    is AuthViewModel.LoginState.Idle -> {
-                        setButtonsEnabled(true)
-                    }
-                    is AuthViewModel.LoginState.Loading -> {
-                        setButtonsEnabled(false)
-                    }
-                    is AuthViewModel.LoginState.Success -> {
-                        setButtonsEnabled(true)
-                        requireContext().showSuccessToast(
-                            "Welcome, ${state.user.firstName ?: state.user.email}!"
-                        )
-                        goToProfile(state.user.email)
-                        authViewModel.resetLoginState()
-                    }
-                    is AuthViewModel.LoginState.Error -> {
-                        setButtonsEnabled(true)
-                        requireContext().showErrorToast(state.message)
-                        authViewModel.resetLoginState()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun setButtonsEnabled(enabled: Boolean) {
-        loginButton.isEnabled = enabled
-        registerButton.isEnabled = enabled
     }
 
     private fun setupBackPressHandler() {

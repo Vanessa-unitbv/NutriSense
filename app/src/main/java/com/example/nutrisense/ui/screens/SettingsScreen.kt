@@ -1,5 +1,10 @@
 package com.example.nutrisense.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,15 +12,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.example.nutrisense.notifications.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,8 +32,16 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     onSaveClick: (settings: SettingsData) -> Unit,
     isLoading: Boolean = false,
-    successMessage: String? = null
+    successMessage: String? = null,
+    onNotificationSettingsClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val notificationHelper = remember { NotificationHelper(context) }
+
+    var hasNotificationPermission by remember {
+        mutableStateOf(notificationHelper.hasNotificationPermission())
+    }
+
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
@@ -44,6 +61,35 @@ fun SettingsScreen(
 
     val genders = listOf("Female", "Male")
     val activityLevels = listOf("Sedentary", "Light", "Moderate", "Active", "Very Active")
+
+    // Permission launcher for Android 13+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasNotificationPermission = isGranted
+        if (isGranted) {
+            notificationsEnabled = true
+        }
+    }
+
+    // Request permission function
+    fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    hasNotificationPermission = true
+                }
+                else -> {
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            hasNotificationPermission = true
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -75,7 +121,7 @@ fun SettingsScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xE8F5E9))
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
                     ) {
                         Text(
                             text = "✅ $successMessage",
@@ -200,6 +246,53 @@ fun SettingsScreen(
                 SettingsSectionHeader("🔔 Notifications")
             }
 
+            // Permission Warning Card
+            if (!hasNotificationPermission) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.Notifications,
+                                    contentDescription = null,
+                                    tint = Color(0xFFE65100)
+                                )
+                                Text(
+                                    text = "Permission Required",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFE65100),
+                                    fontSize = 16.sp
+                                )
+                            }
+                            Text(
+                                text = "To receive water and meal reminders, please grant notification permission.",
+                                color = Color(0xFF5D4037),
+                                fontSize = 14.sp
+                            )
+                            Button(
+                                onClick = { requestNotificationPermission() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFE65100)
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Grant Permission")
+                            }
+                        }
+                    }
+                }
+            }
+
             item {
                 SettingsCard {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -210,8 +303,18 @@ fun SettingsScreen(
                         ) {
                             Text("Enable Notifications", fontSize = 14.sp)
                             Switch(
-                                checked = notificationsEnabled,
-                                onCheckedChange = { notificationsEnabled = it }
+                                checked = notificationsEnabled && hasNotificationPermission,
+                                onCheckedChange = {
+                                    if (hasNotificationPermission) {
+                                        notificationsEnabled = it
+                                    } else {
+                                        requestNotificationPermission()
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(0xFF6200EE)
+                                )
                             )
                         }
 
@@ -224,12 +327,17 @@ fun SettingsScreen(
                         ) {
                             Text("Water Reminders", fontSize = 14.sp)
                             Switch(
-                                checked = waterReminderEnabled,
-                                onCheckedChange = { waterReminderEnabled = it }
+                                checked = waterReminderEnabled && notificationsEnabled,
+                                onCheckedChange = { waterReminderEnabled = it },
+                                enabled = notificationsEnabled && hasNotificationPermission,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(0xFF2196F3)
+                                )
                             )
                         }
 
-                        if (waterReminderEnabled) {
+                        if (waterReminderEnabled && notificationsEnabled) {
                             OutlinedTextField(
                                 value = waterInterval,
                                 onValueChange = { waterInterval = it },
@@ -238,6 +346,45 @@ fun SettingsScreen(
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 singleLine = true
                             )
+                        }
+
+                        // Advanced Notification Settings Button
+                        if (onNotificationSettingsClick != null) {
+                            Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                            OutlinedButton(
+                                onClick = onNotificationSettingsClick,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Color(0xFF6200EE)
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Filled.Notifications,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Advanced Notification Settings")
+                            }
+                        }
+
+                        // Test Notification Button
+                        if (hasNotificationPermission && notificationsEnabled) {
+                            OutlinedButton(
+                                onClick = {
+                                    notificationHelper.showGeneralNotification(
+                                        "🎉 Test Notification",
+                                        "Notifications are working correctly!"
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Color(0xFF4CAF50)
+                                )
+                            ) {
+                                Text("🔔 Send Test Notification")
+                            }
                         }
                     }
                 }
@@ -295,11 +442,21 @@ fun SettingsScreen(
                             }
                         }
 
-                        if (waterReminderEnabled && waterInterval.isEmpty()) {
-                            // Handle error for water interval
-                        }
-
                         if (isValid) {
+                            val intervalMinutes = waterInterval.toIntOrNull() ?: 60
+
+                            // Schedule or cancel notifications based on settings
+                            if (notificationsEnabled && hasNotificationPermission) {
+                                if (waterReminderEnabled) {
+                                    notificationHelper.scheduleWaterReminders(intervalMinutes)
+                                } else {
+                                    notificationHelper.cancelWaterReminders()
+                                }
+                            } else {
+                                notificationHelper.cancelWaterReminders()
+                                notificationHelper.cancelAllMealReminders()
+                            }
+
                             onSaveClick(
                                 SettingsData(
                                     weight = weight.toFloatOrNull(),
@@ -311,7 +468,7 @@ fun SettingsScreen(
                                     activityLevel = selectedActivityLevel,
                                     notificationsEnabled = notificationsEnabled,
                                     waterReminderEnabled = waterReminderEnabled,
-                                    waterInterval = if (waterReminderEnabled) waterInterval.toIntOrNull() ?: 60 else 0
+                                    waterInterval = intervalMinutes
                                 )
                             )
                         }

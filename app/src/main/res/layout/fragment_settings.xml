@@ -379,6 +379,18 @@
                             android:inputType="number"
                             android:textColor="@color/black" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                        android:id="@+id/btn_advanced_notifications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🔔 Advanced Notification Settings"
+                        android:background="@drawable/button_selector"
+                        android:textColor="@color/button_text_color"
+                        android:textStyle="bold"
+                        app:backgroundTint="@null"
+                        android:layout_marginTop="8dp"
+                        style="@null" />
             </LinearLayout>
 
             <Button
