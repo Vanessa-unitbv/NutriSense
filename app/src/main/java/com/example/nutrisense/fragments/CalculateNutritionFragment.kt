@@ -97,25 +97,26 @@ class CalculateNutritionFragment : Fragment() {
         val foodName = etFoodName.getTextString()
         val quantityText = etQuantity.getTextString()
 
-        etFoodName.clearErrorAndFocus()
-        etQuantity.clearErrorAndFocus()
+        // Curăță erorile anterioare
+        etFoodName.clearValidationError()
+        etQuantity.clearValidationError()
 
-        if (foodName.isEmpty()) {
-            etFoodName.setErrorAndFocus("Please enter a food name")
+        if (!etFoodName.validateFieldNotEmpty("Food name")) {
             return
         }
 
-        if (quantityText.isEmpty()) {
-            etQuantity.setErrorAndFocus("Please enter quantity")
+        if (!etQuantity.validateFieldNotEmpty("Quantity")) {
             return
         }
 
         val quantity = quantityText.toDoubleOrNull()
-        if (quantity == null) {
-            etQuantity.setErrorAndFocus("Please enter a valid number")
+        if (quantity == null || quantity <= 0) {
+            etQuantity.error = "Quantity must be a valid positive number!"
+            etQuantity.requestFocus()
             return
         }
 
+        etQuantity.error = null
         llNutritionResults.hide()
 
         nutritionViewModel.searchFoodNutrition(foodName, quantity)

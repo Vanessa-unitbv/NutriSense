@@ -93,8 +93,7 @@ class RecipeSearchFragment : Fragment() {
     private fun searchRecipes() {
         val ingredients = etIngredients.getTextString()
 
-        if (ingredients.isEmpty()) {
-            requireContext().showErrorToast("Please enter ingredients")
+        if (!etIngredients.validateFieldNotEmpty("Ingredients")) {
             return
         }
 

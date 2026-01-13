@@ -38,4 +38,3 @@
     <!-- Max widths for tablets -->
     <dimen name="max_content_width">700dp</dimen>
 </resources>
-

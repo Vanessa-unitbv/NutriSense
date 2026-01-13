@@ -192,8 +192,13 @@ class SettingsFragment : Fragment() {
         val heightText = etHeight.getTextString()
         val ageText = etAge.getTextString()
 
-        if (weightText.isEmpty() || heightText.isEmpty() || ageText.isEmpty()) {
-            requireContext().showErrorToast("Please enter weight, height, and age")
+        if (!etWeight.validateNumberField("Weight", 1f, 500f)) {
+            return
+        }
+        if (!etHeight.validateNumberField("Height", 1f, 300f)) {
+            return
+        }
+        if (!etAge.validateNumberField("Age", 1f, 150f)) {
             return
         }
 
@@ -214,12 +219,37 @@ class SettingsFragment : Fragment() {
         val caloriesText = etCalories.getTextString()
         val waterText = etWater.getTextString()
 
+        if (!etCalories.validateNumberField("Calorie goal", 100f, 10000f)) {
+            return
+        }
+        if (!etWater.validateNumberField("Water goal", 100f, 10000f)) {
+            return
+        }
+
         val calories = caloriesText.toIntOrNull() ?: return
         val water = waterText.toIntOrNull() ?: return
 
         val weight = etWeight.getTextString().toFloatOrNull()
         val height = etHeight.getTextString().toFloatOrNull()
         val age = etAge.getTextString().toIntOrNull()
+
+        // Validare opționale - dacă sunt completate trebuie să fie valide
+        if (weight != null && !etWeight.validateNumberField("Weight", 1f, 500f)) {
+            return
+        }
+        if (height != null && !etHeight.validateNumberField("Height", 1f, 300f)) {
+            return
+        }
+        if (age != null && !etAge.validateNumberField("Age", 1f, 150f)) {
+            return
+        }
+
+        if (switchWaterReminder.isChecked) {
+            val waterIntervalText = etWaterInterval.getTextString()
+            if (!etWaterInterval.validateNumberField("Water interval", 1f, 1440f)) {
+                return
+            }
+        }
 
         val activityLevel = when (spinnerActivity.selectedItemPosition) {
             0 -> "sedentary"

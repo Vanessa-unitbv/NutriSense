@@ -57,13 +57,11 @@ class LoginFragment : Fragment() {
             val email = emailEditText.getTextString()
             val password = passwordEditText.getTextString()
 
-            // Validare email și parolă înainte de a merge la register
-            if (email.isBlank()) {
-                emailEditText.setErrorAndFocus("Please enter email")
+            // Validări fără popup - doar pe câmpuri
+            if (!emailEditText.validateEmailField()) {
                 return@setOnClickListener
             }
-            if (password.isBlank()) {
-                passwordEditText.setErrorAndFocus("Please enter password")
+            if (!passwordEditText.validatePasswordField()) {
                 return@setOnClickListener
             }
 
@@ -80,8 +78,13 @@ class LoginFragment : Fragment() {
         val email = emailEditText.getTextString()
         val password = passwordEditText.getTextString()
 
-        emailEditText.clearErrorAndFocus()
-        passwordEditText.clearErrorAndFocus()
+        // Validări fără popup - doar pe câmpuri
+        if (!emailEditText.validateEmailField()) {
+            return
+        }
+        if (!passwordEditText.validatePasswordField()) {
+            return
+        }
 
         authViewModel.loginUser(email, password)
     }
@@ -94,8 +97,7 @@ class LoginFragment : Fragment() {
 
                 if (emailExists) {
                     // Email deja exista - afiseaza eroare
-                    requireContext().showErrorToast("An account with this email already exists. Please try another email or log in.")
-                    emailEditText.setErrorAndFocus("Email already registered")
+                    requireContext().showErrorToast("Email already registered. Please login or use a different email.")
                 } else {
                     // Email nu exista - mergi la register
                     goToRegister(email, password)

@@ -83,6 +83,13 @@ class Register2Fragment : Fragment() {
             return
         }
 
+        // Validare vârstă - dacă este completată trebuie să fie validă
+        if (ageText.isNotEmpty()) {
+            if (!ageEditText.validateNumberField("Age", 1f, 150f)) {
+                return
+            }
+        }
+
         val age = if (ageText.isNotEmpty()) ageText.toIntOrNull() else null
 
         authViewModel.registerUser(
