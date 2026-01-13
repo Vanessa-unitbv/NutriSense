@@ -241,6 +241,19 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
     fun isMealReminderEnabled(): Boolean =
         getBoolean(AppConstants.PrefsKeys.MEAL_REMINDER_ENABLED, true)
 
+    // Meal times
+    fun setBreakfastTime(time: String) = saveString("breakfast_time", time)
+    fun getBreakfastTime(): String = getString("breakfast_time", "08:00")
+
+    fun setLunchTime(time: String) = saveString("lunch_time", time)
+    fun getLunchTime(): String = getString("lunch_time", "12:30")
+
+    fun setDinnerTime(time: String) = saveString("dinner_time", time)
+    fun getDinnerTime(): String = getString("dinner_time", "19:00")
+
+    fun setWaterReminderEnabled(enabled: Boolean) = saveBoolean("water_reminder_enabled", enabled)
+    fun isWaterReminderEnabled(): Boolean = getBoolean("water_reminder_enabled", true)
+
     fun setFirstTimeUser(isFirstTime: Boolean) =
         saveBoolean(AppConstants.PrefsKeys.FIRST_TIME_USER, isFirstTime)
 

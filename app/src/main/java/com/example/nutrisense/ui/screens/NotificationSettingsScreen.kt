@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,10 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.example.nutrisense.managers.SharedPreferencesManager
+import com.example.nutrisense.notifications.MealType
 import com.example.nutrisense.notifications.NotificationHelper
 import com.example.nutrisense.ui.components.*
 import com.example.nutrisense.ui.theme.NutriSenseColors
@@ -34,19 +34,21 @@ fun NotificationSettingsScreen(
 ) {
     val context = LocalContext.current
     val notificationHelper = remember { NotificationHelper(context) }
+    val prefsManager = remember { SharedPreferencesManager.getGlobalInstance(context) }
 
     var hasNotificationPermission by remember {
         mutableStateOf(notificationHelper.hasNotificationPermission())
     }
 
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    var waterReminderEnabled by remember { mutableStateOf(true) }
-    var mealRemindersEnabled by remember { mutableStateOf(true) }
-    var waterInterval by remember { mutableStateOf("60") }
+    // Load saved values from SharedPreferences
+    var notificationsEnabled by remember { mutableStateOf(prefsManager.isNotificationEnabled()) }
+    var waterReminderEnabled by remember { mutableStateOf(prefsManager.isWaterReminderEnabled()) }
+    var mealRemindersEnabled by remember { mutableStateOf(prefsManager.isMealReminderEnabled()) }
+    var waterInterval by remember { mutableStateOf(prefsManager.getWaterReminderInterval().toString()) }
 
-    var breakfastTime by remember { mutableStateOf("08:00") }
-    var lunchTime by remember { mutableStateOf("12:30") }
-    var dinnerTime by remember { mutableStateOf("19:00") }
+    var breakfastTime by remember { mutableStateOf(prefsManager.getBreakfastTime()) }
+    var lunchTime by remember { mutableStateOf(prefsManager.getLunchTime()) }
+    var dinnerTime by remember { mutableStateOf(prefsManager.getDinnerTime()) }
 
     var showSuccessMessage by remember { mutableStateOf(false) }
 
@@ -74,6 +76,18 @@ fun NotificationSettingsScreen(
             }
         } else {
             hasNotificationPermission = true
+        }
+    }
+
+    // Helper function to parse time string to hour and minute
+    fun parseTime(timeStr: String): Pair<Int, Int> {
+        return try {
+            val parts = timeStr.split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 0
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+            Pair(hour.coerceIn(0, 23), minute.coerceIn(0, 59))
+        } catch (e: Exception) {
+            Pair(0, 0)
         }
     }
 
@@ -244,6 +258,15 @@ fun NotificationSettingsScreen(
                     onClick = {
                         val intervalMinutes = waterInterval.toIntOrNull() ?: 60
 
+                        // Save all settings to SharedPreferences
+                        prefsManager.setNotificationEnabled(notificationsEnabled)
+                        prefsManager.setWaterReminderEnabled(waterReminderEnabled)
+                        prefsManager.setWaterReminderInterval(intervalMinutes)
+                        prefsManager.setMealReminderEnabled(mealRemindersEnabled)
+                        prefsManager.setBreakfastTime(breakfastTime)
+                        prefsManager.setLunchTime(lunchTime)
+                        prefsManager.setDinnerTime(dinnerTime)
+
                         if (notificationsEnabled && hasNotificationPermission) {
                             if (waterReminderEnabled) {
                                 notificationHelper.scheduleWaterReminders(intervalMinutes)
@@ -252,7 +275,14 @@ fun NotificationSettingsScreen(
                             }
 
                             if (mealRemindersEnabled) {
-                                notificationHelper.setupDefaultMealReminders()
+                                // Schedule meal reminders with user-specified times
+                                val (breakfastHour, breakfastMinute) = parseTime(breakfastTime)
+                                val (lunchHour, lunchMinute) = parseTime(lunchTime)
+                                val (dinnerHour, dinnerMinute) = parseTime(dinnerTime)
+
+                                notificationHelper.scheduleMealReminder(MealType.BREAKFAST, breakfastHour, breakfastMinute)
+                                notificationHelper.scheduleMealReminder(MealType.LUNCH, lunchHour, lunchMinute)
+                                notificationHelper.scheduleMealReminder(MealType.DINNER, dinnerHour, dinnerMinute)
                             } else {
                                 notificationHelper.cancelAllMealReminders()
                             }
@@ -301,8 +331,15 @@ private fun MealTimeField(
         )
         OutlinedTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { newValue ->
+                // Allow only valid time format characters
+                val filtered = newValue.filter { it.isDigit() || it == ':' }
+                if (filtered.length <= 5) {
+                    onValueChange(filtered)
+                }
+            },
             modifier = Modifier.width(120.dp),
+            placeholder = { Text("HH:MM", color = Color.White.copy(alpha = 0.5f)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.White,
                 unfocusedBorderColor = Color.White.copy(alpha = 0.5f),

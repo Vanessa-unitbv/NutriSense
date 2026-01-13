@@ -203,37 +203,6 @@ fun SettingsScreenCompose(
                         onCheckedChange = onNotificationsEnabledChange
                     )
 
-                    Divider(
-                        color = Color.White.copy(alpha = 0.3f),
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-
-                    NutriSenseSwitchRow(
-                        title = "Water Reminders",
-                        checked = state.waterReminderEnabled,
-                        onCheckedChange = onWaterReminderEnabledChange,
-                        enabled = state.notificationsEnabled
-                    )
-
-                    if (state.waterReminderEnabled && state.notificationsEnabled) {
-                        OutlinedTextField(
-                            value = state.waterInterval,
-                            onValueChange = onWaterIntervalChange,
-                            label = { Text("Interval (minutes)", color = Color.White.copy(alpha = 0.7f)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.White,
-                                unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true
-                        )
-                    }
-
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedButton(
@@ -252,7 +221,7 @@ fun SettingsScreenCompose(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Advanced Notification Settings")
+                        Text("Notification Settings")
                     }
                 }
 

@@ -222,7 +222,9 @@ class NotificationHelper(private val context: Context) {
     fun scheduleWaterReminders(intervalMinutes: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        val intent = Intent(context, WaterReminderReceiver::class.java)
+        val intent = Intent(context, WaterReminderReceiver::class.java).apply {
+            putExtra("interval_minutes", intervalMinutes)
+        }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             WATER_REMINDER_REQUEST_CODE,
@@ -233,16 +235,24 @@ class NotificationHelper(private val context: Context) {
         // Cancel any existing water reminders
         alarmManager.cancel(pendingIntent)
 
-        // Schedule repeating alarm
+        // Schedule next alarm
         val intervalMillis = intervalMinutes * 60 * 1000L
         val triggerAtMillis = System.currentTimeMillis() + intervalMillis
 
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            triggerAtMillis,
-            intervalMillis,
-            pendingIntent
-        )
+        // Use setExactAndAllowWhileIdle for reliable delivery on Android 6+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        }
     }
 
     /**
@@ -277,6 +287,8 @@ class NotificationHelper(private val context: Context) {
 
         val intent = Intent(context, MealReminderReceiver::class.java).apply {
             putExtra("meal_type", mealType.name)
+            putExtra("hour", hour)
+            putExtra("minute", minute)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -286,11 +298,15 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        // Cancel existing alarm first
+        alarmManager.cancel(pendingIntent)
+
         // Calculate next trigger time
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
 
             // If time has passed today, schedule for tomorrow
             if (timeInMillis <= System.currentTimeMillis()) {
@@ -298,13 +314,20 @@ class NotificationHelper(private val context: Context) {
             }
         }
 
-        // Schedule daily repeating alarm
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+        // Use setExactAndAllowWhileIdle for reliable delivery
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        }
     }
 
     /**

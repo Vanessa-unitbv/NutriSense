@@ -13,6 +13,9 @@ class WaterReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val notificationHelper = NotificationHelper(context)
         notificationHelper.showWaterReminderNotification()
+
+        // Reschedule next water reminder (since we use setExactAndAllowWhileIdle instead of setRepeating)
+        val intervalMinutes = intent.getIntExtra("interval_minutes", 60)
+        notificationHelper.scheduleWaterReminders(intervalMinutes)
     }
 }
-

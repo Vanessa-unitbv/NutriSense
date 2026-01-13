@@ -16,16 +16,40 @@ class BootReceiver : BroadcastReceiver() {
             val prefs = SharedPreferencesManager.getGlobalInstance(context)
             val notificationHelper = NotificationHelper(context)
 
-            // Restore water reminders if enabled
+            // Restore notifications if enabled
             if (prefs.isNotificationEnabled()) {
-                val waterInterval = prefs.getWaterReminderInterval()
-                notificationHelper.scheduleWaterReminders(waterInterval)
+                // Restore water reminders if enabled
+                if (prefs.isWaterReminderEnabled()) {
+                    val waterInterval = prefs.getWaterReminderInterval()
+                    notificationHelper.scheduleWaterReminders(waterInterval)
+                }
 
                 // Restore meal reminders if enabled
                 if (prefs.isMealReminderEnabled()) {
-                    notificationHelper.setupDefaultMealReminders()
+                    val breakfastTime = prefs.getBreakfastTime()
+                    val lunchTime = prefs.getLunchTime()
+                    val dinnerTime = prefs.getDinnerTime()
+
+                    val (breakfastHour, breakfastMinute) = parseTime(breakfastTime)
+                    val (lunchHour, lunchMinute) = parseTime(lunchTime)
+                    val (dinnerHour, dinnerMinute) = parseTime(dinnerTime)
+
+                    notificationHelper.scheduleMealReminder(MealType.BREAKFAST, breakfastHour, breakfastMinute)
+                    notificationHelper.scheduleMealReminder(MealType.LUNCH, lunchHour, lunchMinute)
+                    notificationHelper.scheduleMealReminder(MealType.DINNER, dinnerHour, dinnerMinute)
                 }
             }
+        }
+    }
+
+    private fun parseTime(timeStr: String): Pair<Int, Int> {
+        return try {
+            val parts = timeStr.split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 0
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+            Pair(hour.coerceIn(0, 23), minute.coerceIn(0, 59))
+        } catch (e: Exception) {
+            Pair(0, 0)
         }
     }
 }
