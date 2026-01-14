@@ -263,6 +263,12 @@ private fun FoodHistoryCard(
     onDeleteClick: () -> Unit,
     onConsumeClick: () -> Unit
 ) {
+    // local UI state so the heart updates instantly
+    var isFavorite by remember(food) { mutableStateOf(food.isFavorite) }
+    LaunchedEffect(key1 = food.isFavorite) {
+        isFavorite = food.isFavorite
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -336,9 +342,14 @@ private fun FoodHistoryCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TextButton(onClick = onFavoriteClick) {
+                TextButton(onClick = {
+                    // update local UI immediately
+                    isFavorite = !isFavorite
+                    // then trigger parent action to persist change
+                    onFavoriteClick()
+                }) {
                     Text(
-                        text = if (food.isFavorite) "❤️ Favorite" else "🤍 Favorite",
+                        text = if (isFavorite) "❤️ Favorite" else "🤍 Favorite",
                         fontSize = 12.sp,
                         color = Color.White
                     )
@@ -393,4 +404,3 @@ private fun MacroChip(
         }
     }
 }
-

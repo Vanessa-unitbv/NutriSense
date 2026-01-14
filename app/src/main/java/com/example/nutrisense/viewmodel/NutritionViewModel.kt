@@ -192,8 +192,10 @@ class NutritionViewModel @Inject constructor(
     fun updateFavoriteStatus(food: Food) {
         viewModelScope.launch {
             try {
-                repository.updateFavoriteStatus(food.id, food.isFavorite)
-                val status = if (food.isFavorite) "added to" else "removed from"
+                // Toggle the favorite status before persisting
+                val newFavoriteStatus = !food.isFavorite
+                repository.updateFavoriteStatus(food.id, newFavoriteStatus)
+                val status = if (newFavoriteStatus) "added to" else "removed from"
                 _uiState.value = _uiState.value.copy(
                     successMessage = "${food.name} $status favorites!"
                 )

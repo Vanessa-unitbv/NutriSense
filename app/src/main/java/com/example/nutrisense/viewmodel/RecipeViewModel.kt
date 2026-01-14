@@ -155,8 +155,9 @@ class RecipeViewModel @Inject constructor(
     fun updateFavoriteStatus(recipe: Recipe) {
         viewModelScope.launch {
             try {
-                repository.updateFavoriteStatus(recipe.id, recipe.isFavorite)
-                val status = if (recipe.isFavorite) "added to" else "removed from"
+                val newFavoriteStatus = !recipe.isFavorite
+                repository.updateFavoriteStatus(recipe.id, newFavoriteStatus)
+                val status = if (newFavoriteStatus) "added to" else "removed from"
                 _uiState.value = _uiState.value.copy(
                     successMessage = "${recipe.title} $status favorites!"
                 )

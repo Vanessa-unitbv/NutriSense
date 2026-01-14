@@ -224,6 +224,14 @@ private fun SavedRecipeCard(
     onFavoriteClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    // Add local UI state for favorite so the heart updates immediately
+    var isFavorite by remember(recipe) { mutableStateOf(recipe.isFavorite) }
+
+    // Keep local UI state in sync if the backing model changes
+    LaunchedEffect(key1 = recipe.isFavorite) {
+        isFavorite = recipe.isFavorite
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -256,9 +264,14 @@ private fun SavedRecipeCard(
                     )
                 }
                 Row {
-                    TextButton(onClick = onFavoriteClick) {
+                    TextButton(onClick = {
+                        // toggle local UI state first for instant feedback
+                        isFavorite = !isFavorite
+                        // then notify the parent to persist the change
+                        onFavoriteClick()
+                    }) {
                         Text(
-                            text = if (recipe.isFavorite) "❤️" else "🤍",
+                            text = if (isFavorite) "❤️" else "🤍",
                             fontSize = 20.sp
                         )
                     }
@@ -283,4 +296,3 @@ private fun SavedRecipeCard(
         }
     }
 }
-
