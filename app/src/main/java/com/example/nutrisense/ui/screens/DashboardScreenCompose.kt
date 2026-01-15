@@ -83,7 +83,6 @@ fun DashboardScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Daily Progress Cards
                 Text(
                     text = "📊 Today's Progress",
                     fontSize = 20.sp,
@@ -91,7 +90,6 @@ fun DashboardScreenCompose(
                     color = NutriSenseColors.Brown
                 )
 
-                // Calories Card
                 ProgressCard(
                     title = "🔥 Calories",
                     current = state.dailyCaloriesConsumed,
@@ -101,7 +99,6 @@ fun DashboardScreenCompose(
                     color = NutriSenseColors.CaloriesColor
                 )
 
-                // Water Card
                 ProgressCard(
                     title = "💧 Water",
                     current = state.dailyWaterConsumed,
@@ -111,7 +108,6 @@ fun DashboardScreenCompose(
                     color = NutriSenseColors.WaterColor
                 )
 
-                // Macros Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -138,7 +134,6 @@ fun DashboardScreenCompose(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Quick Actions
                 Text(
                     text = "⚡ Quick Actions",
                     fontSize = 20.sp,
@@ -146,7 +141,6 @@ fun DashboardScreenCompose(
                     color = NutriSenseColors.Brown
                 )
 
-                // Action Buttons Grid
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)

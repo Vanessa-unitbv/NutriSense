@@ -83,7 +83,6 @@ fun SearchHistoryScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Today's Summary Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -130,7 +129,6 @@ fun SearchHistoryScreenCompose(
                     }
                 }
 
-                // Error Message
                 state.errorMessage?.let { error ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -148,7 +146,6 @@ fun SearchHistoryScreenCompose(
                     }
                 }
 
-                // Success Message
                 state.successMessage?.let { success ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -166,7 +163,6 @@ fun SearchHistoryScreenCompose(
                     }
                 }
 
-                // Food List
                 if (state.isLoading) {
                     Box(
                         modifier = Modifier
@@ -263,7 +259,6 @@ private fun FoodHistoryCard(
     onDeleteClick: () -> Unit,
     onConsumeClick: () -> Unit
 ) {
-    // local UI state so the heart updates instantly
     var isFavorite by remember(food) { mutableStateOf(food.isFavorite) }
     LaunchedEffect(key1 = food.isFavorite) {
         isFavorite = food.isFavorite
@@ -325,7 +320,6 @@ private fun FoodHistoryCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Macros Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -337,15 +331,12 @@ private fun FoodHistoryCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 TextButton(onClick = {
-                    // update local UI immediately
                     isFavorite = !isFavorite
-                    // then trigger parent action to persist change
                     onFavoriteClick()
                 }) {
                     Text(

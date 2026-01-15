@@ -55,7 +55,6 @@ fun LoginScreenCompose(
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Logo/App Name
                 Card(
                     modifier = Modifier.size(120.dp),
                     shape = RoundedCornerShape(60.dp),
@@ -91,7 +90,6 @@ fun LoginScreenCompose(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Login Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -119,7 +117,6 @@ fun LoginScreenCompose(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Error Message
                         state.errorMessage?.let { error ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -138,7 +135,6 @@ fun LoginScreenCompose(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // Email Field
                         NutriSenseTextField(
                             value = state.email,
                             onValueChange = onEmailChange,
@@ -150,7 +146,6 @@ fun LoginScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Password Field
                         NutriSenseTextField(
                             value = state.password,
                             onValueChange = onPasswordChange,
@@ -162,7 +157,6 @@ fun LoginScreenCompose(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Login Button
                         NutriSenseButton(
                             text = "Login",
                             onClick = onLoginClick,
@@ -171,7 +165,6 @@ fun LoginScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Divider
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -193,7 +186,6 @@ fun LoginScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Register Button
                         OutlinedButton(
                             onClick = onRegisterClick,
                             modifier = Modifier

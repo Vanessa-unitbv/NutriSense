@@ -37,7 +37,6 @@ class DashboardFragment : Fragment() {
             setContent {
                 val uiState by dashboardViewModel.uiState.collectAsStateWithLifecycle()
 
-                // Load dashboard data
                 LaunchedEffect(Unit) {
                     dashboardViewModel.loadDashboard(args.email)
                 }

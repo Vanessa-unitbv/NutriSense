@@ -35,7 +35,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Header
         Text(
             text = "NutriSense",
             fontSize = 32.sp,
@@ -50,7 +49,6 @@ fun LoginScreen(
             modifier = Modifier.padding(bottom = 40.dp)
         )
 
-        // Email Field
         OutlinedTextField(
             value = email,
             onValueChange = {
@@ -71,7 +69,6 @@ fun LoginScreen(
             }
         )
 
-        // Password Field
         OutlinedTextField(
             value = password,
             onValueChange = {
@@ -99,7 +96,6 @@ fun LoginScreen(
             }
         )
 
-        // Login Button
         Button(
             onClick = {
                 var isValid = true
@@ -143,7 +139,6 @@ fun LoginScreen(
             }
         }
 
-        // Register Button
         OutlinedButton(
             onClick = {
                 var isValid = true

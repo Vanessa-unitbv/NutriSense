@@ -194,7 +194,6 @@ class AuthViewModel @Inject constructor(
             val userPrefs = preferencesRepository.getManagerForUser(email)
             userPrefs.clearUserData()
 
-            // Setari directe - sunt operatii sincrone rapide
             userPrefs.setDailyCalorieGoal(AppConstants.DEFAULT_CALORIE_GOAL)
             userPrefs.setDailyWaterGoal(AppConstants.DEFAULT_WATER_GOAL_ML)
             userPrefs.setNotificationEnabled(true)

@@ -9,7 +9,6 @@ import android.widget.TextView
  * (Loading, Error, Empty State)
  */
 
-// Loading State Management
 fun ProgressBar.show() {
     this.visibility = View.VISIBLE
 }
@@ -22,7 +21,6 @@ fun ProgressBar.setLoading(isLoading: Boolean) {
     if (isLoading) show() else hide()
 }
 
-// Error Message Management
 fun TextView.showError(message: String) {
     this.text = message
     this.visibility = View.VISIBLE
@@ -41,7 +39,6 @@ fun TextView.showErrorIfNotEmpty(message: String?) {
     }
 }
 
-// Empty State Management
 fun TextView.showEmptyState(message: String) {
     this.text = message
     this.visibility = View.VISIBLE
@@ -60,7 +57,6 @@ fun TextView.showEmptyStateIfEmpty(message: String, isEmpty: Boolean) {
     }
 }
 
-// Combined State Management Helper
 fun manageLoadingErrorState(
     progressBar: ProgressBar,
     errorTextView: TextView,

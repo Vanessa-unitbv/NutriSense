@@ -37,7 +37,6 @@ fun DashboardScreen(
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // Header
         TopAppBar(
             title = {
                 Text(
@@ -66,7 +65,6 @@ fun DashboardScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Calorie Card
             item {
                 NutritionCard(
                     title = "Daily Calories",
@@ -79,7 +77,6 @@ fun DashboardScreen(
                 )
             }
 
-            // Water Card
             item {
                 NutritionCard(
                     title = "Daily Water Intake",
@@ -92,7 +89,6 @@ fun DashboardScreen(
                 )
             }
 
-            // Action Cards
             item {
                 Row(
                     modifier = Modifier
@@ -113,7 +109,6 @@ fun DashboardScreen(
                 }
             }
 
-            // Tips Section
             item {
                 TipsCard()
             }
@@ -161,7 +156,6 @@ fun NutritionCard(
                 )
             }
 
-            // Progress Bar
             LinearProgressIndicator(
                 progress = progress.coerceIn(0f, 1f),
                 modifier = Modifier
@@ -173,7 +167,6 @@ fun NutritionCard(
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
             )
 
-            // Stats
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

@@ -22,7 +22,6 @@ class MealReminderReceiver : BroadcastReceiver() {
         val notificationHelper = NotificationHelper(context)
         notificationHelper.showMealReminderNotification(mealType)
 
-        // Reschedule for tomorrow (since we use setExactAndAllowWhileIdle instead of setRepeating)
         val hour = intent.getIntExtra("hour", getDefaultHour(mealType))
         val minute = intent.getIntExtra("minute", getDefaultMinute(mealType))
         notificationHelper.scheduleMealReminder(mealType, hour, minute)

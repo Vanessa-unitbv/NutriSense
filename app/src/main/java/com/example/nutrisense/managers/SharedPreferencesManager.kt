@@ -118,7 +118,6 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
         saveInt(AppConstants.PrefsKeys.WATER_REMINDER_INTERVAL, interval)
     }
 
-    // Read operations - also async to ensure consistency
     suspend fun getUserEmailAsync(): String? = withContext(Dispatchers.IO) {
         sharedPreferences.getString(AppConstants.PrefsKeys.USER_EMAIL, null)
     }
@@ -159,7 +158,6 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
         getInt(AppConstants.PrefsKeys.WATER_REMINDER_INTERVAL, 60)
     }
 
-    // Synchronous versions (kept for backward compatibility in UI operations)
     fun setUserLoggedIn(email: String, name: String?) {
         savePreferences {
             putBoolean(AppConstants.PrefsKeys.IS_LOGGED_IN, true)
@@ -241,7 +239,6 @@ class SharedPreferencesManager private constructor(context: Context, userEmail: 
     fun isMealReminderEnabled(): Boolean =
         getBoolean(AppConstants.PrefsKeys.MEAL_REMINDER_ENABLED, true)
 
-    // Meal times
     fun setBreakfastTime(time: String) = saveString("breakfast_time", time)
     fun getBreakfastTime(): String = getString("breakfast_time", "08:00")
 

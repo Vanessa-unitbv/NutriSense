@@ -52,7 +52,6 @@ class RecipeHistoryFragment : Fragment() {
                     )
                 }
 
-                // Show messages
                 LaunchedEffect(uiState.successMessage) {
                     uiState.successMessage?.let {
                         requireContext().showSuccessToast(it)

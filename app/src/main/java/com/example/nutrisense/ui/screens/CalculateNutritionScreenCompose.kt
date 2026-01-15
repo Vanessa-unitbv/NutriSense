@@ -65,7 +65,6 @@ fun CalculateNutritionScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Input Card
                 NutriSenseCard(title = "🔍 Search Food") {
                     NutriSenseTextField(
                         value = state.foodName,
@@ -110,7 +109,6 @@ fun CalculateNutritionScreenCompose(
                     }
                 }
 
-                // Error Message
                 state.errorMessage?.let { error ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -128,10 +126,8 @@ fun CalculateNutritionScreenCompose(
                     }
                 }
 
-                // Results
                 state.result?.let { result ->
                     NutriSenseCard(title = "📊 Nutrition Facts") {
-                        // Main Nutrients
                         NutrientRow("🔥 Calories", "${result.calories.toInt()} kcal", NutriSenseColors.CaloriesColor)
                         NutrientRow("💪 Protein", "${result.protein.format()}g", NutriSenseColors.ProteinColor)
                         NutrientRow("🍞 Carbohydrates", "${result.carbs.format()}g", NutriSenseColors.CarbsColor)
@@ -148,7 +144,6 @@ fun CalculateNutritionScreenCompose(
                     }
                 }
 
-                // Back Button
                 NutriSenseOutlinedButton(
                     text = "← Back to Dashboard",
                     onClick = onBackClick

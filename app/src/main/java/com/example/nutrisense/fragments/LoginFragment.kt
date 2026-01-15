@@ -41,7 +41,6 @@ class LoginFragment : Fragment() {
 
                 val loginState by authViewModel.loginState.collectAsStateWithLifecycle()
 
-                // Handle login state changes
                 LaunchedEffect(loginState) {
                     when (loginState) {
                         is AuthViewModel.LoginState.Loading -> {
@@ -87,7 +86,6 @@ class LoginFragment : Fragment() {
                             errorMessage = null
                         },
                         onLoginClick = {
-                            // Validate
                             var valid = true
                             if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                                 emailError = "Please enter a valid email"
@@ -102,7 +100,6 @@ class LoginFragment : Fragment() {
                             }
                         },
                         onRegisterClick = {
-                            // Validate before register
                             var valid = true
                             if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                                 emailError = "Please enter a valid email"

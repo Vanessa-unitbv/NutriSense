@@ -67,7 +67,6 @@ fun RecipeHistoryScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Summary Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -93,7 +92,6 @@ fun RecipeHistoryScreenCompose(
                     }
                 }
 
-                // Error Message
                 state.errorMessage?.let { error ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -111,7 +109,6 @@ fun RecipeHistoryScreenCompose(
                     }
                 }
 
-                // Success Message
                 state.successMessage?.let { success ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -129,7 +126,6 @@ fun RecipeHistoryScreenCompose(
                     }
                 }
 
-                // Recipe List
                 if (state.isLoading) {
                     Box(
                         modifier = Modifier
@@ -224,10 +220,8 @@ private fun SavedRecipeCard(
     onFavoriteClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    // Add local UI state for favorite so the heart updates immediately
     var isFavorite by remember(recipe) { mutableStateOf(recipe.isFavorite) }
 
-    // Keep local UI state in sync if the backing model changes
     LaunchedEffect(key1 = recipe.isFavorite) {
         isFavorite = recipe.isFavorite
     }
@@ -265,9 +259,7 @@ private fun SavedRecipeCard(
                 }
                 Row {
                     TextButton(onClick = {
-                        // toggle local UI state first for instant feedback
                         isFavorite = !isFavorite
-                        // then notify the parent to persist the change
                         onFavoriteClick()
                     }) {
                         Text(

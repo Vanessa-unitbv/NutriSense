@@ -16,15 +16,12 @@ class BootReceiver : BroadcastReceiver() {
             val prefs = SharedPreferencesManager.getGlobalInstance(context)
             val notificationHelper = NotificationHelper(context)
 
-            // Restore notifications if enabled
             if (prefs.isNotificationEnabled()) {
-                // Restore water reminders if enabled
                 if (prefs.isWaterReminderEnabled()) {
                     val waterInterval = prefs.getWaterReminderInterval()
                     notificationHelper.scheduleWaterReminders(waterInterval)
                 }
 
-                // Restore meal reminders if enabled
                 if (prefs.isMealReminderEnabled()) {
                     val breakfastTime = prefs.getBreakfastTime()
                     val lunchTime = prefs.getLunchTime()

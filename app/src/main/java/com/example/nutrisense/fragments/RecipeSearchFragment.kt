@@ -53,7 +53,6 @@ class RecipeSearchFragment : Fragment() {
                     )
                 }
 
-                // Show messages
                 LaunchedEffect(uiState.successMessage) {
                     uiState.successMessage?.let {
                         requireContext().showSuccessToast(it)

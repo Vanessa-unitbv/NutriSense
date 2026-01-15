@@ -60,7 +60,6 @@ fun RecipeSearchScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Search Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -76,7 +75,6 @@ fun RecipeSearchScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Ingredients Input
                         OutlinedTextField(
                             value = ingredients,
                             onValueChange = {
@@ -97,7 +95,6 @@ fun RecipeSearchScreen(
                             }
                         )
 
-                        // Search Button
                         Button(
                             onClick = {
                                 if (ingredients.isEmpty()) {
@@ -128,7 +125,6 @@ fun RecipeSearchScreen(
                 }
             }
 
-            // Error Message
             if (!errorMessage.isNullOrEmpty()) {
                 item {
                     Card(
@@ -146,7 +142,6 @@ fun RecipeSearchScreen(
                 }
             }
 
-            // Empty State
             if (recipes.isEmpty() && !isLoading && errorMessage == null) {
                 item {
                     Box(
@@ -174,7 +169,6 @@ fun RecipeSearchScreen(
                 }
             }
 
-            // Recipes List
             items(recipes) { recipe ->
                 RecipeCard(
                     recipe = recipe,
@@ -250,7 +244,6 @@ fun RecipeCard(
                 }
             }
 
-            // Recipe Info
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -264,7 +257,6 @@ fun RecipeCard(
                 )
             }
 
-            // Ingredients Preview
             Text(
                 text = "Ingredients:",
                 fontSize = 12.sp,
@@ -278,7 +270,6 @@ fun RecipeCard(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // View Details Button
             Button(
                 onClick = onCardClick,
                 modifier = Modifier

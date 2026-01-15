@@ -40,7 +40,6 @@ fun NotificationSettingsScreen(
         mutableStateOf(notificationHelper.hasNotificationPermission())
     }
 
-    // Load saved values from SharedPreferences
     var notificationsEnabled by remember { mutableStateOf(prefsManager.isNotificationEnabled()) }
     var waterReminderEnabled by remember { mutableStateOf(prefsManager.isWaterReminderEnabled()) }
     var mealRemindersEnabled by remember { mutableStateOf(prefsManager.isMealReminderEnabled()) }
@@ -79,7 +78,6 @@ fun NotificationSettingsScreen(
         }
     }
 
-    // Helper function to parse time string to hour and minute
     fun parseTime(timeStr: String): Pair<Int, Int> {
         return try {
             val parts = timeStr.split(":")
@@ -109,7 +107,6 @@ fun NotificationSettingsScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Success Message
                 if (showSuccessMessage) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -127,7 +124,6 @@ fun NotificationSettingsScreen(
                     }
                 }
 
-                // Permission Warning
                 if (!hasNotificationPermission) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -159,7 +155,6 @@ fun NotificationSettingsScreen(
                     }
                 }
 
-                // Main Notifications Toggle
                 NutriSenseCard(title = "🔔 General") {
                     NutriSenseSwitchRow(
                         title = "Enable Notifications",
@@ -175,7 +170,6 @@ fun NotificationSettingsScreen(
                     )
                 }
 
-                // Water Reminders
                 if (notificationsEnabled && hasNotificationPermission) {
                     NutriSenseCard(title = "💧 Water Reminders") {
                         NutriSenseSwitchRow(
@@ -211,7 +205,6 @@ fun NotificationSettingsScreen(
                     }
                 }
 
-                // Meal Reminders
                 if (notificationsEnabled && hasNotificationPermission) {
                     NutriSenseCard(title = "🍽️ Meal Reminders") {
                         NutriSenseSwitchRow(
@@ -233,7 +226,6 @@ fun NotificationSettingsScreen(
                     }
                 }
 
-                // Test & Save Buttons
                 if (notificationsEnabled && hasNotificationPermission) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -252,13 +244,11 @@ fun NotificationSettingsScreen(
                     }
                 }
 
-                // Save Button
                 NutriSenseButton(
                     text = "Save Settings",
                     onClick = {
                         val intervalMinutes = waterInterval.toIntOrNull() ?: 60
 
-                        // Save all settings to SharedPreferences
                         prefsManager.setNotificationEnabled(notificationsEnabled)
                         prefsManager.setWaterReminderEnabled(waterReminderEnabled)
                         prefsManager.setWaterReminderInterval(intervalMinutes)
@@ -275,7 +265,6 @@ fun NotificationSettingsScreen(
                             }
 
                             if (mealRemindersEnabled) {
-                                // Schedule meal reminders with user-specified times
                                 val (breakfastHour, breakfastMinute) = parseTime(breakfastTime)
                                 val (lunchHour, lunchMinute) = parseTime(lunchTime)
                                 val (dinnerHour, dinnerMinute) = parseTime(dinnerTime)

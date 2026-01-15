@@ -62,7 +62,6 @@ fun SettingsScreen(
     val genders = listOf("Female", "Male")
     val activityLevels = listOf("Sedentary", "Light", "Moderate", "Active", "Very Active")
 
-    // Permission launcher for Android 13+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -72,7 +71,6 @@ fun SettingsScreen(
         }
     }
 
-    // Request permission function
     fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
@@ -96,7 +94,6 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // Header
         TopAppBar(
             title = { Text("Settings", color = Color.White) },
             navigationIcon = {
@@ -115,7 +112,6 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Success Message
             if (!successMessage.isNullOrEmpty()) {
                 item {
                     Card(
@@ -133,7 +129,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Personal Information Section
             item {
                 SettingsSectionHeader("👤 Personal Information")
             }
@@ -183,7 +178,6 @@ fun SettingsScreen(
                             }
                         )
 
-                        // Gender Spinner
                         DropdownMenuField(
                             label = "Gender",
                             options = genders,
@@ -191,7 +185,6 @@ fun SettingsScreen(
                             onOptionSelected = { selectedGender = it }
                         )
 
-                        // Activity Level Spinner
                         DropdownMenuField(
                             label = "Activity Level",
                             options = activityLevels,
@@ -202,7 +195,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Daily Goals Section
             item {
                 SettingsSectionHeader("🎯 Daily Goals")
             }
@@ -241,12 +233,10 @@ fun SettingsScreen(
                 }
             }
 
-            // Notifications Section
             item {
                 SettingsSectionHeader("🔔 Notifications")
             }
 
-            // Permission Warning Card
             if (!hasNotificationPermission) {
                 item {
                     Card(
@@ -348,7 +338,6 @@ fun SettingsScreen(
                             )
                         }
 
-                        // Advanced Notification Settings Button
                         if (onNotificationSettingsClick != null) {
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -369,7 +358,6 @@ fun SettingsScreen(
                             }
                         }
 
-                        // Test Notification Button
                         if (hasNotificationPermission && notificationsEnabled) {
                             OutlinedButton(
                                 onClick = {
@@ -390,7 +378,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Save Button
             item {
                 Button(
                     onClick = {
@@ -445,7 +432,6 @@ fun SettingsScreen(
                         if (isValid) {
                             val intervalMinutes = waterInterval.toIntOrNull() ?: 60
 
-                            // Schedule or cancel notifications based on settings
                             if (notificationsEnabled && hasNotificationPermission) {
                                 if (waterReminderEnabled) {
                                     notificationHelper.scheduleWaterReminders(intervalMinutes)

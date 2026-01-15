@@ -124,13 +124,10 @@ fun NutritionSenseNavigation(navController: NavHostController) {
                     )
                 ),
                 onRecipeClick = { recipe ->
-                    // Handle recipe click
                 },
                 onFavoriteClick = { recipe ->
-                    // Handle favorite toggle
                 },
                 onDeleteClick = { recipe ->
-                    // Handle delete
                 }
             )
         }
@@ -141,7 +138,6 @@ fun NutritionSenseNavigation(navController: NavHostController) {
                     navController.popBackStack()
                 },
                 onSaveClick = { settings ->
-                    // Handle save settings
                 }
             )
         }

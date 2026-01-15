@@ -41,13 +41,11 @@ class SearchHistoryFragment : Fragment() {
                 val foods by allFoods
                 val todayConsumed by todayConsumedFoods
 
-                // Calculate today's totals
                 val todayCalories = todayConsumed.sumOf { it.calories.toInt() }
                 val todayProtein = todayConsumed.sumOf { it.proteinG.toInt() }
                 val todayCarbs = todayConsumed.sumOf { it.carbohydratesTotalG.toInt() }
                 val todayFat = todayConsumed.sumOf { it.fatTotalG.toInt() }
 
-                // Convert to FoodItems
                 val foodItems = foods.map { food ->
                     FoodItem(
                         id = food.id,

@@ -52,7 +52,6 @@ fun RegisterScreenCompose(
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Logo/App Name
                 Card(
                     modifier = Modifier.size(120.dp),
                     shape = RoundedCornerShape(60.dp),
@@ -88,7 +87,6 @@ fun RegisterScreenCompose(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Registration Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -124,7 +122,6 @@ fun RegisterScreenCompose(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Error Message
                         state.errorMessage?.let { error ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -143,7 +140,6 @@ fun RegisterScreenCompose(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // First Name Field
                         NutriSenseTextField(
                             value = state.firstName,
                             onValueChange = onFirstNameChange,
@@ -152,7 +148,6 @@ fun RegisterScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Last Name Field
                         NutriSenseTextField(
                             value = state.lastName,
                             onValueChange = onLastNameChange,
@@ -161,7 +156,6 @@ fun RegisterScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Age Field
                         NutriSenseTextField(
                             value = state.age,
                             onValueChange = onAgeChange,
@@ -171,7 +165,6 @@ fun RegisterScreenCompose(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Register Button
                         NutriSenseButton(
                             text = "Complete Registration",
                             onClick = onRegisterClick,
@@ -180,7 +173,6 @@ fun RegisterScreenCompose(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Back to Login
                         TextButton(
                             onClick = onBackToLoginClick
                         ) {

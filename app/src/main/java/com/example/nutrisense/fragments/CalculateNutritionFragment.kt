@@ -35,7 +35,6 @@ class CalculateNutritionFragment : Fragment() {
 
                 val uiState by nutritionViewModel.uiState.collectAsStateWithLifecycle()
 
-                // Convert Food to NutritionResult
                 val nutritionResult = if (uiState.searchResults.isNotEmpty()) {
                     val food = uiState.searchResults.first()
                     NutritionResult(

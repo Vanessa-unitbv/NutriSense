@@ -76,7 +76,6 @@ fun SettingsScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Success/Error Messages
                 state.successMessage?.let { message ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -111,7 +110,6 @@ fun SettingsScreenCompose(
                     }
                 }
 
-                // Personal Information Section
                 NutriSenseCard(title = "👤 Personal Information") {
                     NutriSenseTextField(
                         value = state.age,
@@ -128,7 +126,6 @@ fun SettingsScreenCompose(
                     )
                 }
 
-                // Physical Data Section
                 NutriSenseCard(title = "📊 Physical Data") {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -167,7 +164,6 @@ fun SettingsScreenCompose(
                     )
                 }
 
-                // Nutrition Goals Section
                 NutriSenseCard(title = "🎯 Nutrition Goals") {
                     NutriSenseTextField(
                         value = state.calorieGoal,
@@ -195,7 +191,6 @@ fun SettingsScreenCompose(
                     }
                 }
 
-                // Notifications Section
                 NutriSenseCard(title = "🔔 Notifications") {
                     NutriSenseSwitchRow(
                         title = "Enable Notifications",
@@ -225,14 +220,12 @@ fun SettingsScreenCompose(
                     }
                 }
 
-                // Save Button
                 NutriSenseButton(
                     text = "Save All Settings",
                     onClick = onSave,
                     isLoading = state.isLoading
                 )
 
-                // Back to Dashboard Button
                 NutriSenseOutlinedButton(
                     text = "← Dashboard",
                     onClick = onBackClick

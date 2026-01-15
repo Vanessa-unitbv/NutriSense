@@ -69,7 +69,6 @@ fun RecipeSearchScreenCompose(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Search Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -102,7 +101,6 @@ fun RecipeSearchScreenCompose(
                     }
                 }
 
-                // Error Message
                 state.errorMessage?.let { error ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -120,7 +118,6 @@ fun RecipeSearchScreenCompose(
                     }
                 }
 
-                // Results
                 if (state.recipes.isEmpty() && !state.isLoading) {
                     Box(
                         modifier = Modifier

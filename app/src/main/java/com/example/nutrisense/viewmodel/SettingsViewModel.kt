@@ -50,7 +50,6 @@ class SettingsViewModel @Inject constructor(
             try {
                 val prefs = resolveUserPrefs()
 
-                // Use async to load multiple preferences in parallel
                 val calorieGoalAsync = async { prefs.getDailyCalorieGoal() }
                 val waterGoalAsync = async { prefs.getDailyWaterGoal() }
                 val weightAsync = async { prefs.getUserWeight() }
@@ -144,7 +143,6 @@ class SettingsViewModel @Inject constructor(
                     height
                 }
 
-                // Use async for parallel calculations
                 val bmrAsync = async { NutritionCalculator.calculateBMR(weightKg, heightCm, age, gender) }
                 val caloriesAsync = async { NutritionCalculator.calculateDailyCalorieNeeds(bmrAsync.await(), activityLevel) }
                 val waterAsync = async { NutritionCalculator.calculateWaterIntake(weightKg, activityLevel) }
@@ -223,7 +221,6 @@ class SettingsViewModel @Inject constructor(
             try {
                 val prefs = resolveUserPrefs()
 
-                // Launch all async preference save operations in parallel
                 val saveCalorieAsync = async { prefs.setDailyCalorieGoal(calorieGoal) }
                 val saveWaterAsync = async { prefs.setDailyWaterGoal(waterGoal) }
                 val saveWeightAsync = async { weight?.let { prefs.setUserWeight(it) } }
@@ -234,7 +231,6 @@ class SettingsViewModel @Inject constructor(
                 val saveNotificationAsync = async { prefs.setNotificationEnabled(notificationsEnabled) }
                 val saveWaterIntervalAsync = async { prefs.setWaterReminderInterval(waterInterval) }
 
-                // Wait for all save operations to complete
                 saveCalorieAsync.await()
                 saveWaterAsync.await()
                 saveWeightAsync.await()

@@ -24,18 +24,15 @@ import java.util.Calendar
 class NotificationHelper(private val context: Context) {
 
     companion object {
-        // Channel IDs
         const val WATER_REMINDER_CHANNEL_ID = "water_reminder_channel"
         const val MEAL_REMINDER_CHANNEL_ID = "meal_reminder_channel"
         const val GENERAL_CHANNEL_ID = "general_channel"
 
-        // Notification IDs
         const val WATER_REMINDER_NOTIFICATION_ID = 1001
         const val BREAKFAST_REMINDER_NOTIFICATION_ID = 1002
         const val LUNCH_REMINDER_NOTIFICATION_ID = 1003
         const val DINNER_REMINDER_NOTIFICATION_ID = 1004
 
-        // Request codes for PendingIntents
         const val WATER_REMINDER_REQUEST_CODE = 2001
         const val BREAKFAST_REMINDER_REQUEST_CODE = 2002
         const val LUNCH_REMINDER_REQUEST_CODE = 2003
@@ -53,7 +50,6 @@ class NotificationHelper(private val context: Context) {
     private fun createNotificationChannels() {
         val notificationManager = context.getSystemService(NotificationManager::class.java)
 
-        // Water Reminder Channel
         val waterChannel = NotificationChannel(
             WATER_REMINDER_CHANNEL_ID,
             "Water Reminders",
@@ -63,7 +59,6 @@ class NotificationHelper(private val context: Context) {
             enableVibration(true)
         }
 
-        // Meal Reminder Channel
         val mealChannel = NotificationChannel(
             MEAL_REMINDER_CHANNEL_ID,
             "Meal Reminders",
@@ -73,7 +68,6 @@ class NotificationHelper(private val context: Context) {
             enableVibration(true)
         }
 
-        // General Notifications Channel
         val generalChannel = NotificationChannel(
             GENERAL_CHANNEL_ID,
             "General Notifications",
@@ -232,14 +226,11 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        // Cancel any existing water reminders
         alarmManager.cancel(pendingIntent)
 
-        // Schedule next alarm
         val intervalMillis = intervalMinutes * 60 * 1000L
         val triggerAtMillis = System.currentTimeMillis() + intervalMillis
 
-        // Use setExactAndAllowWhileIdle for reliable delivery on Android 6+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
@@ -298,23 +289,19 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        // Cancel existing alarm first
         alarmManager.cancel(pendingIntent)
 
-        // Calculate next trigger time
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            // If time has passed today, schedule for tomorrow
             if (timeInMillis <= System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
         }
 
-        // Use setExactAndAllowWhileIdle for reliable delivery
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,

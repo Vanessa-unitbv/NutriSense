@@ -97,7 +97,6 @@ fun ProfileScreenCompose(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Stats Cards
                 NutriSenseCard(title = "📊 My Goals") {
                     ProfileStatRow(
                         icon = "🔥",
@@ -133,7 +132,6 @@ fun ProfileScreenCompose(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Action Buttons
                 NutriSenseButton(
                     text = "⚙️ Settings",
                     onClick = onSettingsClick

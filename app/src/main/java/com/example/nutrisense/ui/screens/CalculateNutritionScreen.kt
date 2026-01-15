@@ -55,7 +55,6 @@ fun CalculateNutritionScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Input Section
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -71,7 +70,6 @@ fun CalculateNutritionScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Food Name Input
                         OutlinedTextField(
                             value = foodName,
                             onValueChange = {
@@ -91,7 +89,6 @@ fun CalculateNutritionScreen(
                             }
                         )
 
-                        // Quantity Input
                         OutlinedTextField(
                             value = quantity,
                             onValueChange = {
@@ -112,7 +109,6 @@ fun CalculateNutritionScreen(
                             }
                         )
 
-                        // Search Button
                         Button(
                             onClick = {
                                 var isValid = true
@@ -158,7 +154,6 @@ fun CalculateNutritionScreen(
                 }
             }
 
-            // Error Message
             if (!errorMessage.isNullOrEmpty()) {
                 item {
                     Card(
@@ -176,7 +171,6 @@ fun CalculateNutritionScreen(
                 }
             }
 
-            // Nutrition Results
             if (nutritionData != null) {
                 item {
                     Text(

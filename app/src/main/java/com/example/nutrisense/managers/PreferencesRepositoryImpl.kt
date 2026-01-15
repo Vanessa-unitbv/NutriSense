@@ -61,7 +61,6 @@ class PreferencesRepositoryImpl @Inject constructor(
                                     editor.putStringSet(k, v as Set<String>)
                                 }
                                 else -> {
-                                    // ignore unknown types
                                 }
                             }
                         }

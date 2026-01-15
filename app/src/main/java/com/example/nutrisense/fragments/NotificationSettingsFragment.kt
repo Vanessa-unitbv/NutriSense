@@ -31,8 +31,6 @@ class NotificationSettingsFragment : Fragment() {
                             findNavController().navigateUp()
                         },
                         onSaveClick = { settings ->
-                            // Settings are saved inside the screen
-                            // Optionally navigate back after save
                         }
                     )
                 }

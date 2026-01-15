@@ -192,7 +192,6 @@ class NutritionViewModel @Inject constructor(
     fun updateFavoriteStatus(food: Food) {
         viewModelScope.launch {
             try {
-                // Toggle the favorite status before persisting
                 val newFavoriteStatus = !food.isFavorite
                 repository.updateFavoriteStatus(food.id, newFavoriteStatus)
                 val status = if (newFavoriteStatus) "added to" else "removed from"
@@ -228,7 +227,6 @@ class NutritionViewModel @Inject constructor(
     private fun loadNutritionSummaryAsync(userId: Long) {
         viewModelScope.launch {
             try {
-                // Use async/await for parallel operations
                 val caloriesAsync = async { repository.getTodayTotalCaloriesForUser(userId) }
                 val proteinAsync = async { repository.getTodayTotalProteinForUser(userId) }
                 val carbsAsync = async { repository.getTodayTotalCarbsForUser(userId) }

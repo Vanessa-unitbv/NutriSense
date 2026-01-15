@@ -41,7 +41,6 @@ class SettingsFragment : Fragment() {
                 var waterReminderEnabled by remember { mutableStateOf(true) }
                 var waterInterval by remember { mutableStateOf("60") }
 
-                // Update local state from ViewModel
                 LaunchedEffect(uiState) {
                     if (uiState.userWeight > 0) weight = uiState.userWeight.toString()
                     if (uiState.userHeight > 0) height = uiState.userHeight.toString()
