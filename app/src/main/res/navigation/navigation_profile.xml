@@ -41,6 +41,9 @@
                 android:name="email"
                 app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_dashboardFragment_to_mealPlanFragment"
+            app:destination="@id/mealPlanFragment" />
     </fragment>
 
     <!-- Profile -->
@@ -149,6 +152,19 @@
 
         <action
             android:id="@+id/action_recipeHistoryFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Meal Plan -->
+    <fragment
+        android:id="@+id/mealPlanFragment"
+        android:name="com.example.nutrisense.fragments.MealPlanFragment"
+        android:label="MealPlanFragment">
+
+        <action
+            android:id="@+id/action_mealPlanFragment_to_dashboardFragment"
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="false" />

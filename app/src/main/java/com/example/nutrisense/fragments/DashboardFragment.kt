@@ -57,6 +57,7 @@ class DashboardFragment : Fragment() {
                         onSearchHistoryClick = { navigateToSearchHistory() },
                         onRecipeSearchClick = { navigateToRecipeSearch() },
                         onRecipeHistoryClick = { navigateToRecipeHistory() },
+                        onMealPlanClick = { navigateToMealPlan() },
                         onSettingsClick = { navigateToSettings() },
                         onProfileClick = { navigateToProfile() },
                         onLogoutClick = {
@@ -125,6 +126,14 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(R.id.action_dashboardFragment_to_recipeHistoryFragment)
         } catch (e: Exception) {
             requireContext().showErrorToast("Error opening Recipe Collection")
+        }
+    }
+
+    private fun navigateToMealPlan() {
+        try {
+            findNavController().navigate(R.id.action_dashboardFragment_to_mealPlanFragment)
+        } catch (e: Exception) {
+            requireContext().showErrorToast("Error opening Meal Plan")
         }
     }
 

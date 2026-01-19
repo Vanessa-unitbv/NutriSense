@@ -3,9 +3,11 @@ package com.example.nutrisense.di
 import com.example.nutrisense.data.api.NutritionApiService
 import com.example.nutrisense.data.api.RecipeApiService
 import com.example.nutrisense.data.dao.FoodDao
+import com.example.nutrisense.data.dao.MealPlanDao
 import com.example.nutrisense.data.dao.RecipeDao
 import com.example.nutrisense.data.dao.UserDao
 import com.example.nutrisense.data.repository.FoodRepository
+import com.example.nutrisense.data.repository.MealPlanRepository
 import com.example.nutrisense.data.repository.RecipeRepository
 import com.example.nutrisense.data.repository.UserRepository
 import dagger.Module
@@ -44,5 +46,14 @@ object RepositoryModule {
         recipeApiService: RecipeApiService
     ): RecipeRepository {
         return RecipeRepository(recipeDao, userDao, recipeApiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMealPlanRepository(
+        mealPlanDao: MealPlanDao,
+        userDao: UserDao
+    ): MealPlanRepository {
+        return MealPlanRepository(mealPlanDao, userDao)
     }
 }

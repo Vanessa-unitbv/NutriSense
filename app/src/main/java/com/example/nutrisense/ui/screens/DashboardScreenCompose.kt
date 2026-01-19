@@ -37,6 +37,7 @@ fun DashboardScreenCompose(
     onSearchHistoryClick: () -> Unit,
     onRecipeSearchClick: () -> Unit,
     onRecipeHistoryClick: () -> Unit,
+    onMealPlanClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onProfileClick: () -> Unit,
     onLogoutClick: () -> Unit
@@ -182,17 +183,30 @@ fun DashboardScreenCompose(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     DashboardActionButton(
+                        title = "Meal\nPlanner",
+                        emoji = "📅",
+                        onClick = onMealPlanClick,
+                        modifier = Modifier.weight(1f)
+                    )
+                    DashboardActionButton(
                         title = "Settings",
                         emoji = "⚙️",
                         onClick = onSettingsClick,
                         modifier = Modifier.weight(1f)
                     )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     DashboardActionButton(
                         title = "Profile",
                         emoji = "👤",
                         onClick = onProfileClick,
                         modifier = Modifier.weight(1f)
                     )
+                    Spacer(modifier = Modifier.weight(1f))
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

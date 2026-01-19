@@ -3,6 +3,7 @@ package com.example.nutrisense.di
 import android.content.Context
 import androidx.room.Room
 import com.example.nutrisense.data.dao.FoodDao
+import com.example.nutrisense.data.dao.MealPlanDao
 import com.example.nutrisense.data.dao.RecipeDao
 import com.example.nutrisense.data.dao.UserDao
 import com.example.nutrisense.data.database.AppDatabase
@@ -47,5 +48,11 @@ object DatabaseModule {
     @Singleton
     fun provideRecipeDao(database: AppDatabase): RecipeDao {
         return database.recipeDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMealPlanDao(database: AppDatabase): MealPlanDao {
+        return database.mealPlanDao()
     }
 }
