@@ -56,7 +56,6 @@ class DashboardFragment : Fragment() {
                         onCalculateNutritionClick = { navigateToCalculateNutrition() },
                         onSearchHistoryClick = { navigateToSearchHistory() },
                         onRecipeSearchClick = { navigateToRecipeSearch() },
-                        onRecipeHistoryClick = { navigateToRecipeHistory() },
                         onMealPlanClick = { navigateToMealPlan() },
                         onSettingsClick = { navigateToSettings() },
                         onProfileClick = { navigateToProfile() },
@@ -121,13 +120,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun navigateToRecipeHistory() {
-        try {
-            findNavController().navigate(R.id.action_dashboardFragment_to_recipeHistoryFragment)
-        } catch (e: Exception) {
-            requireContext().showErrorToast("Error opening Recipe Collection")
-        }
-    }
 
     private fun navigateToMealPlan() {
         try {

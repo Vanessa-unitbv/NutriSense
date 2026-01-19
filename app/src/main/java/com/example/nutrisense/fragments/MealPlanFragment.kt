@@ -13,9 +13,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.nutrisense.R
 import com.example.nutrisense.data.dao.MealPlanWithRecipeData
 import com.example.nutrisense.data.entity.DayOfWeek
-import com.example.nutrisense.data.entity.MealType
 import com.example.nutrisense.data.entity.Recipe
 import com.example.nutrisense.ui.screens.MealPlanItem
 import com.example.nutrisense.ui.screens.MealPlanScreenCompose
@@ -110,6 +110,7 @@ class MealPlanFragment : Fragment() {
                         onClearDay = { day ->
                             showClearDayConfirmation(day)
                         },
+                        onSearchRecipesClick = { navigateToRecipeSearch() },
                         onBackClick = { goToDashboard() }
                     )
                 }
@@ -155,6 +156,14 @@ class MealPlanFragment : Fragment() {
         }
     }
 
+    private fun navigateToRecipeSearch() {
+        try {
+            findNavController().navigate(R.id.action_mealPlanFragment_to_recipeSearchFragment)
+        } catch (e: Exception) {
+            requireContext().showErrorToast("Error opening Recipe Search")
+        }
+    }
+
     private fun showRemoveConfirmation(mealPlanId: Long) {
         AlertDialog.Builder(requireContext())
             .setTitle("Remove Meal")
@@ -177,4 +186,3 @@ class MealPlanFragment : Fragment() {
             .show()
     }
 }
-

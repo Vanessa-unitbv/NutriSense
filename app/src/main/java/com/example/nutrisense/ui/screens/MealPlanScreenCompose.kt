@@ -59,10 +59,10 @@ fun MealPlanScreenCompose(
     onAddRecipeToDay: (RecipeItem, DayOfWeek, MealType) -> Unit,
     onRemoveMealPlan: (Long) -> Unit,
     onClearDay: (DayOfWeek) -> Unit,
+    onSearchRecipesClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     var showAddRecipeDialog by remember { mutableStateOf(false) }
-    var selectedMealType by remember { mutableStateOf<MealType?>(null) }
 
     NutriSenseTheme {
         Scaffold(
@@ -182,13 +182,12 @@ fun MealPlanScreenCompose(
                 selectedDay = state.selectedDay,
                 onDismiss = {
                     showAddRecipeDialog = false
-                    selectedMealType = null
                 },
                 onAddRecipe = { recipe, mealType ->
                     onAddRecipeToDay(recipe, state.selectedDay, mealType)
                     showAddRecipeDialog = false
-                    selectedMealType = null
-                }
+                },
+                onSearchRecipesClick = onSearchRecipesClick
             )
         }
     }
@@ -404,7 +403,8 @@ private fun AddRecipeDialog(
     availableRecipes: List<RecipeItem>,
     selectedDay: DayOfWeek,
     onDismiss: () -> Unit,
-    onAddRecipe: (RecipeItem, MealType) -> Unit
+    onAddRecipe: (RecipeItem, MealType) -> Unit,
+    onSearchRecipesClick: () -> Unit
 ) {
     var selectedRecipe by remember { mutableStateOf<RecipeItem?>(null) }
     var selectedMealType by remember { mutableStateOf<MealType?>(null) }
@@ -451,7 +451,9 @@ private fun AddRecipeDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MealType.values().forEach { mealType ->
@@ -501,11 +503,24 @@ private fun AddRecipeDialog(
                                 fontSize = 16.sp,
                                 color = NutriSenseColors.TextSecondary
                             )
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Search for recipes first!",
                                 fontSize = 14.sp,
                                 color = NutriSenseColors.TextSecondary
                             )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = {
+                                    onDismiss()
+                                    onSearchRecipesClick()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = NutriSenseColors.Brown
+                                )
+                            ) {
+                                Text("🔍 Search Recipes")
+                            }
                         }
                     }
                 } else {
@@ -584,4 +599,3 @@ private fun AddRecipeDialog(
         }
     }
 }
-

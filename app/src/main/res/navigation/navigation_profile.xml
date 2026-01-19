@@ -29,9 +29,6 @@
             android:id="@+id/action_dashboardFragment_to_recipeSearchFragment"
             app:destination="@id/recipeSearchFragment" />
         <action
-            android:id="@+id/action_dashboardFragment_to_recipeHistoryFragment"
-            app:destination="@id/recipeHistoryFragment" />
-        <action
             android:id="@+id/action_dashboardFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
@@ -143,20 +140,6 @@
             app:popUpToInclusive="false" />
     </fragment>
 
-    <!-- Recipe History -->
-    <fragment
-        android:id="@+id/recipeHistoryFragment"
-        android:name="com.example.nutrisense.fragments.RecipeHistoryFragment"
-        android:label="RecipeHistoryFragment"
-        tools:layout="@layout/fragment_recipe_history">
-
-        <action
-            android:id="@+id/action_recipeHistoryFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment"
-            app:popUpTo="@id/dashboardFragment"
-            app:popUpToInclusive="false" />
-    </fragment>
-
     <!-- Meal Plan -->
     <fragment
         android:id="@+id/mealPlanFragment"
@@ -168,6 +151,10 @@
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/dashboardFragment"
             app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_mealPlanFragment_to_recipeSearchFragment"
+            app:destination="@id/recipeSearchFragment" />
     </fragment>
 
 </navigation>
